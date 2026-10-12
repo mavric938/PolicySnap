@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { CatProfile, CatBreed, CatGender } from '@/types';
 import {
@@ -10,12 +10,16 @@ import {
   saveCatProfile,
 } from '@/data/catCostumes';
 import CatAvatar from '@/components/CatAvatar';
+import CatVisualIcon from '@/components/CatVisualIcon';
+import SoundToggle from '@/components/SoundToggle';
+import OnboardingTutorialModal from '@/components/OnboardingTutorialModal';
 import Icon from '@/components/Icon';
 import { useAuth } from '@/presentation/hooks/useAuth';
+import { soundService } from '@/lib/soundService';
 import styles from './onboarding.module.css';
 
 const RANDOM_NAMES = [
-  'Oyen Kebijakan',
+  'Oyen',
   'Miko Kritis',
   'Luna Advokat',
   'Sultan Negarawan',
@@ -75,13 +79,26 @@ const PRESETS = [
 export default function OnboardingCatPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const [name, setName] = useState('Oyen Kebijakan');
+  
+  // Sesuai revisi poin 4: nama default adalah "Oyen"
+  const [name, setName] = useState('Oyen');
   const [gender, setGender] = useState<CatGender>('male');
   const [breed, setBreed] = useState<CatBreed>('domestik');
   const [furColor, setFurColor] = useState('#F97316');
   const [bellyColor, setBellyColor] = useState('#FFEDD5');
   const [eyeColor, setEyeColor] = useState('#10B981');
   const [saving, setSaving] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
+
+  // Auto trigger tutorial for new visitors
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const seen = localStorage.getItem('policysnap_tutorial_seen');
+      if (!seen) {
+        setShowTutorial(true);
+      }
+    }
+  }, []);
 
   const currentPreview: CatProfile = {
     ...DEFAULT_CAT_PROFILE,
@@ -94,6 +111,7 @@ export default function OnboardingCatPage() {
   };
 
   const handleApplyPreset = (preset: (typeof PRESETS)[0]) => {
+    soundService.playSelect();
     setBreed(preset.breed);
     setFurColor(preset.fur);
     setBellyColor(preset.belly);
@@ -101,15 +119,17 @@ export default function OnboardingCatPage() {
   };
 
   const handleRandomName = () => {
+    soundService.playTap();
     const randomPick = RANDOM_NAMES[Math.floor(Math.random() * RANDOM_NAMES.length)];
     setName(randomPick);
   };
 
   const handleSaveAndContinue = async () => {
+    soundService.playSuccess();
     setSaving(true);
     const finalProfile: CatProfile = {
       ...DEFAULT_CAT_PROFILE,
-      name: name.trim() || 'Kucing Kebijakan',
+      name: name.trim() || 'Oyen',
       gender,
       breed,
       furColor,
@@ -138,14 +158,20 @@ export default function OnboardingCatPage() {
       }
     }
 
-    // Navigasi langsung ke kolom evaluasi sesuai urutan flow yang diminta user
-    router.push('/evaluate');
+    // Sesuai revisi poin 6: setelah buat kucing masuk ke Beranda (/home) untuk memilih isu
+    router.push('/home');
   };
 
   const currentBreedObj = BREED_OPTIONS.find((b) => b.id === breed) || BREED_OPTIONS[0];
 
   return (
     <div className={styles.pageContainer}>
+      {/* Walkthrough Tutorial Modal */}
+      <OnboardingTutorialModal
+        isOpen={showTutorial}
+        onClose={() => setShowTutorial(false)}
+      />
+
       {/* 1. Header Bar */}
       <header className={styles.topHeader}>
         <div className={styles.brandGroup}>
@@ -154,16 +180,29 @@ export default function OnboardingCatPage() {
           </div>
           <div>
             <h1 className={styles.headerTitle}>Kucing Pendamping</h1>
-            <span className={styles.headerStep}>Tahap 1 dari 2 · Gamifikasi 2D</span>
+            <span className={styles.headerStep}>Personalisasi Karakter 2D</span>
           </div>
         </div>
-        <button
-          type="button"
-          className={styles.skipBtn}
-          onClick={handleSaveAndContinue}
-        >
-          Lewati →
-        </button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            style={{ fontSize: '0.75rem', padding: '5px 8px', color: 'var(--primary-coral)' }}
+            onClick={() => setShowTutorial(true)}
+            title="Buka panduan awal aplikasi"
+          >
+            <span>💡 Tutorial</span>
+          </button>
+          <SoundToggle />
+          <button
+            type="button"
+            className={styles.skipBtn}
+            onClick={handleSaveAndContinue}
+          >
+            Lewati →
+          </button>
+        </div>
       </header>
 
       {/* 2. PINNED STICKY TOP PREVIEW DOCK (SELALU TAMPIL PENUH & TIDAK TERTUTUP) */}
@@ -183,21 +222,53 @@ export default function OnboardingCatPage() {
         <span className={styles.previewTagline}>{currentBreedObj.tagline}</span>
       </div>
 
-      {/* 3. SCROLLABLE CONTROLS BODY */}
+      {/* 3. SCROLLABLE CONTROLS BODY (URUTAN SESUAI PERMINTAAN USER) */}
       <div className={styles.controlsBody}>
-        {/* Section: Gender */}
+        {/* REVISI POIN 4: NOMOR 1 ADALAH NAMA KUCING PENDAMPING */}
+        <div className={styles.cardSection}>
+          <div className={styles.sectionHeader}>
+            <h3 className={styles.sectionTitle}>
+              <Icon name="edit" size={18} style={{ color: '#FF6B4A' }} />
+              <span>1. Nama Kucing Pendamping</span>
+            </h3>
+            <span className={styles.sectionHelp}>Default: Oyen</span>
+          </div>
+          <div className={styles.nameInputRow}>
+            <input
+              type="text"
+              className={styles.nameInput}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              maxLength={24}
+              placeholder="Oyen"
+            />
+            <button
+              type="button"
+              className={styles.randomNameBtn}
+              onClick={handleRandomName}
+            >
+              <Icon name="casino" size={16} />
+              <span>Acak</span>
+            </button>
+          </div>
+        </div>
+
+        {/* REVISI POIN 4: NOMOR 2 ADALAH JENIS KELAMIN KUCING */}
         <div className={styles.cardSection}>
           <div className={styles.sectionHeader}>
             <h3 className={styles.sectionTitle}>
               <Icon name="badge" size={18} style={{ color: '#FF6B4A' }} />
-              <span>1. Jenis Kelamin Kucing</span>
+              <span>2. Jenis Kelamin Kucing</span>
             </h3>
             <span className={styles.sectionHelp}>Karakteristik visual</span>
           </div>
           <div className={styles.genderGrid}>
             <div
               className={`${styles.genderItem} ${gender === 'male' ? styles.genderItemActive : ''}`}
-              onClick={() => setGender('male')}
+              onClick={() => {
+                soundService.playTap();
+                setGender('male');
+              }}
             >
               <span className={styles.genderIcon}>♂️</span>
               <div>
@@ -208,7 +279,10 @@ export default function OnboardingCatPage() {
 
             <div
               className={`${styles.genderItem} ${gender === 'female' ? styles.genderItemActive : ''}`}
-              onClick={() => setGender('female')}
+              onClick={() => {
+                soundService.playTap();
+                setGender('female');
+              }}
             >
               <span className={styles.genderIcon}>♀️</span>
               <div>
@@ -219,26 +293,29 @@ export default function OnboardingCatPage() {
           </div>
         </div>
 
-        {/* Section: Breed */}
+        {/* REVISI POIN 2 & 4: NOMOR 3 ADALAH RAS KUCING DENGAN IKON ORIGINAL NON-EMOJI */}
         <div className={styles.cardSection}>
           <div className={styles.sectionHeader}>
             <h3 className={styles.sectionTitle}>
               <Icon name="pets" size={18} style={{ color: '#FF6B4A' }} />
-              <span>2. Ras Kucing</span>
+              <span>3. Ras Kucing</span>
             </h3>
-            <span className={styles.sectionHelp}>(3 Pilihan Ras)</span>
+            <span className={styles.sectionHelp}>(3 Pilihan Ras Original)</span>
           </div>
           <div className={styles.breedGrid}>
             {BREED_OPTIONS.map((b) => (
               <div
                 key={b.id}
                 className={`${styles.breedItem} ${breed === b.id ? styles.breedItemActive : ''}`}
-                onClick={() => setBreed(b.id)}
+                onClick={() => {
+                  soundService.playSelect();
+                  setBreed(b.id);
+                }}
               >
                 <span className={styles.breedTag}>{b.tagline}</span>
-                <span className={styles.breedEmoji}>
-                  {b.id === 'domestik' ? '🐈' : b.id === 'persia' ? '🦁' : '🐆'}
-                </span>
+                <div style={{ display: 'flex', justifyContent: 'center', margin: '4px 0' }}>
+                  <CatVisualIcon name={b.id} size={46} />
+                </div>
                 <div className={styles.breedName}>{b.name}</div>
                 <div className={styles.breedDesc}>{b.description}</div>
               </div>
@@ -246,12 +323,12 @@ export default function OnboardingCatPage() {
           </div>
         </div>
 
-        {/* Section: Presets */}
+        {/* Section 4: Presets */}
         <div className={styles.cardSection}>
           <div className={styles.sectionHeader}>
             <h3 className={styles.sectionTitle}>
               <Icon name="palette" size={18} style={{ color: '#FF6B4A' }} />
-              <span>3. Preset Warna Siap Pakai</span>
+              <span>4. Preset Warna Siap Pakai</span>
             </h3>
             <span className={styles.sectionHelp}>1-klik ubah tema</span>
           </div>
@@ -270,12 +347,12 @@ export default function OnboardingCatPage() {
           </div>
         </div>
 
-        {/* Section: Custom Colors */}
+        {/* Section 5: Custom Colors */}
         <div className={styles.cardSection}>
           <div className={styles.sectionHeader}>
             <h3 className={styles.sectionTitle}>
               <Icon name="tune" size={18} style={{ color: '#FF6B4A' }} />
-              <span>4. Kustomisasi Warna Bagian Tubuh</span>
+              <span>5. Kustomisasi Warna Bagian Tubuh</span>
             </h3>
           </div>
 
@@ -291,7 +368,10 @@ export default function OnboardingCatPage() {
                   type="button"
                   className={`${styles.swatchBtn} ${furColor === s.hex ? styles.swatchBtnActive : ''}`}
                   style={{ backgroundColor: s.hex }}
-                  onClick={() => setFurColor(s.hex)}
+                  onClick={() => {
+                    soundService.playTap();
+                    setFurColor(s.hex);
+                  }}
                   title={s.label}
                 >
                   {furColor === s.hex && (
@@ -316,7 +396,10 @@ export default function OnboardingCatPage() {
                   type="button"
                   className={`${styles.swatchBtn} ${bellyColor === s.hex ? styles.swatchBtnActive : ''}`}
                   style={{ backgroundColor: s.hex }}
-                  onClick={() => setBellyColor(s.hex)}
+                  onClick={() => {
+                    soundService.playTap();
+                    setBellyColor(s.hex);
+                  }}
                   title={s.label}
                 >
                   {bellyColor === s.hex && (
@@ -341,7 +424,10 @@ export default function OnboardingCatPage() {
                   type="button"
                   className={`${styles.swatchBtn} ${eyeColor === s.hex ? styles.swatchBtnActive : ''}`}
                   style={{ backgroundColor: s.hex }}
-                  onClick={() => setEyeColor(s.hex)}
+                  onClick={() => {
+                    soundService.playTap();
+                    setEyeColor(s.hex);
+                  }}
                   title={s.label}
                 >
                   {eyeColor === s.hex && (
@@ -352,34 +438,6 @@ export default function OnboardingCatPage() {
                 </button>
               ))}
             </div>
-          </div>
-        </div>
-
-        {/* Section: Name */}
-        <div className={styles.cardSection}>
-          <div className={styles.sectionHeader}>
-            <h3 className={styles.sectionTitle}>
-              <Icon name="edit" size={18} style={{ color: '#FF6B4A' }} />
-              <span>5. Nama Kucing Pendamping</span>
-            </h3>
-          </div>
-          <div className={styles.nameInputRow}>
-            <input
-              type="text"
-              className={styles.nameInput}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              maxLength={24}
-              placeholder="cth: Oyen Kebijakan"
-            />
-            <button
-              type="button"
-              className={styles.randomNameBtn}
-              onClick={handleRandomName}
-            >
-              <Icon name="casino" size={16} />
-              <span>Acak</span>
-            </button>
           </div>
         </div>
       </div>
@@ -394,7 +452,7 @@ export default function OnboardingCatPage() {
             disabled={saving}
             id="btn-onboarding-finish"
           >
-            <span>{saving ? 'Menyimpan...' : 'Simpan & Mulai Evaluasi Kebijakan →'}</span>
+            <span>{saving ? 'Menyimpan...' : 'Simpan & Masuk ke Beranda Isu →'}</span>
             <Icon name="arrow_forward" size={18} />
           </button>
         </div>

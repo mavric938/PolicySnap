@@ -110,7 +110,7 @@ export default function LandingPage() {
 
       const hasCat = typeof window !== 'undefined' && localStorage.getItem('policysnap_cat_profile_created');
       if (hasCat) {
-        router.push('/evaluate');
+        router.push('/home');
       } else {
         router.push('/onboarding');
       }
@@ -333,30 +333,6 @@ export default function LandingPage() {
             >
               {isSubmitting ? 'Memproses Masuk...' : 'Masuk ke Akun →'}
             </button>
-
-            <div style={{ marginTop: '12px', textAlign: 'center' }}>
-              <button
-                type="button"
-                onClick={() => {
-                  setEmail('admin@policysnap.id');
-                  setPassword('AdminSnap2026!');
-                }}
-                className="btn btn-ghost"
-                style={{
-                  fontSize: '0.75rem',
-                  color: 'var(--text-secondary)',
-                  padding: '4px 8px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '5px',
-                  borderRadius: '8px',
-                  background: 'rgba(0,0,0,0.03)',
-                }}
-                title="Isi otomatis kredensial akun administrator"
-              >
-                <span>🛡️ Masuk sebagai Admin? Klik di sini</span>
-              </button>
-            </div>
           </form>
         )}
 

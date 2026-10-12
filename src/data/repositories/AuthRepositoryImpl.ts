@@ -323,8 +323,8 @@ export class AuthRepositoryImpl implements IAuthRepository {
             name: user.name,
             email: user.email,
             avatar: user.avatarUrl || '',
-            total_xp: 85,
-            rank_level: 'netizen-kritis',
+            total_xp: 0,
+            rank_level: 'warga-aktif',
             evaluations_count: 0,
             created_at: new Date().toISOString(),
           });

@@ -12,6 +12,7 @@ import RankBadge from '@/components/RankBadge';
 import BottomNav from '@/components/BottomNav';
 import Icon from '@/components/Icon';
 import Toast from '@/components/Toast';
+import SoundToggle from '@/components/SoundToggle';
 import styles from './home.module.css';
 import { useAuth } from '@/presentation/hooks/useAuth';
 import UserAuthBadge from '@/presentation/components/UserAuthBadge';
@@ -165,7 +166,8 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className={styles.headerRight}>
+          <div className={styles.headerRight} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <SoundToggle />
             <UserAuthBadge
               userXP={user.totalXP}
               rankName={`Lvl ${rankInfo.level} · ${rankInfo.name}`}

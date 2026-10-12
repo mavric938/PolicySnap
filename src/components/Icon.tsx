@@ -1,5 +1,13 @@
 import React from 'react';
 import {
+  MdHome,
+  MdFactCheck,
+  MdRateReview,
+  MdAssignmentTurnedIn,
+  MdHistoryEdu,
+  MdFolderOpen,
+  MdEdit,
+  MdRemove,
   MdLocalLibrary,
   MdTune,
   MdRadar,
@@ -59,7 +67,15 @@ import {
 
 // Comprehensive Icon Map for Google Stitch Material Symbols
 const ICON_MAP: Record<string, React.ComponentType<{ size?: number | string; className?: string; style?: React.CSSProperties }>> = {
-  // Navigation
+  // Navigation & Core App
+  home: MdHome,
+  beranda: MdHome,
+  fact_check: MdFactCheck,
+  evaluasi: MdFactCheck,
+  evaluate: MdFactCheck,
+  rate_review: MdRateReview,
+  assignment_turned_in: MdAssignmentTurnedIn,
+  history_edu: MdHistoryEdu,
   local_library: MdLocalLibrary,
   tune: MdTune,
   radar: MdRadar,
@@ -79,6 +95,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ size?: number | string; cla
   close: MdClose,
   done: MdCheck,
   check: MdCheck,
+  remove: MdRemove,
 
   // Brand & Policy
   policy: MdSecurity,
@@ -97,8 +114,10 @@ const ICON_MAP: Record<string, React.ComponentType<{ size?: number | string; cla
   bar_chart: MdBarChart,
   poll: MdPoll,
   speed: MdSpeed,
+  folder_open: MdFolderOpen,
 
   // Forms & Actions
+  edit: MdEdit,
   edit_note: MdEditNote,
   workspace_premium: MdWorkspacePremium,
   download: MdDownload,

@@ -513,39 +513,12 @@ export default function AdminPage() {
                 style={{
                   background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
                   boxShadow: '0 4px 14px rgba(79, 70, 229, 0.35)',
-                  marginTop: '6px',
+                  marginTop: '12px',
                 }}
               >
                 {isAdminLoggingIn ? 'Memvalidasi...' : 'Masuk sebagai Admin →'}
               </button>
             </form>
-
-            <div className={styles.gateCredentialsBox}>
-              <div className={styles.credentialsHeader}>
-                <span style={{ fontSize: '1.1rem' }}>🔑</span>
-                <div>
-                  <strong style={{ fontSize: '0.8125rem', color: '#1E293B' }}>Kredensial Default Administrator:</strong>
-                  <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '2px' }}>
-                    Email: <code style={{ background: '#F1F5F9', padding: '2px 5px', borderRadius: '4px' }}>admin@policysnap.id</code>
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '2px' }}>
-                    Sandi: <code style={{ background: '#F1F5F9', padding: '2px 5px', borderRadius: '4px' }}>AdminSnap2026!</code>
-                  </div>
-                </div>
-              </div>
-              <button
-                type="button"
-                className="btn btn-outline btn-full"
-                style={{ marginTop: '10px', fontSize: '0.8125rem', borderColor: '#CBD5E1' }}
-                onClick={() => {
-                  setAdminUsernameInput(DEFAULT_ADMIN_CREDENTIALS.email);
-                  setAdminPasswordInput(DEFAULT_ADMIN_CREDENTIALS.password);
-                  setAdminLoginError('');
-                }}
-              >
-                ⚡ Isi Otomatis Kredensial Admin
-              </button>
-            </div>
           </div>
         </div>
       </div>

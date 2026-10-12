@@ -59,9 +59,9 @@ export async function getProfile(userId: string = 'user-001'): Promise<User> {
   if (found) {
     return {
       ...found,
-      totalXP: (found as any).total_xp ?? found.totalXP ?? 85,
-      rankLevel: (found as any).rank_level ?? found.rankLevel ?? 'netizen-kritis',
-      evaluationsCount: (found as any).evaluations_count ?? found.evaluationsCount ?? 7,
+      totalXP: (found as any).total_xp ?? found.totalXP ?? 0,
+      rankLevel: (found as any).rank_level ?? found.rankLevel ?? 'warga-aktif',
+      evaluationsCount: (found as any).evaluations_count ?? found.evaluationsCount ?? 0,
       catAvatar: (found as any).cat_avatar ?? found.catAvatar,
     };
   }
@@ -69,13 +69,13 @@ export async function getProfile(userId: string = 'user-001'): Promise<User> {
   // Default fallback user
   return {
     id: userId,
-    name: 'Andi Prasetyo',
-    email: 'andi.prasetyo@gmail.com',
+    name: 'Warga Baru',
+    email: 'warga@policysnap.id',
     avatar: '',
-    totalXP: 85,
-    rankLevel: 'netizen-kritis',
-    evaluationsCount: 7,
-    joinedAt: '2026-08-15',
+    totalXP: 0,
+    rankLevel: 'warga-aktif',
+    evaluationsCount: 0,
+    joinedAt: '2026-10-12',
   };
 }
 

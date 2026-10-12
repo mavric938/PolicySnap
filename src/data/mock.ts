@@ -93,13 +93,13 @@ export function getXPProgress(xp: number): { current: number; max: number; perce
 // ===== Mock Current User =====
 export const MOCK_USER: User = {
   id: 'user-001',
-  name: 'Andi Prasetyo',
-  email: 'andi.prasetyo@gmail.com',
+  name: 'Warga Baru PolicySnap',
+  email: 'warga@policysnap.id',
   avatar: '',
-  totalXP: 85,
-  rankLevel: 'netizen-kritis',
-  evaluationsCount: 7,
-  joinedAt: '2026-08-15',
+  totalXP: 0,
+  rankLevel: 'warga-aktif',
+  evaluationsCount: 0,
+  joinedAt: '2026-10-12',
 };
 
 // ===== Mock Policy Issues =====

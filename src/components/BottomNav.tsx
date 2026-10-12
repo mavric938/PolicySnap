@@ -5,8 +5,8 @@ import Icon from './Icon';
 import styles from './BottomNav.module.css';
 
 const NAV_ITEMS = [
-  { path: '/home', label: 'Isu', icon: 'local_library' },
-  { path: '/evaluate', label: 'Evaluasi', icon: 'tune' },
+  { path: '/home', label: 'Beranda', icon: 'home' },
+  { path: '/evaluate', label: 'Evaluasi', icon: 'fact_check' },
   { path: '/consensus', label: 'Konsensus', icon: 'radar' },
   { path: '/profile', label: 'Profil', icon: 'military_tech' },
 ];

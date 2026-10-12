@@ -375,7 +375,7 @@ export const COLOR_SWATCHES = {
 };
 
 export const DEFAULT_CAT_PROFILE: CatProfile = {
-  name: 'Oyen Kebijakan',
+  name: 'Oyen',
   gender: 'male',
   breed: 'domestik',
   furColor: '#F97316',

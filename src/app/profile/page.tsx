@@ -13,13 +13,14 @@ import {
 } from '@/data/catCostumes';
 import { CatProfile, CatCostumeItem, CatCostumeSlot } from '@/types';
 import CatAvatar from '@/components/CatAvatar';
-import CatCreatorModal from '@/components/CatCreatorModal';
 import BottomNav from '@/components/BottomNav';
 import Icon from '@/components/Icon';
 import Toast from '@/components/Toast';
 import styles from './profile.module.css';
 import { useAuth } from '@/presentation/hooks/useAuth';
 import GoogleLoginButton from '@/presentation/components/GoogleLoginButton';
+import CatVisualIcon from '@/components/CatVisualIcon';
+import SoundToggle from '@/components/SoundToggle';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -28,7 +29,6 @@ export default function ProfilePage() {
   const [userXP, setUserXP] = useState(MOCK_USER.totalXP);
   const [evalCount, setEvalCount] = useState(MOCK_USER.evaluationsCount);
   const [catProfile, setCatProfile] = useState<CatProfile>(DEFAULT_CAT_PROFILE);
-  const [isCreatorOpen, setIsCreatorOpen] = useState(false);
   const [selectedSlotTab, setSelectedSlotTab] = useState<'all' | CatCostumeSlot>('all');
   const [toastMsg, setToastMsg] = useState('');
   const [showToast, setShowToast] = useState(false);
@@ -82,33 +82,6 @@ export default function ProfilePage() {
 
     return () => clearTimeout(timer);
   }, []);
-
-  const handleAddXP = (amount: number) => {
-    const newXP = Math.max(0, userXP + amount);
-    setUserXP(newXP);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('policysnap_xp', String(newXP));
-    }
-    syncProfileToBackend({ totalXP: newXP });
-
-    const newRank = getRankForXP(newXP);
-    if (newRank.level > currentRank.level) {
-      setToastMsg(`🎉 Naik Pangkat! Selamat datang di Level ${newRank.level}: ${newRank.name}!`);
-      setShowToast(true);
-    }
-  };
-
-  const handleResetXP = () => {
-    setUserXP(85);
-    setEvalCount(7);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('policysnap_xp', '85');
-      localStorage.setItem('policysnap_eval_count', '7');
-    }
-    syncProfileToBackend({ totalXP: 85, evaluationsCount: 7 });
-    setToastMsg('XP di-reset ke nilai awal.');
-    setShowToast(true);
-  };
 
   const handleToggleCostume = (item: CatCostumeItem) => {
     const isUnlocked = userXP >= (RANKS.find((r) => r.level === item.requiredLevel)?.minXP || 0);
@@ -198,18 +171,16 @@ export default function ProfilePage() {
           <span>Kembali</span>
         </button>
         <span className={styles.headerTitle}>Profil</span>
-        <div style={{ width: 60 }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <SoundToggle />
+        </div>
       </header>
 
       {/* 1. Hero 2D Cat Avatar Card */}
       <section className={styles.catHeroCard}>
         <div className={styles.catHeroBackdropGlow} />
 
-        <div
-          className={styles.catAvatarBox}
-          onClick={() => setIsCreatorOpen(true)}
-          title="Klik untuk kustomisasi kucing"
-        >
+        <div className={styles.catAvatarBox}>
           <CatAvatar profile={catProfile} size={170} animate={true} />
           <div className={styles.catStatusPill}>
             <span>{catProfile.gender === 'male' ? '♂' : '♀'}</span>
@@ -227,19 +198,8 @@ export default function ProfilePage() {
         </span>
 
         <p className={styles.catBio}>
-          Partner gamifikasi kucing 2D Anda. Selesaikan evaluasi, bangun reputasi, dan buka kostum eksklusif Strata 1–7!
+          Kucing pendamping analisis kebijakan Anda. Selesaikan evaluasi publik dan buka berbagai kostum kehormatan di lemari kostum!
         </p>
-
-        <div className={styles.heroActionRow}>
-          <button
-            className={styles.customizeBtn}
-            onClick={() => setIsCreatorOpen(true)}
-            id="btn-open-cat-customizer"
-          >
-            <Icon name="palette" size={16} />
-            <span>Kustomisasi Karakter Kucing 2D</span>
-          </button>
-        </div>
 
         {/* 3 Key Metrics */}
         <div className={styles.metricGrid}>
@@ -294,7 +254,11 @@ export default function ProfilePage() {
               <div key={slotInfo.slot} className={styles.slotCard}>
                 <div className={styles.slotLeft}>
                   <div className={styles.slotIconBox}>
-                    {item ? item.icon : slotInfo.icon}
+                    {item ? (
+                      <CatVisualIcon name={item.id} size={24} />
+                    ) : (
+                      <CatVisualIcon name={`slot_${slotInfo.slot}`} size={20} />
+                    )}
                   </div>
                   <div className={styles.slotDetails}>
                     <span className={styles.slotCategory}>{slotInfo.label}</span>
@@ -344,26 +308,34 @@ export default function ProfilePage() {
           <button
             className={`${styles.tabBtn} ${selectedSlotTab === 'head' ? styles.tabBtnActive : ''}`}
             onClick={() => setSelectedSlotTab('head')}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}
           >
-            🧢 Topi
+            <CatVisualIcon name="slot_head" size={14} />
+            <span>Topi</span>
           </button>
           <button
             className={`${styles.tabBtn} ${selectedSlotTab === 'eyes' ? styles.tabBtnActive : ''}`}
             onClick={() => setSelectedSlotTab('eyes')}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}
           >
-            👓 Kacamata
+            <CatVisualIcon name="slot_eyes" size={14} />
+            <span>Kacamata</span>
           </button>
           <button
             className={`${styles.tabBtn} ${selectedSlotTab === 'body' ? styles.tabBtnActive : ''}`}
             onClick={() => setSelectedSlotTab('body')}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}
           >
-            👔 Pakaian
+            <CatVisualIcon name="slot_body" size={14} />
+            <span>Pakaian</span>
           </button>
           <button
             className={`${styles.tabBtn} ${selectedSlotTab === 'accessory' ? styles.tabBtnActive : ''}`}
             onClick={() => setSelectedSlotTab('accessory')}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}
           >
-            🎒 Aksesoris
+            <CatVisualIcon name="slot_accessory" size={14} />
+            <span>Aksesoris</span>
           </button>
         </div>
 
@@ -383,7 +355,9 @@ export default function ProfilePage() {
                 onClick={() => handleToggleCostume(item)}
               >
                 <div className={styles.costumeTopRow}>
-                  <div className={styles.costumeEmojiBox}>{item.icon}</div>
+                  <div className={styles.costumeEmojiBox}>
+                    <CatVisualIcon name={item.id} size={28} />
+                  </div>
                   {isEquipped ? (
                     <span className={styles.equippedBadge}>Dipakai</span>
                   ) : !isUnlocked ? (
@@ -582,54 +556,7 @@ export default function ProfilePage() {
         </div>
       </section>
 
-      {/* 6. Simulator XP Controls (Demo Utility) */}
-      <section className={styles.sectionCard} style={{ background: '#FAF5FF', borderColor: '#F3E8FF' }}>
-        <div className={styles.sectionHeaderRow}>
-          <div>
-            <h3 className={styles.sectionTitle} style={{ color: '#6B21A8' }}>
-              🧪 Simulator XP &amp; Uji Buka Kostum
-            </h3>
-            <span className={styles.sectionSub}>Uji coba kenaikan pangkat untuk melihat unlock kostum kucing</span>
-          </div>
-        </div>
-
-        <div className={styles.demoActions}>
-          <button
-            className="btn btn-primary"
-            onClick={() => handleAddXP(10)}
-            id="btn-add-10xp"
-            style={{ flex: 1, fontSize: '0.75rem', padding: '0.625rem' }}
-          >
-            +10 XP
-          </button>
-          <button
-            className="btn btn-outline"
-            onClick={() => handleAddXP(50)}
-            id="btn-add-50xp"
-            style={{ flex: 1, fontSize: '0.75rem', padding: '0.625rem' }}
-          >
-            +50 XP
-          </button>
-          <button
-            className="btn btn-outline"
-            onClick={() => handleAddXP(500)}
-            id="btn-add-500xp"
-            style={{ flex: 1, fontSize: '0.75rem', padding: '0.625rem', borderColor: '#C084FC', color: '#6B21A8' }}
-          >
-            +500 XP (Lvl Up)
-          </button>
-          <button
-            className="btn btn-ghost"
-            onClick={handleResetXP}
-            id="btn-reset-xp"
-            style={{ fontSize: '0.75rem', padding: '0.625rem' }}
-          >
-            Reset
-          </button>
-        </div>
-      </section>
-
-      {/* 7. Akun Pengguna & Sesi Otorisasi */}
+      {/* 6. Akun Pengguna & Sesi Otorisasi */}
       <section className={styles.sectionCard}>
         <div className={styles.sectionHeaderRow}>
           <div>
@@ -777,18 +704,6 @@ export default function ProfilePage() {
           <span>Buka Dashboard Admin →</span>
         </button>
       </section>
-
-      {/* Cat Creator Modal */}
-      <CatCreatorModal
-        isOpen={isCreatorOpen}
-        onClose={() => setIsCreatorOpen(false)}
-        initialProfile={catProfile}
-        onSave={(updated) => {
-          setCatProfile(updated);
-          setToastMsg('Karakter kucing berhasil diperbarui! 🐱');
-          setShowToast(true);
-        }}
-      />
 
       {/* Toast Feedback */}
       {showToast && (

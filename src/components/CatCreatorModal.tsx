@@ -8,6 +8,7 @@ import {
   saveCatProfile,
 } from '@/data/catCostumes';
 import CatAvatar from './CatAvatar';
+import CatVisualIcon from './CatVisualIcon';
 import Icon from './Icon';
 import styles from './CatCreatorModal.module.css';
 
@@ -174,11 +175,39 @@ export default function CatCreatorModal({
 
         {/* SCROLLABLE CONTROLS BODY */}
         <div className={styles.scrollContent}>
-          {/* 1. Pilih Gender */}
+          {/* 1. Beri Nama Kucing */}
+          <div className={styles.sectionGroup}>
+            <div className={styles.sectionLabel}>
+              <Icon name="edit" size={16} style={{ color: 'var(--primary-coral)' }} />
+              <span>1. Nama Kucing Pendamping</span>
+              <span className={styles.sectionLabelDesc}>(Default: Oyen)</span>
+            </div>
+            <div className={styles.nameInputRow}>
+              <input
+                type="text"
+                className={styles.nameInput}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                maxLength={24}
+                placeholder="Oyen"
+              />
+              <button
+                type="button"
+                className={styles.randomNameBtn}
+                onClick={handleRandomName}
+                title="Acak nama keren"
+              >
+                <Icon name="casino" size={16} />
+                <span>Acak</span>
+              </button>
+            </div>
+          </div>
+
+          {/* 2. Pilih Gender */}
           <div className={styles.sectionGroup}>
             <div className={styles.sectionLabel}>
               <Icon name="badge" size={16} style={{ color: 'var(--primary-coral)' }} />
-              <span>1. Jenis Kelamin Kucing</span>
+              <span>2. Jenis Kelamin Kucing</span>
             </div>
             <div className={styles.genderRow}>
               <div
@@ -205,12 +234,12 @@ export default function CatCreatorModal({
             </div>
           </div>
 
-          {/* 2. Pilih Ras Kucing */}
+          {/* 3. Pilih Ras Kucing */}
           <div className={styles.sectionGroup}>
             <div className={styles.sectionLabel}>
               <Icon name="pets" size={16} style={{ color: 'var(--primary-coral)' }} />
-              <span>2. Ras Kucing</span>
-              <span className={styles.sectionLabelDesc}>(3 Pilihan)</span>
+              <span>3. Ras Kucing</span>
+              <span className={styles.sectionLabelDesc}>(3 Pilihan Ras Original)</span>
             </div>
             <div className={styles.breedGrid}>
               {BREED_OPTIONS.map((b) => (
@@ -220,9 +249,9 @@ export default function CatCreatorModal({
                   onClick={() => setBreed(b.id)}
                 >
                   <span className={styles.breedTag}>{b.tagline}</span>
-                  <span className={styles.breedEmoji}>
-                    {b.id === 'domestik' ? '🐈' : b.id === 'persia' ? '🦁' : '🐆'}
-                  </span>
+                  <div style={{ display: 'flex', justifyContent: 'center', margin: '4px 0' }}>
+                    <CatVisualIcon name={b.id} size={44} />
+                  </div>
                   <span className={styles.breedName}>{b.name}</span>
                   <span className={styles.breedDesc}>{b.description}</span>
                 </div>
@@ -230,11 +259,11 @@ export default function CatCreatorModal({
             </div>
           </div>
 
-          {/* 3. Preset Cepat */}
+          {/* 4. Preset Cepat */}
           <div className={styles.sectionGroup}>
             <div className={styles.sectionLabel}>
               <Icon name="palette" size={16} style={{ color: 'var(--primary-coral)' }} />
-              <span>3. Preset Warna Siap Pakai</span>
+              <span>4. Preset Warna Siap Pakai</span>
             </div>
             <div className={styles.presetGrid}>
               {PRESETS.map((p, idx) => (
@@ -251,11 +280,11 @@ export default function CatCreatorModal({
             </div>
           </div>
 
-          {/* 4. Kustomisasi Detail Warna */}
+          {/* 5. Kustomisasi Detail Warna */}
           <div className={styles.sectionGroup}>
             <div className={styles.sectionLabel}>
               <Icon name="tune" size={16} style={{ color: 'var(--primary-coral)' }} />
-              <span>4. Kustomisasi Warna Spesifik Tubuh</span>
+              <span>5. Kustomisasi Warna Spesifik Tubuh</span>
             </div>
 
             {/* Warna Bulu Utama */}
@@ -331,33 +360,6 @@ export default function CatCreatorModal({
                   </button>
                 ))}
               </div>
-            </div>
-          </div>
-
-          {/* 5. Beri Nama Kucing */}
-          <div className={styles.sectionGroup}>
-            <div className={styles.sectionLabel}>
-              <Icon name="edit" size={16} style={{ color: 'var(--primary-coral)' }} />
-              <span>5. Beri Nama Kucing Pendamping</span>
-            </div>
-            <div className={styles.nameInputRow}>
-              <input
-                type="text"
-                className={styles.nameInput}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                maxLength={24}
-                placeholder="cth: Oyen Kebijakan"
-              />
-              <button
-                type="button"
-                className={styles.randomNameBtn}
-                onClick={handleRandomName}
-                title="Acak nama keren"
-              >
-                <Icon name="casino" size={16} />
-                <span>Acak</span>
-              </button>
             </div>
           </div>
         </div>
