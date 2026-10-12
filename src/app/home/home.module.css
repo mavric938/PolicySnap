@@ -1,0 +1,372 @@
+.header {
+  padding-top: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.headerTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-sm);
+}
+
+.brandGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brandIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: var(--gradient-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 4px 12px rgba(255, 87, 34, 0.2);
+}
+
+.brandTitles {
+  display: flex;
+  flex-direction: column;
+}
+
+.brandTitle {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.brandSubtitle {
+  font-size: 0.688rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.xpMiniPill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: #FFF1ED;
+  border: 1px solid rgba(255, 107, 74, 0.25);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #FF6B4A;
+}
+
+.avatarWrapper {
+  position: relative;
+  cursor: pointer;
+  display: inline-flex;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: #2563EB;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.875rem;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast);
+}
+
+.avatar:active {
+  transform: scale(0.92);
+}
+
+.onlineBadge {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #10B981;
+  border: 2px solid #FFFFFF;
+}
+
+.notifIconBox {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: #FEF3C7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* XP Card */
+.xpCard {
+  background: #FFFFFF;
+  border: 1px solid var(--border-card);
+  border-radius: 20px;
+  padding: 14px;
+  box-shadow: var(--shadow-soft-card);
+  margin-bottom: var(--space-md);
+}
+
+.xpTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.xpText {
+  font-size: 0.813rem;
+  font-weight: 700;
+  color: #FF6B4A;
+  font-family: var(--font-mono);
+}
+
+.xpNextRank {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+/* Push Notification Permission Banner */
+.notifBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: 14px;
+  margin-bottom: var(--space-md);
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  border-radius: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.notifLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.notifIcon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.notifTitle {
+  font-size: 0.813rem;
+  font-weight: 700;
+  color: #92400E;
+  margin-bottom: 2px;
+}
+
+.notifDesc {
+  font-size: 0.75rem;
+  color: #B45309;
+  line-height: 1.35;
+}
+
+.notifActions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.notifBtnAccept {
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  border-radius: var(--radius-sm);
+  background: #FF6B4A;
+  color: white;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.notifBtnDismiss {
+  padding: 6px 8px;
+  font-size: 0.75rem;
+  color: #92400E;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+/* Filters */
+.filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: var(--space-md);
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+
+.filterBtn {
+  padding: 6px 14px;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-full);
+  background: #FFFFFF;
+  color: var(--text-secondary);
+  font-size: 0.813rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.filterBtn:active {
+  transform: scale(0.95);
+}
+
+.filterActive {
+  background: #FFF1ED;
+  border-color: rgba(255, 107, 74, 0.4);
+  color: #FF6B4A;
+  font-weight: 700;
+}
+
+/* Section Header */
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--space-sm);
+}
+
+.sectionTitle {
+  font-size: 1.063rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+}
+
+.issueCount {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* Issue Cards */
+.issueList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.issueCard {
+  background: #FFFFFF;
+  border: 1px solid var(--border-card);
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: var(--shadow-soft-card);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.issueCard:hover {
+  border-color: rgba(255, 107, 74, 0.3);
+  box-shadow: 0 8px 24px -2px rgba(17, 24, 39, 0.08);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.cardDate {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.cardTitle {
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.35;
+  margin-bottom: 6px;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+}
+
+.cardSummary {
+  font-size: 0.813rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cardTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.cardTag {
+  padding: 3px 9px;
+  border-radius: var(--radius-full);
+  font-size: 0.688rem;
+  font-weight: 600;
+  background: #F1F5F9;
+  color: #475569;
+  border: 1px solid #E2E8F0;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.cardStat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.cardStatIcon {
+  font-size: 0.875rem;
+}
+
+.cardArrow {
+  font-size: 1.125rem;
+  color: #FF6B4A;
+  transition: transform var(--transition-fast);
+}
+
+.issueCard:hover .cardArrow {
+  transform: translateX(4px);
+}

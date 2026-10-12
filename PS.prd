@@ -1,0 +1,148 @@
+Berikut adalah pembaruan pada PRD PolicySnap. Saya telah mengintegrasikan sistem **Gamifikasi (Level & Pangkat/Achievement)** ke dalam beberapa bagian utama (Goals, User Stories, Functional Requirements, dan Arsitektur Data) agar fitur ini terhubung dengan sistem pembagian kartu raport dan kolom komentar.
+
+Anda dapat langsung menyalin PRD versi terbaru ini:
+
+```markdown
+# PRD: PolicySnap - PWA Crowdsourcing Analisis Kebijakan
+
+## 1. Introduction/Overview
+PolicySnap adalah aplikasi berbasis Progressive Web App (PWA) untuk melakukan *crowdsourcing* evaluasi kebijakan publik. Alih-alih kolom komentar berita konvensional yang minim struktur, aplikasi ini merancang partisipasi publik secara metodologis (menggunakan kriteria teori administrasi publik) melalui antarmuka yang *fun* (slider interaktif dan *swipe* ala Tinder). Aplikasi ini akan menjembatani jurang antara opini publik dan analisis kebijakan berbasis bukti melalui "Konsensus Publik", sistem argumen berperingkat (*upvote/downvote*), dan gamifikasi pencapaian (*achievements*).
+
+## 2. Goals
+- Menyediakan platform *mobile-first* (PWA) bagi publik untuk menilai kebijakan dengan framework metodologis.
+- Mencegah spam/bot dalam penilaian publik melalui sistem wajib masuk (*login*) menggunakan Google Auth.
+- Mengumpulkan opini terstruktur dan menyoroti opini terbaik melalui sistem *upvote/downvote* berbasis komunitas.
+- Mendorong viralitas dan diskusi kebijakan berbasis data dengan fitur *Digital Report Card* (kartu infografik).
+- Meningkatkan retensi partisipasi (*engagement*) pengguna melalui PWA Web Push Notifications.
+- **[BARU]** Membangun kredibilitas pengguna dan retensi jangka panjang melalui sistem Gamifikasi (Level & Pangkat Analis) berdasarkan keaktifan evaluasi dan kualitas argumen.
+
+## 3. User Stories
+
+### US-001: Autentikasi Pengguna via Google Sign-In
+**Description:** As a user, I want to login using my Google account so that I can participate in policy evaluations securely without remembering a new password.
+
+**Acceptance Criteria:**
+- [ ] Tombol "Login with Google" tersedia di halaman pendaratan (landing page).
+- [ ] Sistem memvalidasi dan menyimpan sesi *login* pengguna.
+- [ ] Hanya pengguna yang sudah *login* yang bisa mengirim (*submit*) penilaian.
+- [ ] Typecheck/lint passes.
+- [ ] Verify in browser using dev-browser skill.
+
+### US-002: Dasbor Kurasi Isu Kebijakan (Admin)
+**Description:** As an admin, I want to create and publish new policy issues so that users have a specific topic to evaluate.
+
+**Acceptance Criteria:**
+- [ ] Rute terproteksi `/admin` dengan form input: Judul, Ringkasan, Tautan Sumber, *Tag* Aktor.
+- [ ] *Toggle switch* untuk status Isu: "Aktif" atau "Ditutup".
+- [ ] Typecheck/lint passes.
+- [ ] Verify in browser using dev-browser skill.
+
+### US-003: Antarmuka Evaluasi Interaktif (Slider & Swipe)
+**Description:** As a user, I want to evaluate a policy using theory-based sliders and actor cards so that my assessment is structured and engaging.
+
+**Acceptance Criteria:**
+- [ ] 4 komponen *slider* (skala 1-10) untuk: Efektivitas, Efisiensi, Keadilan, dan Responsivitas.
+- [ ] Komponen antarmuka kartu aktor (*swipe* Kanan/Kiri).
+- [ ] Pemilihan "Tag Pendirian" dan kolom komentar maksimal 200 karakter.
+- [ ] Typecheck/lint passes.
+- [ ] Verify in browser using dev-browser skill.
+
+### US-004: Tampilan Dasbor "Konsensus Publik" (Hasil)
+**Description:** As a user, I want to see the aggregated results after I vote so that I know where my opinion stands against the community consensus.
+
+**Acceptance Criteria:**
+- [ ] Komponen *Radar Chart* (Jaring Laba-laba) skor personal vs. komunitas.
+- [ ] Presentase bar konsensus Winner/Loser.
+- [ ] Terkunci (redirect) jika *user* belum melakukan penilaian.
+- [ ] Typecheck/lint passes.
+- [ ] Verify in browser using dev-browser skill.
+
+### US-005: Sistem Komentar Terpopuler (Top Argument)
+**Description:** As a user, I want to upvote or downvote arguments from others so that the most logical analyses rise to the top.
+
+**Acceptance Criteria:**
+- [ ] Ikon Panah Atas (*Upvote*) dan Panah Bawah (*Downvote*) di kartu argumen.
+- [ ] *Feed* argumen diurutkan berdasarkan skor murni (Upvotes - Downvotes).
+- [ ] Typecheck/lint passes.
+- [ ] Verify in browser using dev-browser skill.
+
+### US-006: Web Push Notifications PWA
+**Description:** As a user, I want to receive a push notification when a new policy is published so that I don't miss the opportunity to evaluate it.
+
+**Acceptance Criteria:**
+- [ ] *Prompt/banner* izin notifikasi saat pertama kali *login*.
+- [ ] Pendaftaran dan penyimpanan *subscription token* ke Service Worker.
+- [ ] Tombol "Kirim Notifikasi" di Dasbor Admin men-*trigger* Web Push.
+- [ ] Typecheck/lint passes.
+- [ ] Verify in browser using dev-browser skill.
+
+### US-007: Digital Report Card & Social Share
+**Description:** As a user, I want to generate a shareable image of my policy evaluation so that I can easily post it on social media.
+
+**Acceptance Criteria:**
+- [ ] Konversi DOM HTML ke gambar vertikal 9:16 (`html2canvas`).
+- [ ] Gambar memuat: Judul, *Radar Chart*, Skor, dan **Pangkat/Level User saat ini**.
+- [ ] Typecheck/lint passes.
+- [ ] Verify in browser using dev-browser skill.
+
+### US-008: Sistem Level dan Pangkat Achievement [BARU]
+**Description:** As a user, I want to earn Experience Points (XP) and level up my analyst rank as I submit evaluations and get upvotes, so that my credibility is recognized by the community.
+
+**Acceptance Criteria:**
+- [ ] Terdapat halaman "Profil Saya" yang menampilkan progres bar XP dan Pangkat (Badge) saat ini.
+- [ ] Pengiriman 1 evaluasi kebijakan menambahkan akumulasi +10 XP ke akun pengguna.
+- [ ] Setiap 1 *Upvote* yang diterima pada argumen menambahkan +1 XP (opsional: -1 XP jika *Downvote*).
+- [ ] Sistem otomatis menaikkan Pangkat/Level ketika ambang batas (threshold) XP tercapai.
+- [ ] *Badge* Pangkat (ikon/label) ditampilkan di sebelah nama pengguna di papan "Top Argument" dan di cetakan *Digital Report Card*.
+- [ ] Typecheck/lint passes.
+- [ ] Verify in browser using dev-browser skill.
+
+## 4. Functional Requirements
+- **FR-1:** Sistem hanya menerima *login* menggunakan Google (OAuth 2.0).
+- **FR-2:** Pengguna tidak dapat melihat hasil agregat komunitas jika belum mengisi evaluasi.
+- **FR-3:** Satu *user* hanya dapat menilai satu kali per Isu Kebijakan.
+- **FR-4:** Pengguna hanya dapat memberikan satu *vote* (1 upvote/downvote) per argumen.
+- **FR-5:** Dasbor konsensus otomatis mengakumulasi rata-rata (skor matriks & *swipe*) dari basis data.
+- **FR-6:** Service Worker PWA wajib menyediakan *caching* *offline-ready* untuk aset UI.
+- **FR-7:** Sistem menetapkan 7 Strata Pangkat/Level Gamifikasi berbasis ambang batas (threshold) akumulasi XP pengguna, menggunakan nomenklatur bertema peran/profesi publik:
+  - Level 1: "Warga Aktif" (0 – 50 XP)
+  - Level 2: "Netizen Kritis" (51 – 200 XP)
+  - Level 3: "Auditor Regulasi" (201 – 500 XP)
+  - Level 4: "Konsultan" (501 – 1.000 XP)
+  - Level 5: "Advokat Kebijakan" (1.001 – 2.500 XP)
+  - Level 6: "Menteri Bayangan" (2.501 – 5.000 XP)
+  - Level 7: "Negarawan" (> 5.000 XP)
+- **FR-8:** Sistem Gamifikasi Karakter Kucing 2D & Wardrobe Kostum Strata 1–7:
+  - **Onboarding Login Pertama:** Pengguna memilih jenis kelamin (Laki-laki / Perempuan), 3 pilihan ras kucing (Domestik Shorthair/Oren, Persia Fluffy, Siam Sleek), kustomisasi palet warna bagian badan (bulu utama, dada/moncong, dan mata), serta memberi nama kucing pendamping.
+  - **Sistem Ornamen Multi-Slot:** 4 slot ornamen kostum terpisah (Topi/Headwear, Kacamata/Lensa, Pakaian/Busana, dan Tas/Aksesoris).
+  - **Katalog & Roadmap Kostum:** Hadiah kostum eksklusif terikat pada pencapaian 7 Strata Level (Level 1 Warga Aktif hingga Level 7 Negarawan) serta *achievement* khusus (misal: Megafon Suara Rakyat).
+  - **Lemari Kostum & Kamar Pas (Fitting Room):** Halaman profil menampilkan status kostum terpasang saat ini, opsi lepas/pasang ornamen, dan *roadmap* visual pencapaian kostum selanjutnya.
+  - **Integrasi Visual Terpadu:** Karakter kucing 2D hasil kustomisasi pengguna dirender secara dinamis di *Header* Beranda, daftar argumen publik, dan Raport Digital 9:16 (*Share Card*).
+
+## 5. Non-Goals (Out of Scope)
+- Bukan portal berita penuh (kurasi manual Admin).
+- Bukan forum diskusi bersarang (*nested replies*). Tidak bisa membalas komentar orang lain.
+- Tidak ada fitur *redeem* poin dengan hadiah fisik/uang (XP murni untuk reputasi digital/gamifikasi).
+- Tidak ada antarmuka khusus *desktop* (Strict Mobile-First, lebar maksimal ~600px).
+
+## 6. Design Considerations
+- **UI/UX:** Taktil dengan gestur *swipe* ala Tinder.
+- **Library Grafis:** `Chart.js` atau `Recharts` dengan *Dark Mode*.
+- **Gamifikasi Visual:** Siapkan 4 aset ikon/medali vektor (SVG) yang berbeda warna (misal: Perunggu, Perak, Emas, Platinum) untuk merepresentasikan Pangkat Analis di tabel komentar.
+
+## 7. Technical Considerations
+- **Frontend Stack:** React/Next.js/Svelte dengan PWA plugin (`next-pwa` atau `@vite-pwa/plugin`).
+- **Backend & Database Schema:** (Supabase/Firebase) 
+  - Penambahan kolom `total_xp` (Integer, default 0) dan `rank_level` (String) pada tabel `Users`.
+  - Pembuatan *Trigger* (PostgreSQL) atau *Cloud Function* (Firebase) sederhana: Ketika baris baru ditambahkan ke tabel `Evaluations` atau tabel `Upvotes`, maka `total_xp` milik `user_id` yang bersangkutan otomatis bertambah.
+- **Batas Kinerja:** Pastikan aset ikon pangkat (*badges*) dilayani secara lokal agar tidak gagal *render* saat menggunakan `html2canvas` untuk fitur *Share*.
+
+## 8. Success Metrics
+- **Activation Rate:** >80% pengunjung melakukan *Google Sign-in*.
+- **Retention Rate:** Fitur gamifikasi mampu meningkatkan persentase pengguna yang kembali untuk menilai isu ke-2 dan ke-3 (*return user rate*).
+- **Viral Coefficient:** >15% pengguna menekan tombol "Bagikan Gambar".
+
+## 9. Open Questions
+- Apakah Admin membutuhkan fitur "Banned/Mute" untuk pengguna yang argumennya terindikasi SARA meskipun dia memiliki Pangkat/Level yang tinggi?
+
+```

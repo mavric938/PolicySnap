@@ -1,0 +1,78 @@
+[
+  {
+    "id": "user-001",
+    "name": "Andi Prasetyo",
+    "email": "andi.prasetyo@gmail.com",
+    "avatar": "",
+    "total_xp": 105,
+    "rank_level": "netizen-kritis",
+    "evaluations_count": 7,
+    "cat_avatar": {
+      "gender": "boy",
+      "breed": "domestic-shorthair",
+      "colors": {
+        "fur": "#F97316",
+        "chest": "#FED7AA",
+        "eyes": "#10B981"
+      },
+      "equippedCostumes": {
+        "hat": "hat-1",
+        "glasses": "glasses-1",
+        "outfit": "outfit-1",
+        "accessory": "acc-1"
+      },
+      "catName": "Kocheng Kebijakan"
+    }
+  },
+  {
+    "id": "user-002",
+    "name": "Dewi Lestari",
+    "email": "dewi.lestari@gmail.com",
+    "avatar": "",
+    "total_xp": 340,
+    "rank_level": "auditor-regulasi",
+    "evaluations_count": 18,
+    "cat_avatar": {
+      "gender": "girl",
+      "breed": "persian-fluffy",
+      "colors": {
+        "fur": "#E2E8F0",
+        "chest": "#FFFFFF",
+        "eyes": "#3B82F6"
+      },
+      "equippedCostumes": {
+        "hat": "hat-3",
+        "glasses": "glasses-2",
+        "outfit": "outfit-3",
+        "accessory": "acc-2"
+      },
+      "catName": "Mimi Auditor"
+    },
+    "created_at": "2026-08-20T00:00:00.000Z"
+  },
+  {
+    "id": "user-003",
+    "name": "Budi Hartono",
+    "email": "budi.hartono@gmail.com",
+    "avatar": "",
+    "total_xp": 1251,
+    "rank_level": "advokat-kebijakan",
+    "evaluations_count": 45,
+    "cat_avatar": {
+      "gender": "boy",
+      "breed": "siamese-sleek",
+      "colors": {
+        "fur": "#78350F",
+        "chest": "#FEF3C7",
+        "eyes": "#8B5CF6"
+      },
+      "equippedCostumes": {
+        "hat": "hat-5",
+        "glasses": "glasses-3",
+        "outfit": "outfit-5",
+        "accessory": "acc-4"
+      },
+      "catName": "Sir Whiskers"
+    }
+  }
+]

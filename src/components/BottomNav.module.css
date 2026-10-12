@@ -1,0 +1,69 @@
+.nav {
+  position: fixed;
+  bottom: 16px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  z-index: 50;
+  pointer-events: none;
+  padding-bottom: var(--safe-area-bottom);
+}
+
+.dock {
+  pointer-events: auto;
+  width: calc(100% - 32px);
+  max-width: 380px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(234, 236, 239, 0.9);
+  border-radius: var(--radius-full);
+  box-shadow: 0 12px 36px -4px rgba(17, 24, 39, 0.12), 0 4px 12px -2px rgba(17, 24, 39, 0.04);
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  transition: all var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.item:active {
+  transform: scale(0.93);
+}
+
+.icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Active State matches Stitch Pill Highlight */
+.item.active {
+  background: #FFF1ED;
+  border: 1px solid rgba(255, 107, 74, 0.3);
+  color: #FF6B4A;
+}
+
+.item.active .label {
+  font-weight: 700;
+}

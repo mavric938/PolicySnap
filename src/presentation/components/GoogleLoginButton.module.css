@@ -1,0 +1,250 @@
+.googleBtn {
+  width: 100%;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.googleBtn:hover {
+  background: #F8FAFC;
+  border-color: #CBD5E1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+.googleBtn:active {
+  transform: translateY(0) scale(0.99);
+}
+
+.googleBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.googleBtnLeft {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.googleSvg {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.spinner {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #E2E8F0;
+  border-top-color: #FF6B4A;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.googleBtnText {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.googleBtnTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0F172A;
+  line-height: 1.25;
+}
+
+.googleBtnSub {
+  font-size: 0.7rem;
+  color: #64748B;
+  margin-top: 2px;
+}
+
+.badgeHold {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #E11D48;
+  background: #FFF1F2;
+  border: 1px solid #FECDD3;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.arrowIcon {
+  color: #FF6B4A;
+  transition: transform 0.2s ease;
+}
+
+.googleBtn:hover .arrowIcon {
+  transform: translateX(3px);
+}
+
+/* Modal Overlay */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modalCard {
+  background: #FFFFFF;
+  border-radius: 20px;
+  max-width: 440px;
+  width: 100%;
+  padding: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.modalBadge {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #FFF1EE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  color: #94A3B8;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  transition: color 0.15s ease;
+}
+
+.closeBtn:hover {
+  color: #0F172A;
+}
+
+.modalTitle {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0 0 8px 0;
+}
+
+.modalDesc {
+  font-size: 0.85rem;
+  color: #64748B;
+  line-height: 1.5;
+  margin: 0 0 16px 0;
+}
+
+.instructionBox {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 20px;
+}
+
+.instructionStep {
+  font-size: 0.8rem;
+  color: #334155;
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+}
+
+.codeSnippet {
+  background: #0F172A;
+  color: #38BDF8;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  padding: 8px 10px;
+  border-radius: 6px;
+  word-break: break-all;
+}
+
+.actionGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.devLoginBtn {
+  width: 100%;
+  background: #0F172A;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+.devLoginBtn:hover {
+  background: #1E293B;
+  transform: translateY(-1px);
+}
+
+.googleIconMini {
+  display: flex;
+  align-items: center;
+}
+
+.cancelBtn {
+  width: 100%;
+  background: transparent;
+  color: #64748B;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.cancelBtn:hover {
+  background: #F1F5F9;
+  color: #0F172A;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
