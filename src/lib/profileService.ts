@@ -16,7 +16,11 @@ async function readLocalProfiles(): Promise<User[]> {
 }
 
 async function writeLocalProfiles(profiles: User[]): Promise<void> {
-  await fs.writeFile(DATA_FILE, JSON.stringify(profiles, null, 2), 'utf-8');
+  try {
+    await fs.writeFile(DATA_FILE, JSON.stringify(profiles, null, 2), 'utf-8');
+  } catch (err) {
+    console.warn('writeLocalProfiles ignored write error (normal in read-only hosting):', err);
+  }
 }
 
 /**

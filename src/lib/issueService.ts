@@ -76,21 +76,20 @@ export async function createIssue(data: {
       body: JSON.stringify(data),
     });
 
-    const result = await res.json();
-    if (!res.ok) {
+    const result = await res.json().catch(() => ({}));
+    if (!res.ok || !result.success) {
       return { success: false, error: result.error || 'Gagal menambahkan isu' };
     }
 
     // Refresh cache
     if (typeof window !== 'undefined' && result.issue) {
-      const currentCache = localStorage.getItem(CACHE_KEY);
-      if (currentCache) {
-        try {
-          const list: PolicyIssue[] = JSON.parse(currentCache);
-          localStorage.setItem(CACHE_KEY, JSON.stringify([result.issue, ...list]));
-        } catch {
-          // ignore
-        }
+      try {
+        const currentCache = localStorage.getItem(CACHE_KEY);
+        const list: PolicyIssue[] = currentCache ? JSON.parse(currentCache) : [];
+        const nextList = [result.issue, ...list.filter((i: PolicyIssue) => i.id !== result.issue.id)];
+        localStorage.setItem(CACHE_KEY, JSON.stringify(nextList));
+      } catch {
+        // ignore
       }
     }
 
@@ -243,20 +242,20 @@ export async function deleteIssue(id: string): Promise<{ success: boolean; error
       method: 'DELETE',
     });
 
-    const result = await res.json();
-    if (!res.ok) {
+    const result = await res.json().catch(() => ({}));
+    if (!res.ok || !result.success) {
       return { success: false, error: result.error || 'Gagal menghapus isu' };
     }
 
     if (typeof window !== 'undefined') {
-      const currentCache = localStorage.getItem(CACHE_KEY);
-      if (currentCache) {
-        try {
+      try {
+        const currentCache = localStorage.getItem(CACHE_KEY);
+        if (currentCache) {
           const list: PolicyIssue[] = JSON.parse(currentCache);
-          localStorage.setItem(CACHE_KEY, JSON.stringify(list.filter((i) => i.id !== id)));
-        } catch {
-          // ignore
+          localStorage.setItem(CACHE_KEY, JSON.stringify(list.filter((i: PolicyIssue) => i.id !== id)));
         }
+      } catch {
+        // ignore
       }
     }
 

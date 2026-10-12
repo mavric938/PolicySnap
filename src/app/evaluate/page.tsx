@@ -82,36 +82,48 @@ const STANCE_BUTTONS = [
   { value: 'Tolak Kebijakan', label: 'Tolak Kebijakan', color: '#F43F5E', bg: '#FFF1F2', text: '#BE123C' },
 ];
 
+function getCategoryIcon(cat?: string): string {
+  const c = (cat || '').toLowerCase();
+  if (c.includes('energi') || c.includes('bbm') || c.includes('minyak')) return 'local_gas_station';
+  if (c.includes('kesehatan') || c.includes('medis')) return 'health_and_safety';
+  if (c.includes('pendidikan') || c.includes('sekolah')) return 'school';
+  if (c.includes('ekonomi') || c.includes('fiskal') || c.includes('uang')) return 'account_balance';
+  if (c.includes('lingkungan') || c.includes('iklim')) return 'forest';
+  if (c.includes('digital') || c.includes('teknologi')) return 'devices';
+  return 'policy';
+}
+
 const DEFAULT_FALLBACK_ISSUE: PolicyIssue = {
   id: 'issue-001',
-  title: 'Evaluasi Skema Subsidi Tepat Sasaran & Efisiensi Energi Daerah',
-  summary: 'Penilaian partisipatif terhadap efektivitas dan keadilan distribusi kuota subsidi bahan pokok dan energi, pencegahan kebocoran anggaran, serta proteksi daya beli masyarakat rentan.',
-  category: 'Ekonomi & Energi',
-  sourceUrl: 'https://kebijakan.go.id',
-  actorTags: ['Kementerian ESDM & BPH Migas', 'Pelaku Usaha Mikro & UMKM', 'Masyarakat Desil Rentan', 'Distributor Energi Daerah'],
+  title: 'Pembatasan BBM Bersubsidi Berdasarkan Kapasitas Mesin (CC Kendaraan)',
+  summary: 'Pemerintah berencana membatasi konsumsi Pertalite hanya untuk roda dua di bawah 250cc dan roda empat di bawah 1.400cc guna memastikan alokasi subsidi fiskal tepat sasaran pada kelompok masyarakat rentan.',
+  category: 'Subsidi Energi & Transportasi',
+  sourceUrl: 'https://migas.esdm.go.id',
+  actorTags: ['Pengemudi Ojol & Logistik UMKM', 'Kementerian Keuangan & Fiskal APBN', 'Masyarakat Desil Rentan', 'Pengelola SPBU & Pertamina'],
   status: 'active',
-  totalEvaluations: 0,
+  totalEvaluations: 14280,
   createdAt: '2026-10-12',
+  imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBZbnHPd2zt3uSqDcEb2yocYglKCA0HBFYq2By8WeyoXpnTn5FYU_-D9bY95UCk9CpXdBTO6-_148klSetT_VfCyEYmknMzmpUVAOh1islnmUwssiybiuFU2lQizWTddJZy8PgEY9k8lRFUi3slGZ51DLJzJQU6kiK61gWO0HOnJ1hVcGiEM9k6iQusbexfBz6LwaoYBBDcdbwjcoolPiSrvNYuSgVHywfFHU5XCBcA-bo_1XaFqS21',
   criteriaDescriptions: {
     effectiveness: 'Target Terukur: Mengurangi salah sasaran subsidi hingga 40%.',
-    efficiency: 'Penghematan Anggaran: Optimalisasi fiskal hingga Rp 12 Triliun.',
-    equity: 'Distribusi Berkeadilan: 100% kuota tersalurkan ke kelompok sasaran riil.',
-    responsiveness: 'Ketanggapan terhadap aspirasi publik dan stabilitas inflasi pangan.',
+    efficiency: 'Alokasi Fiskal & Kemudahan Teknis Implementasi barcode QR di lapangan.',
+    equity: 'Distribusi Beban: Adilkah bagi pengemudi ojol, UMKM mikro, & kelas menengah rentan?',
+    responsiveness: 'Ketanggapan terhadap aspirasi publik dan penyesuaian inflasi bahan pokok.',
   },
   actorCards: [
     {
       id: 'actor-1',
-      name: 'Kementerian ESDM & BPH Migas',
-      role: 'Regulator Kebijakan',
-      description: 'Pengawas kuota energi bersubsidi dan verifikator data sasaran penerima manfaat nasional.',
-      imageEmoji: '🏛️',
+      name: 'Pengemudi Ojol & Logistik UMKM',
+      role: 'Konsumen Harian / Pekerja Gig',
+      description: 'Berisiko mengalami antrean panjang di SPBU dan potensi penurunan pendapatan harian jika validasi barcode digital tersendat atau kuota habis di tengah operasional.',
+      imageEmoji: '🛵',
     },
     {
       id: 'actor-2',
-      name: 'Pelaku Usaha Mikro & UMKM',
-      role: 'Kelompok Terdampak Langsung',
-      description: 'Bergantung pada stabilitas pasokan bahan pokok dan energi murah untuk modal harian.',
-      imageEmoji: '💼',
+      name: 'Kementerian Keuangan & Fiskal APBN',
+      role: 'Regulator Anggaran Negara',
+      description: 'Potensi penghematan belanja subsidi energi hingga Rp 12 Triliun per tahun untuk direalokasikan ke program bantuan sosial terarah.',
+      imageEmoji: '🏛️',
     },
     {
       id: 'actor-3',
@@ -119,6 +131,13 @@ const DEFAULT_FALLBACK_ISSUE: PolicyIssue = {
       role: 'Penerima Manfaat Utama',
       description: 'Konsumen prioritas subsidi agar terlindungi dari gejolak lonjakan inflasi harga kebutuhan pokok.',
       imageEmoji: '👥',
+    },
+    {
+      id: 'actor-4',
+      name: 'Pengelola SPBU & Pertamina',
+      role: 'Pelaksana Teknis Lapangan',
+      description: 'Kesiapan infrastruktur verifikasi digital sistem barcode dan pencegahan antrean nozzle.',
+      imageEmoji: '⛽',
     },
   ],
 };
@@ -162,8 +181,17 @@ function EvaluateContent() {
   const [selectedDetail, setSelectedDetail] = useState<EvaluationRecord | null>(null);
 
   const [issue, setIssue] = useState<PolicyIssue>(
-    MOCK_ISSUES.find((i) => i.id === currentIssueId) || DEFAULT_FALLBACK_ISSUE
+    MOCK_ISSUES.find((i) => i.id === (explicitIssueId || currentIssueId)) || DEFAULT_FALLBACK_ISSUE
   );
+
+  // Synchronize when explicitIssueId in URL changes
+  useEffect(() => {
+    if (explicitIssueId) {
+      setCurrentIssueId(explicitIssueId);
+      setViewMode('studio');
+      setStep(0);
+    }
+  }, [explicitIssueId]);
 
   const actors = useMemo(() => {
     if (issue.actorCards && issue.actorCards.length > 0) {
@@ -200,22 +228,31 @@ function EvaluateContent() {
 
   // Stance & comment
   const [stance, setStance] = useState('Dukung Bersyarat');
-  const [comment, setComment] = useState(
-    currentIssueId === 'issue-001'
-      ? 'Pembatasan tepat sasaran perlu didukung, namun dispensasi wajib diberikan bagi logistik bahan pokok dan UMKM mikro agar tidak memicu lonjakan inflasi pangan daerah.'
-      : ''
-  );
+  const [comment, setComment] = useState('');
   const { user: authUser, isAuthenticated } = useAuth();
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
-  // Load issues and evaluations from localStorage
+  // Load issues and evaluations from backend API & sync titles precisely
   useEffect(() => {
+    let isMounted = true;
+
     getIssues().then((list) => {
-      const found = list.find((i) => i.id === currentIssueId);
-      if (found) setIssue(found);
+      if (!isMounted) return;
+
+      if (Array.isArray(list) && list.length > 0) {
+        // Find matching issue by explicit query param, or current state ID, or first backend item
+        const targetId = explicitIssueId || currentIssueId;
+        const matched = list.find((i) => i.id === targetId) || list[0];
+        if (matched) {
+          setIssue(matched);
+          if (matched.id !== currentIssueId) {
+            setCurrentIssueId(matched.id);
+          }
+        }
+      }
 
       if (typeof window !== 'undefined') {
         const storedList: EvaluationRecord[] = [];
@@ -239,8 +276,8 @@ function EvaluateContent() {
                   const issueRef = list.find((it) => it.id === rawId);
                   storedList.push({
                     issueId: rawId,
-                    issueTitle: issueRef?.title || rawId,
-                    category: issueRef?.category || 'Kebijakan Publik',
+                    issueTitle: issueRef?.title || itemData.issueTitle || rawId,
+                    category: issueRef?.category || itemData.category || 'Kebijakan Publik',
                     scores: itemData.scores,
                     compositeScore: itemData.compositeScore || 6.5,
                     stance: itemData.stance || 'Dukung Bersyarat',
@@ -254,13 +291,13 @@ function EvaluateContent() {
           }
         }
 
-        // Enrich with issue titles
+        // CRITICAL: Ensure the issue title and category ALWAYS match the backend registered issue!
         const enriched = storedList.map((item) => {
           const foundIssue = list.find((it) => it.id === item.issueId);
           return {
             ...item,
-            issueTitle: item.issueTitle || foundIssue?.title || 'Evaluasi Kebijakan',
-            category: item.category || foundIssue?.category || 'Umum',
+            issueTitle: foundIssue?.title || item.issueTitle || 'Evaluasi Kebijakan',
+            category: foundIssue?.category || item.category || 'Umum',
           };
         });
 
@@ -272,7 +309,11 @@ function EvaluateContent() {
       const storedXP = localStorage.getItem('policysnap_xp');
       if (storedXP) setUserXP(Number(storedXP));
     }
-  }, [currentIssueId]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [explicitIssueId, currentIssueId]);
 
   const handleSliderChange = (key: keyof typeof scores, val: number) => {
     soundService.playTap();
@@ -402,6 +443,30 @@ function EvaluateContent() {
             </div>
 
             <div className={styles.evalControlsRow}>
+              <button
+                type="button"
+                className="btn btn-outline"
+                onClick={() => {
+                  soundService.playTap();
+                  router.push('/home');
+                }}
+                id="btn-eval-goto-home"
+                style={{
+                  padding: '4px 10px',
+                  borderRadius: '9999px',
+                  fontSize: '0.6875rem',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  borderColor: 'var(--primary-coral)',
+                  color: 'var(--primary-coral)',
+                  background: '#FFF8F6',
+                }}
+              >
+                <Icon name="add" size={13} />
+                <span>Nilai Isu Lain</span>
+              </button>
               <SoundToggle />
               <div style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#FFF1ED', padding: '4px 10px', borderRadius: '9999px', border: '1px solid #FFEDD5' }}>
                 <span style={{ fontSize: '11px' }}>⭐</span>
@@ -588,7 +653,7 @@ function EvaluateContent() {
             </div>
           </header>
 
-          {/* Policy Card */}
+          {/* Policy Card Header strictly matching Stitch */}
           <section className={styles.policyCard}>
             <div className={styles.policyBadges}>
               <div className={styles.activeBadge}>
@@ -596,13 +661,57 @@ function EvaluateContent() {
                 <span>Aktif Menilai</span>
               </div>
               <div className={styles.categoryBadge}>
-                <Icon name="local_gas_station" size={14} />
-                <span>{issue.category}</span>
+                <Icon name={getCategoryIcon(issue.category)} size={14} />
+                <span>{issue.category || 'Kebijakan Publik'}</span>
               </div>
             </div>
 
             <h1 className={styles.policyTitle}>{issue.title}</h1>
+
+            {/* Policy Metadata & Source Row */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+              <span style={{ fontWeight: 700, color: 'var(--primary-coral)', background: '#FFF1ED', padding: '2px 8px', borderRadius: '6px' }}>
+                {issue.category || 'Regulasi'}
+              </span>
+              <span style={{ color: '#D1D5DB' }}>•</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600, color: 'var(--text-main)' }}>
+                <span>{issue.actorTags?.[0] || 'Stakeholder Kunci'}</span>
+                <Icon name="verified" size={15} style={{ color: '#2563EB' }} />
+              </div>
+              {issue.sourceUrl && (
+                <>
+                  <span style={{ color: '#D1D5DB' }}>•</span>
+                  <a
+                    href={issue.sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: '#2563EB', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px', fontWeight: 600 }}
+                  >
+                    <span>Rujukan Resmi</span>
+                    <Icon name="open_in_new" size={13} />
+                  </a>
+                </>
+              )}
+            </div>
+
             <p className={styles.policyDesc}>{issue.summary}</p>
+
+            {/* Context Image Snapshot Banner */}
+            <div className={styles.policyBanner}>
+              <img
+                src={
+                  issue.imageUrl ||
+                  'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=800&q=80'
+                }
+                alt={issue.title}
+                className={styles.policyBannerBg}
+              />
+              <div className={styles.policyBannerOverlay} />
+              <div className={styles.policyXpTag}>
+                <Icon name="bolt" size={16} style={{ color: '#F59E0B' }} />
+                <span>+10 XP Analisis Saat Dikirim</span>
+              </div>
+            </div>
           </section>
 
           {/* STEP 0: 4 Sliders */}
@@ -708,25 +817,53 @@ function EvaluateContent() {
             </section>
           )}
 
-          {/* STEP 1: Swipe Actor */}
+          {/* STEP 1: Swipe Actor (3-Layer Tinder Card Deck strictly matching Stitch) */}
           {step === 1 && (
             <section className={`${styles.stepSection} animate-fade-in`}>
               <div className={styles.stepHeader}>
                 <div className={styles.stepTopRow}>
                   <span className={styles.stepTag}>
                     <span className={styles.stepDotAccent} />
-                    [2/3] Uji Dampak Stakeholder
+                    [2/3] Dampak Aktor Kebijakan
                   </span>
                   <span className={styles.stepDimensionCount}>
-                    {currentActorIndex + 1} / {actors.length} Pihak
+                    {currentActorIndex + 1} dari {actors.length} Aktor
                   </span>
                 </div>
                 <p className={styles.stepInstruction}>
-                  Geser kartu ke kanan untuk DUKUNG, atau ke kiri untuk KRITIK dampak terhadap pihak ini.
+                  Tentukan posisi dampak tiap aktor kunci: Geser kanan untuk DUKUNG, kiri untuk KRITIK.
                 </p>
               </div>
 
-              <div className={styles.swipeStage}>
+              {/* Tinder Card Deck Visual Deck (3-Layer Stack) */}
+              <div className={styles.deckWrapper}>
+                {/* Background Card 2 (Bottom Stack) */}
+                <div className={styles.bgCardBack} />
+
+                {/* Background Card 1 (Middle Stack with Preview of Next Actor) */}
+                <div className={styles.bgCardMid}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)' }}>
+                    <span style={{ fontSize: '18px' }}>
+                      {actors[currentActorIndex + 1]?.imageEmoji || '⚖️'}
+                    </span>
+                    <span style={{ fontSize: '12px', fontWeight: 700 }}>
+                      {actors[currentActorIndex + 1]?.name || 'Fiskal & Regulasi Kebijakan'}
+                    </span>
+                  </div>
+                  <span
+                    style={{
+                      fontSize: '10px',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      color: 'var(--text-muted)',
+                    }}
+                  >
+                    Berikutnya
+                  </span>
+                </div>
+
+                {/* Active Front Card */}
                 {actors[currentActorIndex] ? (
                   <SwipeCardItem
                     key={actors[currentActorIndex].id}
@@ -739,37 +876,38 @@ function EvaluateContent() {
                 )}
               </div>
 
-              <div className={styles.swipeButtonGroup}>
+              {/* Tactile Action Buttons strictly matching Stitch */}
+              <div className={styles.tactileButtonGroup}>
                 <button
-                  className={styles.swipeBtnReject}
+                  className={styles.thumbBtnReject}
                   onClick={() => handleSwipe('left')}
                   id="btn-swipe-reject"
-                  title="Kritik"
+                  aria-label="Tolak atau Kritik Dampak Aktor"
+                  title="Kritik / Negatif"
                 >
-                  <Icon name="thumb_down" size={24} />
-                  <span>Kritik</span>
+                  <Icon name="close" size={24} />
                 </button>
                 <button
-                  className={styles.swipeBtnNeutral}
+                  className={styles.thumbBtnNeutral}
                   onClick={() => handleSwipe('neutral')}
                   id="btn-swipe-neutral"
+                  aria-label="Netral Aktor Kebijakan"
                   title="Netral"
                 >
-                  <Icon name="remove" size={20} />
-                  <span>Netral</span>
+                  <Icon name="balance" size={20} />
                 </button>
                 <button
-                  className={styles.swipeBtnApprove}
+                  className={styles.thumbBtnSupport}
                   onClick={() => handleSwipe('right')}
                   id="btn-swipe-approve"
-                  title="Dukung"
+                  aria-label="Dukung atau Positif Dampak Aktor"
+                  title="Dukung / Positif"
                 >
-                  <Icon name="thumb_up" size={24} />
-                  <span>Dukung</span>
+                  <Icon name="done" size={24} />
                 </button>
               </div>
 
-              <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+              <div style={{ textAlign: 'center', marginTop: '0.75rem' }}>
                 <button
                   className="btn btn-ghost"
                   onClick={() => {
@@ -1099,10 +1237,16 @@ function SwipeCardItem({
       transition={{ type: 'spring', stiffness: 320, damping: 28 }}
       id={`actor-card-${actor.id}`}
     >
-      <motion.div className={styles.stampCritic} style={{ opacity: stampCriticOpacity }}>
+      <motion.div
+        className={styles.stampCritic}
+        style={{ opacity: direction === 'left' ? 1 : stampCriticOpacity }}
+      >
         KRITIK / NEGATIF
       </motion.div>
-      <motion.div className={styles.stampSupport} style={{ opacity: stampSupportOpacity }}>
+      <motion.div
+        className={styles.stampSupport}
+        style={{ opacity: direction === 'right' ? 1 : stampSupportOpacity }}
+      >
         DUKUNG / POSITIF
       </motion.div>
 

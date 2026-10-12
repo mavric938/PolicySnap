@@ -37,7 +37,11 @@ async function readLocalArgs(): Promise<StoredArgument[]> {
 }
 
 async function writeLocalArgs(data: StoredArgument[]): Promise<void> {
-  await fs.writeFile(ARGS_FILE, JSON.stringify(data, null, 2), 'utf-8');
+  try {
+    await fs.writeFile(ARGS_FILE, JSON.stringify(data, null, 2), 'utf-8');
+  } catch (err) {
+    console.warn('writeLocalArgs ignored write error (normal in read-only hosting):', err);
+  }
 }
 
 async function readLocalVotes(): Promise<StoredVote[]> {
@@ -50,7 +54,11 @@ async function readLocalVotes(): Promise<StoredVote[]> {
 }
 
 async function writeLocalVotes(data: StoredVote[]): Promise<void> {
-  await fs.writeFile(VOTES_FILE, JSON.stringify(data, null, 2), 'utf-8');
+  try {
+    await fs.writeFile(VOTES_FILE, JSON.stringify(data, null, 2), 'utf-8');
+  } catch (err) {
+    console.warn('writeLocalVotes ignored write error (normal in read-only hosting):', err);
+  }
 }
 
 /**

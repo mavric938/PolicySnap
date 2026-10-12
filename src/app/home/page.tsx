@@ -32,6 +32,23 @@ function formatIssueDate(dateStr: string): string {
   return dateStr;
 }
 
+function getCategoryIcon(cat?: string): string {
+  if (!cat) return 'policy';
+  const lower = cat.toLowerCase();
+  if (lower.includes('energi') || lower.includes('bbm') || lower.includes('subsidi')) return 'local_gas_station';
+  if (lower.includes('kesehatan') || lower.includes('medis') || lower.includes('cukai')) return 'health_and_safety';
+  if (lower.includes('lingkungan') || lower.includes('emisi') || lower.includes('tata kota')) return 'eco';
+  if (lower.includes('ekonomi') || lower.includes('fiskal') || lower.includes('keuangan')) return 'account_balance';
+  if (lower.includes('pendidikan')) return 'school';
+  return 'policy';
+}
+
+const DEFAULT_BANNER_IMAGES: Record<string, string> = {
+  'issue-001': 'https://lh3.googleusercontent.com/aida-public/AB6AXuBZbnHPd2zt3uSqDcEb2yocYglKCA0HBFYq2By8WeyoXpnTn5FYU_-D9bY95UCk9CpXdBTO6-_148klSetT_VfCyEYmknMzmpUVAOh1islnmUwssiybiuFU2lQizWTddJZy8PgEY9k8lRFUi3slGZ51DLJzJQU6kiK61gWO0HOnJ1hVcGiEM9k6iQusbexfBz6LwaoYBBDcdbwjcoolPiSrvNYuSgVHywfFHU5XCBcA-bo_1XaFqS21',
+  'issue-002': 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=800&q=80',
+  'issue-003': 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=800&q=80',
+};
+
 export default function HomePage() {
   const router = useRouter();
   const { user: authUser, isAuthenticated } = useAuth();
@@ -267,74 +284,129 @@ export default function HomePage() {
 
       {/* Issue Cards */}
       <div className={`${styles.issueList} stagger-children`}>
-        {filteredIssues.map((issue) => (
-          <article
-            key={issue.id}
-            className={`glass-card ${styles.issueCard}`}
-            onClick={() => {
-              router.push(`/evaluate?issue=${issue.id}`);
-            }}
-            id={`issue-card-${issue.id}`}
-          >
-            <div className={styles.cardHeader}>
-              <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
-                <span className={`badge ${issue.status === 'active' ? 'badge-active' : 'badge-closed'}`}>
-                  {issue.status === 'active' ? 'Aktif' : 'Ditutup'}
+        {filteredIssues.map((issue) => {
+          const bannerImg =
+            issue.imageUrl ||
+            DEFAULT_BANNER_IMAGES[issue.id] ||
+            'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=800&q=80';
+
+          return (
+            <article
+              key={issue.id}
+              className={styles.issueCard}
+              onClick={() => {
+                router.push(`/evaluate?issue=${issue.id}`);
+              }}
+              id={`issue-card-${issue.id}`}
+            >
+              {/* 1. Header Badges: Aktif Menilai (green pulse) + Kategori + Tanggal */}
+              <div className={styles.cardHeader}>
+                <div className={styles.badgeRow}>
+                  {issue.status === 'active' ? (
+                    <div className={styles.activeBadge}>
+                      <span className={styles.pulseDot} />
+                      <span>Aktif Menilai</span>
+                    </div>
+                  ) : (
+                    <div className={styles.closedBadge}>
+                      <span>Ditutup</span>
+                    </div>
+                  )}
+
+                  {issue.category && (
+                    <div className={styles.categoryBadge}>
+                      <Icon name={getCategoryIcon(issue.category)} size={13} />
+                      <span>{issue.category}</span>
+                    </div>
+                  )}
+                </div>
+
+                <span className={styles.cardDate}>
+                  {formatIssueDate(issue.createdAt)}
                 </span>
-                {issue.category && (
-                  <span className="badge" style={{ background: '#F1F5F9', color: '#475569', borderColor: '#E2E8F0' }}>
-                    {issue.category}
-                  </span>
-                )}
-                {evaluatedMap[issue.id] && (
-                  <span
-                    className="badge"
-                    style={{
-                      background: 'rgba(16, 185, 129, 0.1)',
-                      color: '#059669',
-                      borderColor: 'rgba(16, 185, 129, 0.3)',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '4px',
+              </div>
+
+              {/* 2. Judul Isu Kebijakan */}
+              <h3 className={styles.cardTitle}>{issue.title}</h3>
+
+              {/* 3. Ringkasan Isu */}
+              <p className={styles.cardSummary}>{issue.summary}</p>
+
+              {/* 4. Visual Context Snapshot Banner dengan Badge XP */}
+              <div className={styles.visualBanner}>
+                <img
+                  src={bannerImg}
+                  alt={issue.title}
+                  className={styles.visualImg}
+                  loading="lazy"
+                />
+                <div className={styles.visualOverlay} />
+                <div className={styles.visualXpPill}>
+                  <Icon name="bolt" size={15} style={{ color: '#F59E0B' }} />
+                  <span>+10 XP Analisis Saat Dikirim</span>
+                </div>
+              </div>
+
+              {/* 5. Kolom Aktor Terkait (Stakeholder Chips Sesuai Stitch) */}
+              <div className={styles.actorSection}>
+                <div className={styles.actorSectionHeader}>
+                  <Icon name="groups" size={15} style={{ color: 'var(--primary-coral)' }} />
+                  <span className={styles.actorSectionTitle}>Kolom Aktor Terkait:</span>
+                </div>
+                <div className={styles.actorChipGrid}>
+                  {issue.actorCards && issue.actorCards.length > 0 ? (
+                    issue.actorCards.slice(0, 3).map((act) => (
+                      <div key={act.id} className={styles.actorChip}>
+                        <span className={styles.actorChipEmoji}>{act.imageEmoji || '👥'}</span>
+                        <span className={styles.actorChipName}>{act.name}</span>
+                      </div>
+                    ))
+                  ) : (
+                    issue.actorTags.slice(0, 3).map((tag, idx) => {
+                      const emojis = ['🏛️', '💼', '👥', '⛽'];
+                      return (
+                        <div key={tag} className={styles.actorChip}>
+                          <span className={styles.actorChipEmoji}>{emojis[idx % emojis.length]}</span>
+                          <span className={styles.actorChipName}>{tag}</span>
+                        </div>
+                      );
+                    })
+                  )}
+                  {issue.actorTags.length > 3 && (
+                    <span className={styles.actorChipMore}>+{issue.actorTags.length - 3} pihak</span>
+                  )}
+                </div>
+              </div>
+
+              {/* 6. Card Footer: Total Evaluasi Publik + Tombol Evaluasi Isu CTA */}
+              <div className={styles.cardFooter}>
+                <div className={styles.cardStat}>
+                  <Icon name="poll" size={16} style={{ color: 'var(--text-secondary)' }} />
+                  <span>{issue.totalEvaluations.toLocaleString('id-ID')} evaluasi publik</span>
+                </div>
+
+                {evaluatedMap[issue.id] ? (
+                  <div className={styles.evaluatedCta}>
+                    <Icon name="check_circle" size={15} style={{ color: '#059669' }} />
+                    <span>Lihat Evaluasi →</span>
+                  </div>
+                ) : (
+                  <button
+                    className={styles.ctaButton}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/evaluate?issue=${issue.id}`);
                     }}
+                    id={`btn-eval-${issue.id}`}
                   >
-                    <Icon name="check_circle" size={13} style={{ color: '#059669' }} />
-                    Sudah Dinilai
-                  </span>
+                    <span>Evaluasi Isu</span>
+                    <Icon name="arrow_forward" size={14} />
+                  </button>
                 )}
               </div>
-              <span className={styles.cardDate}>
-                {formatIssueDate(issue.createdAt)}
-              </span>
-            </div>
-
-            <h3 className={styles.cardTitle}>{issue.title}</h3>
-            <p className={styles.cardSummary}>{issue.summary}</p>
-
-            {/* Tags */}
-            <div className={styles.cardTags}>
-              {issue.actorTags.slice(0, 3).map((tag) => (
-                <span key={tag} className={styles.cardTag}>
-                  {tag}
-                </span>
-              ))}
-              {issue.actorTags.length > 3 && (
-                <span className={styles.cardTag}>+{issue.actorTags.length - 3}</span>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div className={styles.cardFooter}>
-              <div className={styles.cardStat}>
-                <Icon name="poll" size={16} style={{ color: 'var(--text-secondary)' }} />
-                <span>{issue.totalEvaluations.toLocaleString('id-ID')} evaluasi publik</span>
-              </div>
-              <span className={styles.cardArrow}>
-                <Icon name="arrow_forward" size={16} />
-              </span>
-            </div>
-          </article>
-        ))}
+            </article>
+          );
+        })}
       </div>
 
       {showToast && (

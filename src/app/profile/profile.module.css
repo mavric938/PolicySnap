@@ -679,10 +679,3 @@
   display: inline-block;
   margin-top: 2px;
 }
-
-/* Demo Controls */
-.demoActions {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-}

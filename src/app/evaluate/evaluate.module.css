@@ -438,7 +438,7 @@
 .deckWrapper {
   position: relative;
   width: 100%;
-  min-height: 260px;
+  min-height: 275px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -447,43 +447,46 @@
 
 .bgCardBack {
   position: absolute;
-  top: 12px;
-  width: 86%;
-  height: 220px;
+  top: 10px;
+  width: 88%;
+  height: 235px;
   border-radius: var(--radius-2xl);
   background: #F1F3F5;
   border: 1px solid var(--border-card);
   opacity: 0.5;
-  transform: scale(0.92) translateY(8px);
+  transform: scale(0.90) translateY(12px);
   pointer-events: none;
+  z-index: 1;
 }
 
 .bgCardMid {
   position: absolute;
   top: 6px;
-  width: 93%;
-  height: 225px;
+  width: 94%;
+  height: 235px;
   border-radius: var(--radius-2xl);
   background: #F8FAFC;
   border: 1px solid var(--border-card);
   opacity: 0.85;
-  transform: scale(0.96) translateY(4px);
+  transform: scale(0.95) translateY(6px);
   pointer-events: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 1.25rem;
+  z-index: 2;
 }
 
 .tinderCard {
   position: relative;
+  z-index: 5;
   width: 100%;
-  min-height: 235px;
+  min-height: 245px;
   background: #FFFFFF;
   border: 1px solid var(--border-card);
   border-radius: var(--radius-2xl);
   padding: 1.125rem;
-  box-shadow: var(--shadow-card), 0 8px 24px -4px rgba(17, 24, 39, 0.08);
+  box-shadow: 0 10px 30px -4px rgba(17, 24, 39, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
   justify-content: space-between;

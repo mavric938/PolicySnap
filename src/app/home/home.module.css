@@ -268,84 +268,251 @@
   font-weight: 600;
 }
 
-/* Issue Cards */
+/* Stitch Design System: Issue Cards */
 .issueList {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: 1.25rem;
 }
 
 .issueCard {
   background: #FFFFFF;
   border: 1px solid var(--border-card);
-  border-radius: 20px;
-  padding: 16px;
+  border-radius: 1.5rem; /* rounded-3xl */
+  padding: 1.25rem; /* p-5 */
   box-shadow: var(--shadow-soft-card);
   cursor: pointer;
   transition: all var(--transition-normal);
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  position: relative;
 }
 
 .issueCard:hover {
-  border-color: rgba(255, 107, 74, 0.3);
-  box-shadow: 0 8px 24px -2px rgba(17, 24, 39, 0.08);
+  border-color: rgba(255, 107, 74, 0.4);
+  box-shadow: 0 10px 30px -4px rgba(17, 24, 39, 0.08);
+  transform: translateY(-2px);
 }
 
 .cardHeader {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.badgeRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.activeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  background: #ECFDF5;
+  border: 1px solid #D1FAE5;
+  color: #047857;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pulseDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10B981;
+  animation: pulseDot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+}
+
+.closedBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  color: #64748B;
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.categoryBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  background: #F0F9FF;
+  border: 1px solid #E0F2FE;
+  color: #0369A1;
+  font-size: 0.6875rem;
+  font-weight: 700;
 }
 
 .cardDate {
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
   color: var(--text-muted);
-  font-weight: 500;
 }
 
 .cardTitle {
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 800;
   line-height: 1.35;
-  margin-bottom: 6px;
   color: var(--text-main);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+  margin: 0;
 }
 
 .cardSummary {
-  font-size: 0.813rem;
+  font-size: 0.8125rem;
   color: var(--text-secondary);
   line-height: 1.5;
-  margin-bottom: 12px;
+  margin: 0;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.cardTags {
+/* Visual Context Snapshot Banner */
+.visualBanner {
+  position: relative;
+  width: 100%;
+  height: 124px;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1px solid var(--border-card);
+  margin-top: 2px;
+}
+
+.visualImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.issueCard:hover .visualImg {
+  transform: scale(1.03);
+}
+
+.visualOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.1) 60%, transparent 100%);
+}
+
+.visualXpPill {
+  position: absolute;
+  bottom: 8px;
+  left: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: 0.03em;
+}
+
+/* Kolom Aktor Terkait */
+.actorSection {
+  background: var(--surface-soft);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.actorSectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.actorSectionTitle {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.actorChipGrid {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 12px;
 }
 
-.cardTag {
-  padding: 3px 9px;
-  border-radius: var(--radius-full);
-  font-size: 0.688rem;
+.actorChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 10px;
+  background: #FFFFFF;
+  border: 1px solid var(--border-card);
+  font-size: 0.6875rem;
   font-weight: 600;
-  background: #F1F5F9;
-  color: #475569;
-  border: 1px solid #E2E8F0;
+  color: var(--text-main);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
+.actorChipEmoji {
+  font-size: 0.8125rem;
+}
+
+.actorChipName {
+  white-space: nowrap;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.actorChipMore {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  align-self: center;
+  padding-left: 2px;
+}
+
+/* Card Footer */
 .cardFooter {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   padding-top: 10px;
   border-top: 1px solid var(--border-subtle);
+  margin-top: 2px;
 }
 
 .cardStat {
@@ -354,19 +521,43 @@
   gap: 6px;
   font-size: 0.75rem;
   color: var(--text-secondary);
-  font-weight: 500;
+  font-weight: 600;
 }
 
-.cardStatIcon {
-  font-size: 0.875rem;
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 12px;
+  background: var(--gradient-primary);
+  color: #FFFFFF;
+  font-size: 0.75rem;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(255, 87, 34, 0.25);
+  transition: all var(--transition-fast);
 }
 
-.cardArrow {
-  font-size: 1.125rem;
-  color: #FF6B4A;
-  transition: transform var(--transition-fast);
+.ctaButton:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 4px 12px rgba(255, 87, 34, 0.35);
 }
 
-.issueCard:hover .cardArrow {
-  transform: translateX(4px);
+.ctaButton:active {
+  transform: scale(0.96);
+}
+
+.evaluatedCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: #ECFDF5;
+  border: 1px solid #A7F3D0;
+  color: #047857;
+  font-size: 0.75rem;
+  font-weight: 700;
 }

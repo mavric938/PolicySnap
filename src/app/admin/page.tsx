@@ -312,8 +312,10 @@ export default function AdminPage() {
         actorCards: formData.actorCards,
       });
 
-      if (res.success && res.issue) {
-        setIssues((prev) => prev.map((i) => (i.id === editingIssueId ? res.issue! : i)));
+      if (res.success) {
+        if (res.issue) {
+          setIssues((prev) => prev.map((i) => (i.id === editingIssueId ? res.issue! : i)));
+        }
         handleCancelEdit();
         setToastMsg('Perubahan isu kebijakan dan kriteria berhasil disimpan!');
         setToastType('success');
@@ -335,8 +337,10 @@ export default function AdminPage() {
         actorCards: formData.actorCards,
       });
 
-      if (res.success && res.issue) {
-        setIssues((prev) => [res.issue!, ...prev]);
+      if (res.success) {
+        if (res.issue) {
+          setIssues((prev) => [res.issue!, ...prev]);
+        }
         handleCancelEdit();
         setToastMsg('Isu kebijakan baru berhasil diterbitkan secara langsung ke publik!');
         setToastType('success');

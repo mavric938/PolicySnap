@@ -5,9 +5,20 @@ import { PolicyIssue } from '@/types';
 import { getSupabaseClient, isSupabaseConfigured } from '@/lib/supabase';
 
 const DATA_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'issues.json');
+const TMP_DATA_FILE_PATH = path.join('/tmp', 'policysnap_issues.json');
 
 // Helper to safely read local issues
 async function getStoredIssues(): Promise<PolicyIssue[]> {
+  // 1. Try reading from /tmp if updated in runtime (Vercel serverless)
+  try {
+    const rawTmp = await fs.readFile(TMP_DATA_FILE_PATH, 'utf-8');
+    const parsed = JSON.parse(rawTmp);
+    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+  } catch {
+    // ignore
+  }
+
+  // 2. Read bundled local file
   try {
     const raw = await fs.readFile(DATA_FILE_PATH, 'utf-8');
     return JSON.parse(raw);
@@ -18,7 +29,19 @@ async function getStoredIssues(): Promise<PolicyIssue[]> {
 
 // Helper to safely write local issues
 async function saveIssues(issues: PolicyIssue[]): Promise<void> {
-  await fs.writeFile(DATA_FILE_PATH, JSON.stringify(issues, null, 2), 'utf-8');
+  // 1. Try writing to bundled path (works in local development)
+  try {
+    await fs.writeFile(DATA_FILE_PATH, JSON.stringify(issues, null, 2), 'utf-8');
+  } catch (err) {
+    console.warn('Could not write to local issues file (normal in read-only environments like Vercel):', err);
+  }
+
+  // 2. Write to /tmp for serverless persistence across warm executions
+  try {
+    await fs.writeFile(TMP_DATA_FILE_PATH, JSON.stringify(issues, null, 2), 'utf-8');
+  } catch (tmpErr) {
+    console.warn('Could not write to /tmp issues file:', tmpErr);
+  }
 }
 
 // Convert Supabase row to PolicyIssue
@@ -116,7 +139,7 @@ export async function POST(request: Request) {
       const supabase = getSupabaseClient();
       if (supabase) {
         try {
-          await supabase.from('issues').insert({
+          const insertPayload: any = {
             id: newIssue.id,
             title: newIssue.title,
             summary: newIssue.summary,
@@ -126,24 +149,33 @@ export async function POST(request: Request) {
             status: newIssue.status,
             total_evaluations: 0,
             image_url: newIssue.imageUrl,
-            criteria_descriptions: newIssue.criteriaDescriptions,
-            actor_cards: newIssue.actorCards,
-          });
+          };
+          if (newIssue.criteriaDescriptions) insertPayload.criteria_descriptions = newIssue.criteriaDescriptions;
+          if (newIssue.actorCards) insertPayload.actor_cards = newIssue.actorCards;
+
+          const { error: supaErr } = await supabase.from('issues').insert(insertPayload);
+          if (supaErr) {
+            console.warn('Supabase issue insert error/warning:', supaErr);
+          }
         } catch (supaErr) {
           console.warn('Supabase issue insert warning:', supaErr);
         }
       }
     }
 
-    // 2. Always sync local file backup
-    const issues = await getStoredIssues();
-    const updatedIssues = [newIssue, ...issues];
-    await saveIssues(updatedIssues);
+    // 2. Always sync local file backup (safely, never throws)
+    try {
+      const issues = await getStoredIssues();
+      const updatedIssues = [newIssue, ...issues.filter((i) => i.id !== newIssue.id)];
+      await saveIssues(updatedIssues);
+    } catch (fsErr) {
+      console.warn('Local save backup warning:', fsErr);
+    }
 
     return NextResponse.json({ success: true, issue: newIssue }, { status: 201 });
   } catch (error) {
     console.error('Error creating issue:', error);
-    return NextResponse.json({ error: 'Failed to create issue' }, { status: 500 });
+    return NextResponse.json({ error: 'Gagal membuat isu' }, { status: 500 });
   }
 }
 
@@ -173,36 +205,59 @@ export async function PUT(request: Request) {
           if (updates.criteriaDescriptions) supabasePayload.criteria_descriptions = updates.criteriaDescriptions;
           if (updates.actorCards) supabasePayload.actor_cards = updates.actorCards;
 
-          await supabase.from('issues').update(supabasePayload).eq('id', id);
+          const { error: supaErr } = await supabase.from('issues').update(supabasePayload).eq('id', id);
+          if (supaErr) {
+            console.warn('Supabase update issue error/warning:', supaErr);
+          }
         } catch (supaErr) {
           console.warn('Supabase update issue warning:', supaErr);
         }
       }
     }
 
-    // 2. Sync local file
-    const issues = await getStoredIssues();
-    const index = issues.findIndex((i) => i.id === id);
+    // 2. Sync local file safely
+    let updatedIssue: PolicyIssue = { id, ...updates } as PolicyIssue;
+    try {
+      const issues = await getStoredIssues();
+      const index = issues.findIndex((i) => i.id === id);
 
-    if (index === -1) {
-      return NextResponse.json({ error: 'Isu tidak ditemukan di file lokal' }, { status: 404 });
+      if (index !== -1) {
+        const current = issues[index];
+        updatedIssue = {
+          ...current,
+          ...updates,
+          id: current.id,
+          createdAt: current.createdAt,
+        };
+        issues[index] = updatedIssue;
+      } else {
+        updatedIssue = {
+          id,
+          title: updates.title || 'Isu Kebijakan',
+          summary: updates.summary || '',
+          sourceUrl: updates.sourceUrl || '',
+          actorTags: updates.actorTags || [],
+          category: updates.category || 'Umum',
+          status: updates.status || 'active',
+          createdAt: new Date().toISOString().split('T')[0],
+          totalEvaluations: updates.totalEvaluations || 0,
+          imageUrl: updates.imageUrl || '',
+          criteriaDescriptions: updates.criteriaDescriptions,
+          actorCards: updates.actorCards,
+          ...updates,
+        } as PolicyIssue;
+        issues.unshift(updatedIssue);
+      }
+
+      await saveIssues(issues);
+    } catch (fsErr) {
+      console.warn('Local file update warning:', fsErr);
     }
-
-    const current = issues[index];
-    const updatedIssue: PolicyIssue = {
-      ...current,
-      ...updates,
-      id: current.id,
-      createdAt: current.createdAt,
-    };
-
-    issues[index] = updatedIssue;
-    await saveIssues(issues);
 
     return NextResponse.json({ success: true, issue: updatedIssue });
   } catch (error) {
     console.error('Error updating issue:', error);
-    return NextResponse.json({ error: 'Failed to update issue' }, { status: 500 });
+    return NextResponse.json({ error: 'Gagal memperbarui isu' }, { status: 500 });
   }
 }
 
@@ -226,21 +281,28 @@ export async function DELETE(request: Request) {
       const supabase = getSupabaseClient();
       if (supabase) {
         try {
-          await supabase.from('issues').delete().eq('id', id);
+          const { error: supaErr } = await supabase.from('issues').delete().eq('id', id);
+          if (supaErr) {
+            console.warn('Supabase delete issue error/warning:', supaErr);
+          }
         } catch (supaErr) {
           console.warn('Supabase delete issue warning:', supaErr);
         }
       }
     }
 
-    // 2. Sync local file
-    const issues = await getStoredIssues();
-    const filteredIssues = issues.filter((i) => i.id !== id);
-    await saveIssues(filteredIssues);
+    // 2. Sync local file safely
+    try {
+      const issues = await getStoredIssues();
+      const filteredIssues = issues.filter((i) => i.id !== id);
+      await saveIssues(filteredIssues);
+    } catch (fsErr) {
+      console.warn('Local file delete warning:', fsErr);
+    }
 
     return NextResponse.json({ success: true, deletedId: id });
   } catch (error) {
     console.error('Error deleting issue:', error);
-    return NextResponse.json({ error: 'Failed to delete issue' }, { status: 500 });
+    return NextResponse.json({ error: 'Gagal menghapus isu' }, { status: 500 });
   }
 }

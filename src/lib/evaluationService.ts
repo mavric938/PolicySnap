@@ -29,7 +29,11 @@ async function readLocalEvals(): Promise<StoredEvaluation[]> {
 }
 
 async function writeLocalEvals(data: StoredEvaluation[]): Promise<void> {
-  await fs.writeFile(EVALS_FILE, JSON.stringify(data, null, 2), 'utf-8');
+  try {
+    await fs.writeFile(EVALS_FILE, JSON.stringify(data, null, 2), 'utf-8');
+  } catch (err) {
+    console.warn('writeLocalEvals ignored write error (normal in read-only hosting):', err);
+  }
 }
 
 /**

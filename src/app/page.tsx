@@ -153,7 +153,7 @@ export default function LandingPage() {
         </div>
         <h1 className={styles.brandTitle}>PolicySnap</h1>
         <p className={styles.brandTagline}>
-          Platform Evaluasi Kebijakan Berbasis Bukti &amp; Konsensus Warga
+          Platform Gamifikasi Evaluasi Kebijakan &amp; Konsensus Publik
         </p>
       </div>
 
@@ -162,12 +162,12 @@ export default function LandingPage() {
         <div className={styles.badgeRow}>
           <span className={styles.integrityBadge}>
             <Icon name="verified_user" size={14} />
-            Gamifikasi Kucing 2D · Strata 1–7
+            Gamifikasi Kucing · Level 1–7
           </span>
           <span className={styles.xpBadge}>+50 XP</span>
         </div>
         <p className={styles.valueText}>
-          Buat akun atau mainkan sebagai tamu, tentukan kucing pendamping Anda, lalu uji kebijakan publik secara metodologis!
+          Buat akun atau mainkan sebagai tamu, tentukan kucing pendamping Anda, lalu uji kebijakan publik
         </p>
       </div>
 
