@@ -707,3 +707,219 @@
   background: #F8FAFC;
 }
 
+/* ==========================================================================
+   Admin Access Gate & Identity Bar Styles
+   ========================================================================== */
+
+.adminIdentityBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  margin-bottom: var(--space-md);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.adminIdentityInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.adminShieldIcon {
+  font-size: 1.25rem;
+}
+
+.adminNameRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.adminActiveName {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #1E293B;
+}
+
+.adminActiveBadge {
+  font-size: 0.625rem;
+  font-weight: 800;
+  background: #4F46E5;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 6px;
+  letter-spacing: 0.05em;
+}
+
+.adminActiveEmail {
+  font-size: 0.6875rem;
+  color: #64748B;
+  display: block;
+}
+
+/* Gate Styles */
+.gateWrapper {
+  max-width: 440px;
+  margin: var(--space-lg) auto;
+  padding: 0 var(--space-xs);
+}
+
+.gateCard {
+  background: #FFFFFF;
+  border: 1px solid rgba(79, 70, 229, 0.2);
+  border-radius: 24px;
+  padding: 28px 24px;
+  box-shadow: 0 12px 36px rgba(79, 70, 229, 0.08), 0 4px 12px rgba(0, 0, 0, 0.03);
+  text-align: center;
+}
+
+.gateIconBox {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 16px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+}
+
+.gateBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: #EEF2FF;
+  border: 1px solid #C7D2FE;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #4F46E5;
+  margin-bottom: 12px;
+}
+
+.pulseDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4F46E5;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.3); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.gateTitle {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0F172A;
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
+}
+
+.gateDesc {
+  font-size: 0.8125rem;
+  color: #64748B;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.gateErrorAlert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #FEF2F2;
+  border: 1px solid #FCA5A5;
+  border-radius: 12px;
+  color: #DC2626;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.gateForm {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  text-align: left;
+}
+
+.gateLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 6px;
+}
+
+.gateInput {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  background: #F8FAFC;
+  font-size: 0.875rem;
+  color: #0F172A;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.gateInput:focus {
+  outline: none;
+  border-color: #4F46E5;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+.passwordWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.visibilityToggle {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: #94A3B8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.visibilityToggle:hover {
+  color: #475569;
+}
+
+.gateCredentialsBox {
+  margin-top: 20px;
+  padding: 14px;
+  background: #F8FAFC;
+  border: 1px dashed #CBD5E1;
+  border-radius: 16px;
+  text-align: left;
+}
+
+.credentialsHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+

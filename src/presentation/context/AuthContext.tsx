@@ -21,6 +21,7 @@ interface AuthContextType {
   session: AuthSession | null;
   isAuthenticated: boolean;
   isGuest: boolean;
+  isAdmin: boolean;
   isLoading: boolean;
   isGoogleOAuthAvailable: boolean;
   registerWithEmail: (data: { name: string; email: string; password?: string }) => Promise<AuthResult>;
@@ -177,6 +178,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const isGuest = user?.provider === 'guest' || (typeof window !== 'undefined' && localStorage.getItem('policysnap_is_guest') === 'true');
+  const isAdmin = user?.role === 'admin' || (typeof window !== 'undefined' && localStorage.getItem('policysnap_is_admin') === 'true');
 
   const value = useMemo(
     () => ({
@@ -184,6 +186,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       session,
       isAuthenticated: Boolean(user),
       isGuest,
+      isAdmin,
       isLoading,
       isGoogleOAuthAvailable,
       registerWithEmail,
@@ -193,7 +196,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signInWithDevAccount,
       signOut,
     }),
-    [user, session, isGuest, isLoading, isGoogleOAuthAvailable]
+    [user, session, isGuest, isAdmin, isLoading, isGoogleOAuthAvailable]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

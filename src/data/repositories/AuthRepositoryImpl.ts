@@ -3,6 +3,13 @@ import { User, AuthSession, AuthResult } from '@/domain/entities/auth';
 import { SupabaseAuthDataSource, supabaseAuthDataSource } from '../datasources/supabaseAuthDataSource';
 import { AuthMapper } from '../mappers/authMapper';
 
+export const DEFAULT_ADMIN_CREDENTIALS = {
+  email: 'admin@policysnap.id',
+  username: 'admin',
+  password: 'AdminSnap2026!',
+  name: 'Administrator Kebijakan',
+};
+
 const LOCAL_SESSION_KEY = 'policysnap_active_session';
 
 /**
@@ -76,6 +83,7 @@ export class AuthRepositoryImpl implements IAuthRepository {
       email: data.email,
       avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(data.name)}`,
       provider: 'email',
+      role: 'user',
       createdAt: new Date().toISOString(),
     };
 
@@ -89,6 +97,7 @@ export class AuthRepositoryImpl implements IAuthRepository {
       window.localStorage.setItem(LOCAL_SESSION_KEY, JSON.stringify(domainSession));
       window.localStorage.setItem('policysnap_user_logged_in', 'true');
       window.localStorage.removeItem('policysnap_is_guest');
+      window.localStorage.removeItem('policysnap_is_admin');
       window.dispatchEvent(new CustomEvent('policysnap_auth_change', { detail: domainSession }));
     }
 
@@ -101,7 +110,54 @@ export class AuthRepositoryImpl implements IAuthRepository {
     };
   }
 
-  async signInWithEmail(email: string, _password?: string): Promise<AuthResult> {
+  async signInWithEmail(email: string, password?: string): Promise<AuthResult> {
+    const cleanEmail = email.trim().toLowerCase();
+    const isAdminEmail =
+      cleanEmail === DEFAULT_ADMIN_CREDENTIALS.email.toLowerCase() ||
+      cleanEmail === DEFAULT_ADMIN_CREDENTIALS.username.toLowerCase();
+
+    // Khusus Login Administrator
+    if (isAdminEmail) {
+      if (!password || password !== DEFAULT_ADMIN_CREDENTIALS.password) {
+        return {
+          success: false,
+          error: 'Password administrator salah. Silakan periksa kembali.',
+        };
+      }
+
+      const adminUser: User = {
+        id: 'admin-001',
+        name: DEFAULT_ADMIN_CREDENTIALS.name,
+        email: DEFAULT_ADMIN_CREDENTIALS.email,
+        avatarUrl: 'https://api.dicebear.com/7.x/bottts/svg?seed=AdminPolicySnap',
+        provider: 'email',
+        role: 'admin',
+        createdAt: new Date().toISOString(),
+      };
+
+      const adminSession: AuthSession = {
+        user: adminUser,
+        accessToken: 'admin-token-' + Date.now(),
+        expiresAt: Math.floor(Date.now() / 1000) + 86400 * 30,
+      };
+
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(LOCAL_SESSION_KEY, JSON.stringify(adminSession));
+        window.localStorage.setItem('policysnap_user_logged_in', 'true');
+        window.localStorage.setItem('policysnap_is_admin', 'true');
+        window.localStorage.removeItem('policysnap_is_guest');
+        window.dispatchEvent(new CustomEvent('policysnap_auth_change', { detail: adminSession }));
+      }
+
+      await this.syncUserProfile(adminUser);
+
+      return {
+        success: true,
+        user: adminUser,
+        session: adminSession,
+      };
+    }
+
     const existing = await this.getCurrentUser();
     if (existing && existing.email.toLowerCase() === email.toLowerCase()) {
       const currentSession = await this.getCurrentSession();
@@ -123,6 +179,7 @@ export class AuthRepositoryImpl implements IAuthRepository {
       email: email,
       avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(email)}`,
       provider: 'email',
+      role: 'user',
       createdAt: new Date().toISOString(),
     };
 
@@ -136,6 +193,7 @@ export class AuthRepositoryImpl implements IAuthRepository {
       window.localStorage.setItem(LOCAL_SESSION_KEY, JSON.stringify(domainSession));
       window.localStorage.setItem('policysnap_user_logged_in', 'true');
       window.localStorage.removeItem('policysnap_is_guest');
+      window.localStorage.removeItem('policysnap_is_admin');
       window.dispatchEvent(new CustomEvent('policysnap_auth_change', { detail: domainSession }));
     }
 
@@ -187,6 +245,7 @@ export class AuthRepositoryImpl implements IAuthRepository {
       window.localStorage.removeItem(LOCAL_SESSION_KEY);
       window.localStorage.removeItem('policysnap_user_logged_in');
       window.localStorage.removeItem('policysnap_is_guest');
+      window.localStorage.removeItem('policysnap_is_admin');
       window.dispatchEvent(new CustomEvent('policysnap_auth_change', { detail: null }));
     }
   }

@@ -9,6 +9,7 @@ export interface User {
   email: string;
   avatarUrl?: string;
   provider: 'google' | 'email' | 'guest';
+  role?: 'admin' | 'user';
   createdAt?: string;
 }
 

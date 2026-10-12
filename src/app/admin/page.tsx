@@ -14,6 +14,8 @@ import {
 } from '@/lib/issueService';
 import Toast from '@/components/Toast';
 import Icon from '@/components/Icon';
+import { useAuth } from '@/presentation/hooks/useAuth';
+import { DEFAULT_ADMIN_CREDENTIALS } from '@/data/repositories/AuthRepositoryImpl';
 import styles from './admin.module.css';
 
 const CATEGORIES = [
@@ -65,6 +67,13 @@ const DEFAULT_ACTORS: ActorCard[] = [
 
 export default function AdminPage() {
   const router = useRouter();
+  const { user, isAdmin, signInWithEmail, signOut } = useAuth();
+  const [adminUsernameInput, setAdminUsernameInput] = useState('');
+  const [adminPasswordInput, setAdminPasswordInput] = useState('');
+  const [showAdminPassword, setShowAdminPassword] = useState(false);
+  const [adminLoginError, setAdminLoginError] = useState('');
+  const [isAdminLoggingIn, setIsAdminLoggingIn] = useState(false);
+
   const [issues, setIssues] = useState<PolicyIssue[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -394,6 +403,155 @@ export default function AdminPage() {
     setShowToast(true);
   };
 
+  const handleAdminLoginSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAdminLoginError('');
+    setIsAdminLoggingIn(true);
+    try {
+      const res = await signInWithEmail(adminUsernameInput, adminPasswordInput);
+      if (!res.success) {
+        setAdminLoginError(res.error || 'Autentikasi administrator gagal.');
+        return;
+      }
+      setToastMsg('Selamat datang kembali, Administrator!');
+      setToastType('success');
+      setShowToast(true);
+    } catch (err: any) {
+      setAdminLoginError(err?.message || 'Terjadi kesalahan sistem.');
+    } finally {
+      setIsAdminLoggingIn(false);
+    }
+  };
+
+  // Gerbang Keamanan Admin (Jika belum login sebagai administrator)
+  if (!isAdmin) {
+    return (
+      <div className="page animate-fade-in" style={{ paddingBottom: '40px' }}>
+        {showToast && (
+          <Toast message={toastMsg} type={toastType} onClose={() => setShowToast(false)} />
+        )}
+        <header className={styles.header}>
+          <button
+            className="btn btn-ghost"
+            onClick={() => router.push('/home')}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+          >
+            <Icon name="arrow_back" size={16} />
+            <span>Beranda</span>
+          </button>
+          <h1 className={styles.headerTitle}>Pusat Kurasi & Auto-Pilot</h1>
+          <div style={{ width: 60 }} />
+        </header>
+
+        <div className={styles.gateWrapper}>
+          <div className={styles.gateCard}>
+            <div className={styles.gateIconBox}>
+              <Icon name="security" size={32} />
+            </div>
+
+            <div className={styles.gateBadge}>
+              <span className={styles.pulseDot} />
+              <span>Akses Terbatas: Administrator</span>
+            </div>
+
+            <h2 className={styles.gateTitle}>Pusat Kurasi & Admin Kebijakan</h2>
+            <p className={styles.gateDesc}>
+              Akses khusus pengelola untuk memvalidasi isu, mengedit matriks kriteria kebijakan, dan kurasi otomatis melalui DeepSeek AI Auto-Pilot.
+            </p>
+
+            {adminLoginError && (
+              <div className={styles.gateErrorAlert}>
+                <Icon name="error" size={16} />
+                <span>{adminLoginError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleAdminLoginSubmit} className={styles.gateForm}>
+              <div className={styles.formGroup}>
+                <label className={styles.gateLabel}>
+                  <Icon name="badge" size={14} />
+                  <span>Email / Username Admin</span>
+                </label>
+                <input
+                  type="text"
+                  className={styles.gateInput}
+                  placeholder="admin@policysnap.id"
+                  value={adminUsernameInput}
+                  onChange={(e) => setAdminUsernameInput(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.gateLabel}>
+                  <Icon name="lock" size={14} />
+                  <span>Kata Sandi Admin</span>
+                </label>
+                <div className={styles.passwordWrapper}>
+                  <input
+                    type={showAdminPassword ? 'text' : 'password'}
+                    className={styles.gateInput}
+                    placeholder="••••••••"
+                    value={adminPasswordInput}
+                    onChange={(e) => setAdminPasswordInput(e.target.value)}
+                    required
+                  />
+                  <button
+                    type="button"
+                    className={styles.visibilityToggle}
+                    onClick={() => setShowAdminPassword(!showAdminPassword)}
+                  >
+                    <Icon name={showAdminPassword ? 'visibility_off' : 'visibility'} size={18} />
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="btn btn-primary btn-full"
+                disabled={isAdminLoggingIn}
+                style={{
+                  background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
+                  boxShadow: '0 4px 14px rgba(79, 70, 229, 0.35)',
+                  marginTop: '6px',
+                }}
+              >
+                {isAdminLoggingIn ? 'Memvalidasi...' : 'Masuk sebagai Admin →'}
+              </button>
+            </form>
+
+            <div className={styles.gateCredentialsBox}>
+              <div className={styles.credentialsHeader}>
+                <span style={{ fontSize: '1.1rem' }}>🔑</span>
+                <div>
+                  <strong style={{ fontSize: '0.8125rem', color: '#1E293B' }}>Kredensial Default Administrator:</strong>
+                  <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '2px' }}>
+                    Email: <code style={{ background: '#F1F5F9', padding: '2px 5px', borderRadius: '4px' }}>admin@policysnap.id</code>
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '2px' }}>
+                    Sandi: <code style={{ background: '#F1F5F9', padding: '2px 5px', borderRadius: '4px' }}>AdminSnap2026!</code>
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="btn btn-outline btn-full"
+                style={{ marginTop: '10px', fontSize: '0.8125rem', borderColor: '#CBD5E1' }}
+                onClick={() => {
+                  setAdminUsernameInput(DEFAULT_ADMIN_CREDENTIALS.email);
+                  setAdminPasswordInput(DEFAULT_ADMIN_CREDENTIALS.password);
+                  setAdminLoginError('');
+                }}
+              >
+                ⚡ Isi Otomatis Kredensial Admin
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="page" style={{ paddingBottom: 'var(--space-2xl)' }}>
       {/* Header */}
@@ -423,6 +581,33 @@ export default function AdminPage() {
           <span>{aiStatus.deepseekConfigured ? `DeepSeek AI Aktif` : 'DeepSeek: Input di .env'}</span>
         </div>
       </header>
+
+      {/* Admin Session Identity Bar */}
+      <div className={styles.adminIdentityBar}>
+        <div className={styles.adminIdentityInfo}>
+          <span className={styles.adminShieldIcon}>🛡️</span>
+          <div>
+            <div className={styles.adminNameRow}>
+              <span className={styles.adminActiveName}>{user?.name || 'Administrator Kebijakan'}</span>
+              <span className={styles.adminActiveBadge}>ADMIN</span>
+            </div>
+            <span className={styles.adminActiveEmail}>{user?.email || 'admin@policysnap.id'}</span>
+          </div>
+        </div>
+        <button
+          className="btn btn-ghost btn-sm"
+          onClick={async () => {
+            await signOut();
+            setToastMsg('Berhasil keluar dari mode administrator.');
+            setToastType('info');
+            setShowToast(true);
+          }}
+          style={{ fontSize: '0.75rem', color: '#EF4444', border: '1px solid #FEE2E2', background: '#FEF2F2' }}
+        >
+          <Icon name="logout" size={14} />
+          <span>Keluar</span>
+        </button>
+      </div>
 
       {/* Admin Notice */}
       <div className={styles.adminBanner}>
