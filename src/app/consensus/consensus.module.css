@@ -416,3 +416,261 @@
   line-height: 1.55;
   max-width: 360px;
 }
+
+/* Arguments & Comments Section */
+.argumentsSection {
+  border-radius: var(--radius-2xl);
+  background: var(--surface-card);
+  border: 1px solid var(--border-card);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-soft-card);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.argSectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.argTitle {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+}
+
+.argCountBadge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-full);
+  background: #FFF1ED;
+  color: var(--primary-coral);
+  border: 1px solid #FFEDD5;
+}
+
+.argFilters {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.argFilters::-webkit-scrollbar {
+  display: none;
+}
+
+.argFilterBtn {
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-full);
+  background: var(--surface-card);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.argFilterBtnActive {
+  background: #FFF1ED;
+  border-color: rgba(255, 107, 74, 0.5);
+  color: var(--primary-coral);
+  box-shadow: 0 1px 4px rgba(255, 107, 74, 0.15);
+}
+
+.argList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.argCard {
+  background: #FAFAFA;
+  border: 1px solid #F1F5F9;
+  border-radius: 16px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  transition: transform 0.15s ease;
+}
+
+.argCard:hover {
+  border-color: #E2E8F0;
+}
+
+.argCardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.argUserBox {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.argCatAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #FFF1ED;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.argUserInfo {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.argUserName {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.argUserRank {
+  font-size: 0.6875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.argStanceBadge {
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-full);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.argCommentText {
+  font-size: 0.8125rem;
+  color: #334155;
+  line-height: 1.5;
+}
+
+.argFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.25rem;
+}
+
+.argDate {
+  font-size: 0.6875rem;
+  color: #94A3B8;
+}
+
+.voteGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.voteBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.625rem;
+  border-radius: var(--radius-full);
+  border: 1px solid #E2E8F0;
+  background: #FFFFFF;
+  color: #64748B;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.voteBtn:hover {
+  border-color: #CBD5E1;
+  color: #0F172A;
+}
+
+.voteBtnUpActive {
+  background: #ECFDF5;
+  border-color: #10B981;
+  color: #059669;
+}
+
+.voteBtnDownActive {
+  background: #FFF1F2;
+  border-color: #F43F5E;
+  color: #E11D48;
+}
+
+/* Add Comment Form */
+.addCommentBox {
+  border-top: 1px dashed #E2E8F0;
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.addCommentLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.addCommentRow {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.addCommentInput {
+  flex: 1;
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.8125rem;
+  background: #FFFFFF;
+  color: var(--text-main);
+  outline: none;
+  font-family: inherit;
+}
+
+.addCommentInput:focus {
+  border-color: var(--primary-coral);
+  box-shadow: 0 0 0 3px rgba(255, 107, 74, 0.12);
+}
+
+.addCommentSubmit {
+  padding: 0.625rem 1rem;
+  border-radius: 12px;
+  background: var(--primary-coral);
+  color: #FFFFFF;
+  border: none;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  transition: opacity 0.15s ease;
+}
+
+.addCommentSubmit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+

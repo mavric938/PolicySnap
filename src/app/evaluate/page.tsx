@@ -561,6 +561,20 @@ function EvaluateContent() {
                         className={styles.evalActionBtn}
                         onClick={() => {
                           soundService.playTap();
+                          router.push(`/consensus?issue=${item.issueId}`);
+                        }}
+                        id={`btn-consensus-${item.issueId}`}
+                        style={{ color: 'var(--primary-coral)', fontWeight: 700 }}
+                      >
+                        <Icon name="pie_chart" size={14} />
+                        <span>Konsensus</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        className={styles.evalActionBtn}
+                        onClick={() => {
+                          soundService.playTap();
                           router.push(`/share?issue=${item.issueId}`);
                         }}
                         id={`btn-share-${item.issueId}`}
@@ -1102,6 +1116,19 @@ function EvaluateContent() {
                 className="btn btn-primary btn-full"
                 onClick={() => {
                   soundService.playTap();
+                  router.push(`/consensus?issue=${selectedDetail.issueId}`);
+                }}
+                id="btn-modal-open-consensus"
+                style={{ borderRadius: '12px', padding: '10px' }}
+              >
+                <Icon name="pie_chart" size={16} />
+                <span>Lihat Konsensus Komunitas &amp; Argumen</span>
+              </button>
+              <button
+                type="button"
+                className="btn btn-outline btn-full"
+                onClick={() => {
+                  soundService.playTap();
                   router.push(`/share?issue=${selectedDetail.issueId}`);
                 }}
                 style={{ borderRadius: '12px', padding: '10px' }}
@@ -1111,12 +1138,12 @@ function EvaluateContent() {
               </button>
               <button
                 type="button"
-                className="btn btn-outline btn-full"
+                className="btn btn-ghost btn-full"
                 onClick={() => {
                   soundService.playTap();
                   router.push('/leaderboard');
                 }}
-                style={{ borderRadius: '12px', padding: '10px' }}
+                style={{ borderRadius: '12px', padding: '8px', fontSize: '0.8125rem' }}
               >
                 <Icon name="leaderboard" size={16} />
                 <span>Lihat Peringkat Warga (Leaderboard)</span>
@@ -1149,19 +1176,30 @@ function EvaluateContent() {
                 className="btn btn-primary btn-full"
                 onClick={() => {
                   soundService.playTap();
+                  router.push(`/consensus?issue=${currentIssueId}`);
+                }}
+                id="btn-modal-see-consensus"
+                style={{ borderRadius: '1rem', padding: '0.875rem' }}
+              >
+                Lihat Konsensus Komunitas &amp; Diskusi →
+              </button>
+              <button
+                className="btn btn-outline btn-full"
+                onClick={() => {
+                  soundService.playTap();
                   setShowSuccessModal(false);
                   setViewMode('results');
                 }}
                 id="btn-modal-see-results"
-                style={{ borderRadius: '1rem', padding: '0.875rem' }}
+                style={{ borderRadius: '1rem', padding: '0.75rem' }}
               >
-                Lihat Daftar Evaluasi Saya →
+                Daftar Riwayat Evaluasi Saya
               </button>
               <button
-                className="btn btn-outline btn-full"
+                className="btn btn-ghost btn-full"
                 onClick={() => router.push(`/share?issue=${currentIssueId}`)}
                 id="btn-modal-share"
-                style={{ borderRadius: '1rem', padding: '0.75rem' }}
+                style={{ borderRadius: '1rem', padding: '0.625rem', fontSize: '0.8125rem' }}
               >
                 Buka Raport Visual (9:16)
               </button>

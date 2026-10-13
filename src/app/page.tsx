@@ -24,6 +24,11 @@ export default function LandingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  // Guest Name Modal states
+  const [showGuestModal, setShowGuestModal] = useState(false);
+  const [guestInputName, setGuestInputName] = useState('');
+  const [guestInputError, setGuestInputError] = useState('');
+
   // If already authenticated and not intentional landing, redirect
   useEffect(() => {
     if (isAuthenticated) {
@@ -121,18 +126,31 @@ export default function LandingPage() {
     }
   };
 
-  // Handle Play as a Guest (Offline Cache Scheme)
-  const handlePlayAsGuest = async () => {
+  // Open Guest Name Modal
+  const handlePlayAsGuest = () => {
+    setGuestInputError('');
+    setShowGuestModal(true);
+  };
+
+  // Handle Play as a Guest with Mandatory Name Input
+  const handleConfirmGuest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const clean = guestInputName.trim();
+    if (!clean || clean.length < 2) {
+      setGuestInputError('Silakan masukkan nama minimal 2 karakter.');
+      return;
+    }
+
     setIsSubmitting(true);
-    setErrorMessage('');
+    setGuestInputError('');
     try {
-      const res = await signInAsGuest('Warga Tamu (Offline)');
+      const res = await signInAsGuest(clean);
       if (res.success) {
-        // Direct transition to Cat Customization Onboarding
+        setShowGuestModal(false);
         router.push('/onboarding');
       }
     } catch (err: any) {
-      setErrorMessage(err?.message || 'Gagal masuk sebagai tamu.');
+      setGuestInputError(err?.message || 'Gagal masuk sebagai tamu.');
     } finally {
       setIsSubmitting(false);
     }
@@ -375,6 +393,79 @@ export default function LandingPage() {
       <p className={styles.footerNote}>
         Data pengujian disimpan aman. Anda menyetujui Kode Etik Partisipasi Publik PolicySnap.
       </p>
+
+      {/* Modal Input Nama Tamu Wajib */}
+      {showGuestModal && (
+        <div className={styles.modalOverlay} onClick={() => !isSubmitting && setShowGuestModal(false)}>
+          <div className={`${styles.modalCard} animate-scale-in`} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <div className={styles.modalIconBox}>
+                <Icon name="badge" size={24} style={{ color: 'var(--primary-coral)' }} />
+              </div>
+              <button
+                type="button"
+                className={styles.modalCloseBtn}
+                onClick={() => !isSubmitting && setShowGuestModal(false)}
+                aria-label="Tutup"
+              >
+                <Icon name="close" size={20} />
+              </button>
+            </div>
+
+            <h3 className={styles.modalTitle}>Masuk sebagai Warga Tamu</h3>
+            <p className={styles.modalDesc}>
+              Tentukan nama atau nama panggilan Anda agar identitas analisis, peringkat leaderboard, dan profil kucing Anda tertera dengan benar.
+            </p>
+
+            <form onSubmit={handleConfirmGuest}>
+              <div className={styles.formGroup} style={{ textAlign: 'left', marginBottom: '1.25rem' }}>
+                <label className={styles.label}>
+                  <Icon name="person" size={15} />
+                  Nama / Nama Panggilan Anda
+                </label>
+                <input
+                  type="text"
+                  className={styles.formInput}
+                  placeholder="cth: Yogi, Rian, Amanda..."
+                  value={guestInputName}
+                  onChange={(e) => {
+                    setGuestInputName(e.target.value);
+                    if (guestInputError) setGuestInputError('');
+                  }}
+                  autoFocus
+                  required
+                />
+                {guestInputError && (
+                  <span style={{ color: '#EF4444', fontSize: '0.75rem', marginTop: '6px', display: 'block', fontWeight: 600 }}>
+                    {guestInputError}
+                  </span>
+                )}
+              </div>
+
+              <div className={styles.modalActions}>
+                <button
+                  type="submit"
+                  className="btn btn-primary btn-full"
+                  disabled={isSubmitting || !guestInputName.trim()}
+                  style={{ borderRadius: '1rem', padding: '0.875rem' }}
+                  id="btn-confirm-guest-name"
+                >
+                  {isSubmitting ? 'Menyiapkan Akun...' : 'Lanjutkan Masuk →'}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-full"
+                  onClick={() => setShowGuestModal(false)}
+                  disabled={isSubmitting}
+                  style={{ borderRadius: '1rem', padding: '0.625rem', fontSize: '0.8125rem' }}
+                >
+                  Batal
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

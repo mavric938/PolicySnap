@@ -208,10 +208,11 @@ export class AuthRepositoryImpl implements IAuthRepository {
 
   async signInAsGuest(customName?: string): Promise<AuthResult> {
     const guestId = 'guest-' + Date.now().toString(36);
+    const cleanName = (customName && customName.trim()) ? customName.trim() : 'Warga Tamu';
     const domainUser: User = {
       id: guestId,
-      name: customName || 'Warga Tamu (Offline)',
-      email: 'tamu@policysnap.local',
+      name: cleanName,
+      email: `${cleanName.toLowerCase().replace(/\s+/g, '')}@policysnap.local`,
       avatarUrl: '',
       provider: 'guest',
       createdAt: new Date().toISOString(),
@@ -227,6 +228,8 @@ export class AuthRepositoryImpl implements IAuthRepository {
       window.localStorage.setItem(LOCAL_SESSION_KEY, JSON.stringify(domainSession));
       window.localStorage.setItem('policysnap_is_guest', 'true');
       window.localStorage.setItem('policysnap_user_logged_in', 'true');
+      window.localStorage.setItem('policysnap_user_name', domainUser.name);
+      window.localStorage.setItem('policysnap_user_id', domainUser.id);
       window.dispatchEvent(new CustomEvent('policysnap_auth_change', { detail: domainSession }));
     }
 
