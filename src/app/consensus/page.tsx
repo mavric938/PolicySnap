@@ -25,11 +25,11 @@ function ConsensusContent() {
   const [consensus, setConsensus] = useState(
     MOCK_CONSENSUS[issueId] || {
       issueId,
-      avgEffectiveness: 6.8,
-      avgEfficiency: 5.9,
-      avgEquity: 6.5,
-      avgResponsiveness: 6.0,
-      totalVoters: 142,
+      avgEffectiveness: 7.0,
+      avgEfficiency: 6.0,
+      avgEquity: 5.0,
+      avgResponsiveness: 6.5,
+      totalVoters: 1,
       winnerPercentage: 65,
       loserPercentage: 35,
     }
@@ -42,6 +42,7 @@ function ConsensusContent() {
     equity: 4.0,
     responsiveness: 6.0,
   });
+  const [personalStance, setPersonalStance] = useState('Dukung Bersyarat');
 
   // Comments / Arguments state
   const [args, setArgs] = useState<Argument[]>([]);
@@ -64,55 +65,21 @@ function ConsensusContent() {
       if (found) setIssue(found);
     });
 
-    // 2. Fetch live consensus from API
-    fetch(`/api/consensus?issueId=${encodeURIComponent(issueId)}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data && data.scores) {
-          setConsensus({
-            issueId,
-            avgEffectiveness: data.scores.effectiveness,
-            avgEfficiency: data.scores.efficiency,
-            avgEquity: data.scores.equity,
-            avgResponsiveness: data.scores.responsiveness,
-            totalVoters: data.totalParticipants || data.totalVoters || 142,
-            winnerPercentage: data.winnerPercentage || 65,
-            loserPercentage: 100 - (data.winnerPercentage || 65),
-          });
+    const localId = typeof window !== 'undefined' ? localStorage.getItem('policysnap_user_id') || 'user-001' : 'user-001';
+    setCurrentUserId(localId);
 
-          if (data.userScores) {
-            setPersonalScores(data.userScores);
-          }
-          if (data.hasEvaluated !== undefined) {
-            setIsEvaluated(Boolean(data.hasEvaluated));
-          }
-        }
-      })
-      .catch((err) => console.warn('Live consensus fetch warning:', err));
+    const localName = typeof window !== 'undefined' ? localStorage.getItem('policysnap_user_name') || 'Warga' : 'Warga';
+    setUserName(localName);
 
-    // 3. Fetch live comments / arguments for this issue
-    fetch(`/api/arguments?issueId=${encodeURIComponent(issueId)}`)
-      .then((res) => res.json())
-      .then((list) => {
-        if (Array.isArray(list)) {
-          setArgs(list);
-        }
-      })
-      .catch((err) => console.warn('Arguments fetch warning:', err));
+    const savedCat = getSavedCatProfile();
+    setCatProfile(savedCat);
 
-    // 4. Load local storage status & user profile
-    const timer = setTimeout(() => {
-      const savedCat = getSavedCatProfile();
-      setCatProfile(savedCat);
-
-      const localId = localStorage.getItem('policysnap_user_id') || 'user-001';
-      setCurrentUserId(localId);
-
-      const localName = localStorage.getItem('policysnap_user_name') || savedCat.name || 'Warga';
-      setUserName(localName);
-
-      const evaluated = localStorage.getItem(`evaluated_${issueId}`);
+    // 2. CHECK LOCAL EVALUATION CACHE FIRST (IMMEDIATELY)
+    let evaluatedLocally = false;
+    if (typeof window !== 'undefined') {
       const savedEval = localStorage.getItem(`policysnap_eval_${issueId}`);
+      const evalFlag = localStorage.getItem(`evaluated_${issueId}`);
+      const historyRaw = localStorage.getItem('policysnap_evaluation_history');
 
       if (savedEval) {
         try {
@@ -120,6 +87,10 @@ function ConsensusContent() {
           if (parsed.scores) {
             setPersonalScores(parsed.scores);
           }
+          if (parsed.stance) {
+            setPersonalStance(parsed.stance);
+          }
+          evaluatedLocally = true;
           setIsEvaluated(true);
 
           if (parsed.comment && parsed.comment.trim()) {
@@ -143,15 +114,87 @@ function ConsensusContent() {
               return [userArg, ...prev].sort((a, b) => b.upvotes - b.downvotes - (a.upvotes - a.downvotes));
             });
           }
-        } catch {
-          setIsEvaluated(true);
-        }
-      } else if (evaluated) {
+        } catch {}
+      } else if (evalFlag === 'true') {
+        evaluatedLocally = true;
         setIsEvaluated(true);
+      } else if (historyRaw) {
+        try {
+          const hist = JSON.parse(historyRaw);
+          if (Array.isArray(hist)) {
+            const match = hist.find((h: any) => h.issueId === issueId);
+            if (match) {
+              evaluatedLocally = true;
+              setIsEvaluated(true);
+              if (match.scores) setPersonalScores(match.scores);
+              if (match.stance) setPersonalStance(match.stance);
+            }
+          }
+        } catch {}
       }
-    }, 0);
 
-    return () => clearTimeout(timer);
+      // Also scan any localStorage key matching policysnap_eval_
+      if (!evaluatedLocally) {
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && (k === `policysnap_eval_${issueId}` || k === `evaluated_${issueId}`)) {
+            evaluatedLocally = true;
+            setIsEvaluated(true);
+            break;
+          }
+        }
+      }
+    }
+
+    // 3. Fetch live consensus from API with userId parameter
+    fetch(`/api/consensus?issueId=${encodeURIComponent(issueId)}&userId=${encodeURIComponent(localId)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.scores) {
+          const totalVotersCount = data.totalParticipants || data.totalVoters || (evaluatedLocally ? 1 : 0);
+          setConsensus({
+            issueId,
+            avgEffectiveness: data.scores.effectiveness,
+            avgEfficiency: data.scores.efficiency,
+            avgEquity: data.scores.equity,
+            avgResponsiveness: data.scores.responsiveness,
+            totalVoters: totalVotersCount,
+            winnerPercentage: data.winnerPercentage || 65,
+            loserPercentage: 100 - (data.winnerPercentage || 65),
+          });
+
+          if (data.userScores) {
+            setPersonalScores(data.userScores);
+          }
+          if (data.userStance) {
+            setPersonalStance(data.userStance);
+          }
+          // NEVER downgrade to false if already evaluated locally!
+          if (data.hasEvaluated || evaluatedLocally) {
+            setIsEvaluated(true);
+          }
+        }
+      })
+      .catch((err) => console.warn('Live consensus fetch warning:', err));
+
+    // 4. Fetch live comments / arguments for this issue
+    fetch(`/api/arguments?issueId=${encodeURIComponent(issueId)}`)
+      .then((res) => res.json())
+      .then((list) => {
+        if (Array.isArray(list)) {
+          setArgs((prev) => {
+            const userOnly = prev.filter((p) => p.id.startsWith('user-arg-'));
+            const merged = [...list];
+            userOnly.forEach((u) => {
+              if (!merged.some((m) => m.id === u.id || m.comment === u.comment)) {
+                merged.unshift(u);
+              }
+            });
+            return merged.sort((a, b) => b.upvotes - b.downvotes - (a.upvotes - a.downvotes));
+          });
+        }
+      })
+      .catch((err) => console.warn('Arguments fetch warning:', err));
   }, [issueId]);
 
   // Handle Upvote / Downvote on an Argument
@@ -263,45 +306,48 @@ function ConsensusContent() {
     }
   };
 
+  const isSoleVoter = !consensus.totalVoters || consensus.totalVoters <= 1;
+
   // Deltas for 4 Dimensions
   const deltas = [
     {
       label: 'Efektivitas',
       user: personalScores.effectiveness,
-      pub: consensus.avgEffectiveness,
+      pub: isSoleVoter ? personalScores.effectiveness : consensus.avgEffectiveness,
     },
     {
       label: 'Efisiensi',
       user: personalScores.efficiency,
-      pub: consensus.avgEfficiency,
+      pub: isSoleVoter ? personalScores.efficiency : consensus.avgEfficiency,
     },
     {
       label: 'Keadilan',
       user: personalScores.equity,
-      pub: consensus.avgEquity,
+      pub: isSoleVoter ? personalScores.equity : consensus.avgEquity,
     },
     {
       label: 'Responsivitas',
       user: personalScores.responsiveness,
-      pub: consensus.avgResponsiveness,
+      pub: isSoleVoter ? personalScores.responsiveness : consensus.avgResponsiveness,
     },
   ].map((d) => {
     const diff = Number((d.user - d.pub).toFixed(1));
-    const status =
-      diff > 0.3
-        ? `+${diff} Lebih Optimis`
-        : diff < -0.3
-        ? `${diff} Lebih Kritis`
-        : `±0.0 Seimbang`;
-    const color = diff > 0.3 ? '#10B981' : diff < -0.3 ? '#F43F5E' : '#6B7280';
+    const status = isSoleVoter
+      ? 'Penilaian Awal'
+      : diff > 0.3
+      ? `+${diff} Lebih Optimis`
+      : diff < -0.3
+      ? `${diff} Lebih Kritis`
+      : `±0.0 Seimbang`;
+    const color = isSoleVoter ? '#0284C7' : diff > 0.3 ? '#10B981' : diff < -0.3 ? '#F43F5E' : '#6B7280';
     return { ...d, diff, status, color };
   });
 
   const nationalScore = (
-    (consensus.avgEffectiveness +
-      consensus.avgEfficiency +
-      consensus.avgEquity +
-      consensus.avgResponsiveness) /
+    (personalScores.effectiveness +
+      personalScores.efficiency +
+      personalScores.equity +
+      personalScores.responsiveness) /
     4
   ).toFixed(1);
 
@@ -339,10 +385,10 @@ function ConsensusContent() {
         <span className={styles.headerTitle}>Dasbor Konsensus</span>
         <button
           className="btn btn-ghost"
-          onClick={() => router.push('/leaderboard')}
+          onClick={() => router.push('/home')}
           style={{ fontSize: '0.8125rem', color: 'var(--primary-coral)' }}
         >
-          <span>Leaderboard →</span>
+          <span>Beranda →</span>
         </button>
       </header>
 
@@ -355,7 +401,11 @@ function ConsensusContent() {
           </div>
           <div className={styles.votersPill}>
             <span className={styles.pulseDot} />
-            <span>{consensus.totalVoters.toLocaleString('id-ID')} Warga Berpartisipasi</span>
+            <span>
+              {isSoleVoter
+                ? '1 Warga (Penilaian Perdana Anda)'
+                : `${consensus.totalVoters.toLocaleString('id-ID')} Warga Berpartisipasi`}
+            </span>
           </div>
         </div>
 
@@ -366,6 +416,21 @@ function ConsensusContent() {
           <span>Rujukan Terverifikasi · PolicySnap Crowdsourcing Insight</span>
         </div>
       </section>
+
+      {/* Notice Banner jika baru satu warga (Evaluator Pertama) */}
+      {isEvaluated && isSoleVoter && (
+        <div className={styles.soleVoterBanner} id="sole-voter-banner">
+          <div className={styles.soleVoterIconBox}>
+            <Icon name="campaign" size={24} style={{ color: '#D97706' }} />
+          </div>
+          <div className={styles.soleVoterText}>
+            <h3 className={styles.soleVoterTitle}>Anda yang pertama menilai isu ini!</h3>
+            <p className={styles.soleVoterDesc}>
+              Belum ada konsensus agregat publik dari warga lain. Grafik dan skor saat ini mencerminkan evaluasi mandiri Anda. Pantau kembali nanti saat lebih banyak warga berpartisipasi.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* If locked (Anti-bandwagon mechanism) */}
       {!isEvaluated ? (
@@ -399,16 +464,31 @@ function ConsensusContent() {
                   <span className={styles.nationalScoreMax}>/ 10</span>
                 </div>
               </div>
-              <div className={styles.verdictBadge}>
-                <Icon name="info" size={15} />
-                <span>Layak Bersyarat</span>
+              <div
+                className={styles.verdictBadge}
+                style={
+                  isSoleVoter
+                    ? { background: '#FEF3C7', color: '#B45309', borderColor: '#FDE68A' }
+                    : undefined
+                }
+              >
+                <Icon name={isSoleVoter ? 'person' : 'info'} size={15} />
+                <span>{isSoleVoter ? 'Penilaian Mandiri' : 'Layak Bersyarat'}</span>
               </div>
             </div>
 
             <div className={styles.narrativeNote}>
               <Icon name="forum" size={18} style={{ color: 'var(--primary-coral)', flexShrink: 0, marginTop: '2px' }} />
               <p className={styles.narrativeText}>
-                <strong style={{ color: 'var(--text-main)' }}>Sentimen Inti:</strong> Publik sepakat kebijakan ini relevan, namun menuntut transparansi implementasi lapangan, dispensasi bagi kelompok rentan, serta pengawasan akuntabel.
+                {isSoleVoter ? (
+                  <>
+                    <strong style={{ color: 'var(--text-main)' }}>Sentimen Awal:</strong> Anda adalah penilai pertama pada isu ini dengan skor indeks mandiri {nationalScore}/10. Rekomendasi kebijakan akan terus diperbarui secara dinamis seiring masuknya evaluasi dari warga lain.
+                  </>
+                ) : (
+                  <>
+                    <strong style={{ color: 'var(--text-main)' }}>Sentimen Inti:</strong> Publik sepakat kebijakan ini relevan, namun menuntut transparansi implementasi lapangan, dispensasi bagi kelompok rentan, serta pengawasan akuntabel.
+                  </>
+                )}
               </p>
             </div>
           </div>
@@ -418,7 +498,11 @@ function ConsensusContent() {
             <div className={styles.cardHeader}>
               <div>
                 <h2 className={styles.cardTitle}>Visual Komparasi 4 Dimensi</h2>
-                <span className={styles.cardSubtitle}>Evaluasi Anda vs Agregat Suara Publik</span>
+                <span className={styles.cardSubtitle}>
+                  {isSoleVoter
+                    ? 'Evaluasi Mandiri Anda (Menunggu Pembanding Warga Lain)'
+                    : 'Evaluasi Anda vs Agregat Suara Publik'}
+                </span>
               </div>
               <div className={styles.cardIconBox}>
                 <Icon name="radar" size={20} />
@@ -433,7 +517,9 @@ function ConsensusContent() {
               </div>
               <div className={styles.legendItem}>
                 <span className={styles.legendPillMint} />
-                <span style={{ color: 'var(--text-secondary)' }}>Rata-rata Publik</span>
+                <span style={{ color: 'var(--text-secondary)' }}>
+                  {isSoleVoter ? 'Konsensus Publik (Belum Ada Warga Lain)' : 'Rata-rata Publik'}
+                </span>
               </div>
             </div>
 
@@ -441,12 +527,16 @@ function ConsensusContent() {
             <div className={styles.chartContainer}>
               <RadarChart
                 userScores={personalScores}
-                publicScores={{
-                  effectiveness: consensus.avgEffectiveness,
-                  efficiency: consensus.avgEfficiency,
-                  equity: consensus.avgEquity,
-                  responsiveness: consensus.avgResponsiveness,
-                }}
+                publicScores={
+                  isSoleVoter
+                    ? personalScores
+                    : {
+                        effectiveness: consensus.avgEffectiveness,
+                        efficiency: consensus.avgEfficiency,
+                        equity: consensus.avgEquity,
+                        responsiveness: consensus.avgResponsiveness,
+                      }
+                }
               />
             </div>
 
@@ -462,7 +552,9 @@ function ConsensusContent() {
                   </div>
                   <div className={styles.deltaScoreRow}>
                     <span className={styles.deltaUserScore}>Anda: {d.user}</span>
-                    <span className={styles.deltaPubScore}>Publik: {d.pub}</span>
+                    <span className={styles.deltaPubScore}>
+                      {isSoleVoter ? 'Publik: Menunggu' : `Publik: ${d.pub}`}
+                    </span>
                   </div>
                 </div>
               ))}
@@ -480,40 +572,78 @@ function ConsensusContent() {
               </div>
             </div>
 
-            <div className={styles.distributionBar}>
-              <div
-                className={styles.distSegment}
-                style={{ width: `${consensus.winnerPercentage}%`, background: '#10B981' }}
-              >
-                {consensus.winnerPercentage}%
+            {isSoleVoter ? (
+              <div className={styles.distributionBar}>
+                <div
+                  className={styles.distSegment}
+                  style={{
+                    width: '100%',
+                    background:
+                      personalStance.includes('Tolak') || personalStance.includes('Tidak')
+                        ? '#F43F5E'
+                        : personalStance.includes('Netral')
+                        ? '#F59E0B'
+                        : '#10B981',
+                  }}
+                >
+                  100% {personalStance}
+                </div>
               </div>
-              <div
-                className={styles.distSegment}
-                style={{ width: `${Math.max(10, 100 - consensus.winnerPercentage - 15)}%`, background: '#F59E0B' }}
-              >
-                {Math.max(10, 100 - consensus.winnerPercentage - 15)}%
+            ) : (
+              <div className={styles.distributionBar}>
+                <div
+                  className={styles.distSegment}
+                  style={{ width: `${consensus.winnerPercentage}%`, background: '#10B981' }}
+                >
+                  {consensus.winnerPercentage}%
+                </div>
+                <div
+                  className={styles.distSegment}
+                  style={{ width: `${Math.max(10, 100 - consensus.winnerPercentage - 15)}%`, background: '#F59E0B' }}
+                >
+                  {Math.max(10, 100 - consensus.winnerPercentage - 15)}%
+                </div>
+                <div
+                  className={styles.distSegment}
+                  style={{ width: '15%', background: '#F43F5E' }}
+                >
+                  15%
+                </div>
               </div>
-              <div
-                className={styles.distSegment}
-                style={{ width: '15%', background: '#F43F5E' }}
-              >
-                15%
-              </div>
-            </div>
+            )}
 
             <div className={styles.distLegend}>
-              <div className={styles.distLegendItem}>
-                <span className={styles.distDot} style={{ background: '#10B981' }} />
-                <span>Dukung Penuh ({consensus.winnerPercentage}%)</span>
-              </div>
-              <div className={styles.distLegendItem}>
-                <span className={styles.distDot} style={{ background: '#F59E0B' }} />
-                <span>Bersyarat ({Math.max(10, 100 - consensus.winnerPercentage - 15)}%)</span>
-              </div>
-              <div className={styles.distLegendItem}>
-                <span className={styles.distDot} style={{ background: '#F43F5E' }} />
-                <span>Tolak (15%)</span>
-              </div>
+              {isSoleVoter ? (
+                <div className={styles.distLegendItem}>
+                  <span
+                    className={styles.distDot}
+                    style={{
+                      background:
+                        personalStance.includes('Tolak') || personalStance.includes('Tidak')
+                          ? '#F43F5E'
+                          : personalStance.includes('Netral')
+                          ? '#F59E0B'
+                          : '#10B981',
+                    }}
+                  />
+                  <span>100% Suara Mandiri Anda ({personalStance})</span>
+                </div>
+              ) : (
+                <>
+                  <div className={styles.distLegendItem}>
+                    <span className={styles.distDot} style={{ background: '#10B981' }} />
+                    <span>Dukung Penuh ({consensus.winnerPercentage}%)</span>
+                  </div>
+                  <div className={styles.distLegendItem}>
+                    <span className={styles.distDot} style={{ background: '#F59E0B' }} />
+                    <span>Bersyarat ({Math.max(10, 100 - consensus.winnerPercentage - 15)}%)</span>
+                  </div>
+                  <div className={styles.distLegendItem}>
+                    <span className={styles.distDot} style={{ background: '#F43F5E' }} />
+                    <span>Tolak (15%)</span>
+                  </div>
+                </>
+              )}
             </div>
           </section>
 
@@ -690,12 +820,12 @@ function ConsensusContent() {
             </button>
             <button
               className="btn btn-outline btn-full"
-              onClick={() => router.push('/leaderboard')}
-              id="btn-view-leaderboard"
+              onClick={() => router.push('/evaluate')}
+              id="btn-view-evaluated-history"
               style={{ borderRadius: '1rem', padding: '0.75rem' }}
             >
-              <Icon name="leaderboard" size={18} />
-              <span>Lihat Leaderboard Warga (Peringkat Kucing)</span>
+              <Icon name="fact_check" size={18} />
+              <span>Kembali ke Riwayat Evaluasi Saya</span>
             </button>
           </div>
         </>

@@ -582,19 +582,6 @@ function EvaluateContent() {
                         <Icon name="share" size={14} />
                         <span>Raport 9:16</span>
                       </button>
-
-                      <button
-                        type="button"
-                        className={styles.evalActionBtn}
-                        onClick={() => {
-                          soundService.playTap();
-                          router.push('/leaderboard');
-                        }}
-                        id={`btn-leaderboard-${item.issueId}`}
-                      >
-                        <Icon name="leaderboard" size={14} />
-                        <span>Leaderboard</span>
-                      </button>
                     </div>
                   </article>
                 );
@@ -1135,18 +1122,6 @@ function EvaluateContent() {
               >
                 <Icon name="share" size={16} />
                 <span>Buka Raport Visual 9:16 (Share)</span>
-              </button>
-              <button
-                type="button"
-                className="btn btn-ghost btn-full"
-                onClick={() => {
-                  soundService.playTap();
-                  router.push('/leaderboard');
-                }}
-                style={{ borderRadius: '12px', padding: '8px', fontSize: '0.8125rem' }}
-              >
-                <Icon name="leaderboard" size={16} />
-                <span>Lihat Peringkat Warga (Leaderboard)</span>
               </button>
             </div>
           </div>
