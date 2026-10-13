@@ -6,6 +6,7 @@ import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { MOCK_ISSUES, MOCK_ACTORS } from '@/data/mock';
 import { PolicyIssue } from '@/types';
 import { getIssues } from '@/lib/issueService';
+import { getIssueBannerImage, getCategoryIllustration } from '@/lib/categoryTheme';
 import BottomNav from '@/components/BottomNav';
 import Toast from '@/components/Toast';
 import Icon from '@/components/Icon';
@@ -573,12 +574,12 @@ function EvaluateContent() {
                         className={styles.evalActionBtn}
                         onClick={() => {
                           soundService.playTap();
-                          router.push(`/consensus?issue=${item.issueId}`);
+                          router.push('/leaderboard');
                         }}
-                        id={`btn-consensus-${item.issueId}`}
+                        id={`btn-leaderboard-${item.issueId}`}
                       >
-                        <Icon name="bar_chart" size={14} />
-                        <span>Konsensus</span>
+                        <Icon name="leaderboard" size={14} />
+                        <span>Leaderboard</span>
                       </button>
                     </div>
                   </article>
@@ -699,12 +700,12 @@ function EvaluateContent() {
             {/* Context Image Snapshot Banner */}
             <div className={styles.policyBanner}>
               <img
-                src={
-                  issue.imageUrl ||
-                  'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=800&q=80'
-                }
+                src={getIssueBannerImage(issue)}
                 alt={issue.title}
                 className={styles.policyBannerBg}
+                onError={(e) => {
+                  e.currentTarget.src = getCategoryIllustration(issue.category);
+                }}
               />
               <div className={styles.policyBannerOverlay} />
               <div className={styles.policyXpTag}>
@@ -1113,12 +1114,12 @@ function EvaluateContent() {
                 className="btn btn-outline btn-full"
                 onClick={() => {
                   soundService.playTap();
-                  router.push(`/consensus?issue=${selectedDetail.issueId}`);
+                  router.push('/leaderboard');
                 }}
                 style={{ borderRadius: '12px', padding: '10px' }}
               >
-                <Icon name="bar_chart" size={16} />
-                <span>Bandingkan dengan Konsensus Publik</span>
+                <Icon name="leaderboard" size={16} />
+                <span>Lihat Peringkat Warga (Leaderboard)</span>
               </button>
             </div>
           </div>

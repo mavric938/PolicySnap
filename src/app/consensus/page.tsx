@@ -39,6 +39,11 @@ function ConsensusContent() {
   });
 
   useEffect(() => {
+    // Redirect to Leaderboard as requested
+    router.replace('/leaderboard');
+  }, [router]);
+
+  useEffect(() => {
     getIssues().then((list) => {
       const found = list.find((i) => i.id === issueId);
       if (found) setIssue(found);

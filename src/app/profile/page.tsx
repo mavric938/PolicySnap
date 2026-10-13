@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { MOCK_USER, RANKS, getRankForXP, getXPProgress } from '@/data/mock';
 import {
   CAT_COSTUMES,
@@ -22,18 +22,27 @@ import GoogleLoginButton from '@/presentation/components/GoogleLoginButton';
 import CatVisualIcon from '@/components/CatVisualIcon';
 import SoundToggle from '@/components/SoundToggle';
 
-export default function ProfilePage() {
+function ProfileContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user: authUser, isAuthenticated, signOut } = useAuth();
   const currentUserId = authUser?.id || (typeof window !== 'undefined' ? localStorage.getItem('policysnap_user_id') || 'user-001' : 'user-001');
+
+  const queryUserId = searchParams.get('userId');
+  const isViewingOtherUser = Boolean(queryUserId && queryUserId !== currentUserId);
+  const targetUserId = queryUserId || currentUserId;
+
+  const [profileName, setProfileName] = useState(MOCK_USER.name);
   const [userXP, setUserXP] = useState(MOCK_USER.totalXP);
   const [evalCount, setEvalCount] = useState(MOCK_USER.evaluationsCount);
+  const [upvoteCount, setUpvoteCount] = useState(0);
   const [catProfile, setCatProfile] = useState<CatProfile>(DEFAULT_CAT_PROFILE);
   const [selectedSlotTab, setSelectedSlotTab] = useState<'all' | CatCostumeSlot>('all');
   const [toastMsg, setToastMsg] = useState('');
   const [showToast, setShowToast] = useState(false);
 
   const syncProfileToBackend = (updates: any) => {
+    if (isViewingOtherUser) return;
     fetch('/api/user/profile', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -46,17 +55,22 @@ export default function ProfilePage() {
 
   useEffect(() => {
     // Fetch live profile from backend API
-    fetch(`/api/user/profile?userId=${encodeURIComponent(currentUserId)}`)
+    fetch(`/api/user/profile?userId=${encodeURIComponent(targetUserId)}`)
       .then((res) => res.json())
       .then((p) => {
-        if (p) {
+        if (p && !p.error) {
+          if (p.name) setProfileName(p.name);
           if (p.totalXP !== undefined) {
             setUserXP(p.totalXP);
-            localStorage.setItem('policysnap_xp', String(p.totalXP));
+            if (!isViewingOtherUser) localStorage.setItem('policysnap_xp', String(p.totalXP));
           }
           if (p.evaluationsCount !== undefined) {
             setEvalCount(p.evaluationsCount);
-            localStorage.setItem('policysnap_eval_count', String(p.evaluationsCount));
+            if (!isViewingOtherUser) localStorage.setItem('policysnap_eval_count', String(p.evaluationsCount));
+          }
+          if (p.upvotesCount !== undefined) {
+            setUpvoteCount(p.upvotesCount);
+            if (!isViewingOtherUser) localStorage.setItem('policysnap_upvotes_given', String(p.upvotesCount));
           }
           if (p.catAvatar) {
             setCatProfile((prev) => ({
@@ -69,19 +83,24 @@ export default function ProfilePage() {
       })
       .catch((err) => console.warn('Backend profile fetch warning:', err));
 
-    const timer = setTimeout(() => {
-      const savedXP = localStorage.getItem('policysnap_xp');
-      if (savedXP) setUserXP(Number(savedXP));
+    if (!isViewingOtherUser) {
+      const timer = setTimeout(() => {
+        const savedXP = localStorage.getItem('policysnap_xp');
+        if (savedXP) setUserXP(Number(savedXP));
 
-      const savedCount = localStorage.getItem('policysnap_eval_count');
-      if (savedCount) setEvalCount(Number(savedCount));
+        const savedCount = localStorage.getItem('policysnap_eval_count');
+        if (savedCount) setEvalCount(Number(savedCount));
 
-      const savedCat = getSavedCatProfile();
-      setCatProfile(savedCat);
-    }, 0);
+        const savedUpvotes = localStorage.getItem('policysnap_upvotes_given');
+        if (savedUpvotes) setUpvoteCount(Number(savedUpvotes));
 
-    return () => clearTimeout(timer);
-  }, []);
+        const savedCat = getSavedCatProfile();
+        setCatProfile(savedCat);
+      }, 0);
+
+      return () => clearTimeout(timer);
+    }
+  }, [targetUserId, isViewingOtherUser]);
 
   const handleToggleCostume = (item: CatCostumeItem) => {
     const isUnlocked = userXP >= (RANKS.find((r) => r.level === item.requiredLevel)?.minXP || 0);
@@ -161,16 +180,28 @@ export default function ProfilePage() {
     <div className="page">
       {/* Header */}
       <header className={styles.header}>
-        <button
-          className="btn btn-ghost"
-          onClick={() => router.back()}
-          id="btn-back-profile"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.8125rem' }}
-        >
-          <Icon name="arrow_back" size={18} />
-          <span>Kembali</span>
-        </button>
-        <span className={styles.headerTitle}>Profil</span>
+        {isViewingOtherUser ? (
+          <button
+            className="btn btn-ghost"
+            onClick={() => router.push('/leaderboard')}
+            id="btn-back-leaderboard"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.8125rem' }}
+          >
+            <Icon name="arrow_back" size={18} />
+            <span>Leaderboard</span>
+          </button>
+        ) : (
+          <button
+            className="btn btn-ghost"
+            onClick={() => router.back()}
+            id="btn-back-profile"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.8125rem' }}
+          >
+            <Icon name="arrow_back" size={18} />
+            <span>Kembali</span>
+          </button>
+        )}
+        <span className={styles.headerTitle}>{isViewingOtherUser ? `Profil ${profileName}` : 'Profil'}</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <SoundToggle />
         </div>
@@ -198,7 +229,9 @@ export default function ProfilePage() {
         </span>
 
         <p className={styles.catBio}>
-          Kucing pendamping analisis kebijakan Anda. Selesaikan evaluasi publik dan buka berbagai kostum kehormatan di lemari kostum!
+          {isViewingOtherUser
+            ? `Profil warga analis ${profileName} dengan kucing ${catProfile.name} di PolicySnap.`
+            : 'Kucing pendamping analisis kebijakan Anda. Selesaikan evaluasi publik dan buka berbagai kostum kehormatan di lemari kostum!'}
         </p>
 
         {/* 3 Key Metrics */}
@@ -223,10 +256,10 @@ export default function ProfilePage() {
 
           <div className={styles.metricBox}>
             <span className={styles.metricVal} style={{ color: '#059669' }}>
-              1.4k
+              {upvoteCount.toLocaleString('id-ID')}
             </span>
             <span className={styles.metricLabel}>Upvotes</span>
-            <span className={styles.metricSub}>Suara Warga</span>
+            <span className={styles.metricSub}>{isViewingOtherUser ? 'Diterima Warga' : 'Suara Diberikan'}</span>
           </div>
         </div>
       </section>
@@ -268,7 +301,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                {item && (
+                {!isViewingOtherUser && item && (
                   <button
                     className={styles.slotUnequipBtn}
                     onClick={() => handleUnequipSlot(slotInfo.slot)}
@@ -283,8 +316,10 @@ export default function ProfilePage() {
         </div>
       </section>
 
-      {/* 3. Lemari Kostum / Fitting Room */}
-      <section className={styles.sectionCard}>
+      {!isViewingOtherUser && (
+        <>
+          {/* 3. Lemari Kostum / Fitting Room */}
+          <section className={styles.sectionCard}>
         <div className={styles.sectionHeaderRow}>
           <div className={styles.sectionTitleGroup}>
             <div className={styles.sectionIconBox}>
@@ -704,6 +739,8 @@ export default function ProfilePage() {
           <span>Buka Dashboard Admin →</span>
         </button>
       </section>
+        </>
+      )}
 
       {/* Toast Feedback */}
       {showToast && (
@@ -715,5 +752,13 @@ export default function ProfilePage() {
 
       <BottomNav />
     </div>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={<div className="page" style={{ padding: '2rem', textAlign: 'center', color: '#64748B' }}>Memuat profil warga...</div>}>
+      <ProfileContent />
+    </Suspense>
   );
 }

@@ -3,6 +3,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { PolicyIssue } from '@/types';
 import { getSupabaseClient, isSupabaseConfigured } from '@/lib/supabase';
+import { getCategoryIllustration } from '@/lib/categoryTheme';
 
 const DATA_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'issues.json');
 const TMP_DATA_FILE_PATH = path.join('/tmp', 'policysnap_issues.json');
@@ -129,7 +130,7 @@ export async function POST(request: Request) {
       status: body.status === 'closed' ? 'closed' : 'active',
       createdAt: new Date().toISOString().split('T')[0],
       totalEvaluations: 0,
-      imageUrl: body.imageUrl?.trim() || '',
+      imageUrl: body.imageUrl?.trim() || getCategoryIllustration(body.category),
       criteriaDescriptions: body.criteriaDescriptions || undefined,
       actorCards: Array.isArray(body.actorCards) ? body.actorCards : undefined,
     };

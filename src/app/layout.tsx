@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { AuthProvider } from "@/presentation/context/AuthContext";
+import SessionWatcher from "@/components/SessionWatcher";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -52,6 +53,7 @@ export default function RootLayout({
       </head>
       <body suppressHydrationWarning>
         <AuthProvider>
+          <SessionWatcher />
           <div id="app-root">{children}</div>
         </AuthProvider>
       </body>

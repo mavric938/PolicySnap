@@ -151,7 +151,7 @@ function ShareContent() {
 
   const handleCopyLink = () => {
     if (typeof window !== 'undefined') {
-      const shareUrl = `${window.location.origin}/consensus?issue=${issueId}`;
+      const shareUrl = `${window.location.origin}/evaluate?issue=${issueId}`;
       navigator.clipboard.writeText(shareUrl).then(() => {
         setToastMsg('Tautan raport interaktif berhasil disalin! 📋');
         setShowToast(true);

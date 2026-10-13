@@ -8,6 +8,7 @@ export interface User {
   totalXP: number;
   rankLevel: RankLevel;
   evaluationsCount: number;
+  upvotesCount?: number;
   joinedAt: string;
   catAvatar?: CatProfile;
 }

@@ -1,0 +1,431 @@
+/* Leaderboard Module CSS - PolicySnap */
+
+.header {
+  padding: 1.25rem 1rem 0.75rem;
+  background: linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0.85) 100%);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.headerTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brandGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brandIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #FF6B4A 0%, #EA580C 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(255, 107, 74, 0.25);
+}
+
+.brandTitle {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.brandSubtitle {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* User Floating Rank Card */
+.myRankBanner {
+  margin: 1rem 1rem 0.5rem;
+  padding: 0.875rem 1rem;
+  background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+  border-radius: 1rem;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.myRankLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.myCatThumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.myRankInfo h4 {
+  font-size: 0.875rem;
+  font-weight: 700;
+  margin: 0 0 2px;
+  color: #FFFFFF;
+}
+
+.myRankInfo p {
+  font-size: 0.75rem;
+  color: #94A3B8;
+  margin: 0;
+}
+
+.myRankBadge {
+  background: rgba(255, 107, 74, 0.25);
+  border: 1px solid rgba(255, 107, 74, 0.5);
+  color: #FF8A65;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: right;
+}
+
+/* Tabs Filter */
+.tabsRow {
+  display: flex;
+  gap: 6px;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabsRow::-webkit-scrollbar {
+  display: none;
+}
+
+.tabBtn {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.78125rem;
+  font-weight: 600;
+  border: 1px solid var(--border-color);
+  background: #FFFFFF;
+  color: var(--text-muted);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tabBtnActive {
+  background: var(--primary-coral);
+  color: #FFFFFF;
+  border-color: var(--primary-coral);
+  box-shadow: 0 3px 10px rgba(255, 107, 74, 0.25);
+}
+
+/* Podium Top 3 */
+.podiumSection {
+  padding: 1rem 1rem 1.5rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 10px;
+  background: radial-gradient(circle at 50% 30%, rgba(255, 107, 74, 0.08) 0%, transparent 70%);
+}
+
+.podiumCard {
+  flex: 1;
+  max-width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.podiumCard:hover {
+  transform: translateY(-4px);
+}
+
+.podiumCard1 {
+  order: 2;
+  transform: translateY(-10px);
+}
+
+.podiumCard1:hover {
+  transform: translateY(-14px);
+}
+
+.podiumCard2 {
+  order: 1;
+}
+
+.podiumCard3 {
+  order: 3;
+}
+
+.podiumAvatarWrap {
+  position: relative;
+  margin-bottom: 6px;
+}
+
+.podiumAvatarBox {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #FFF1ED;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.podiumCard1 .podiumAvatarBox {
+  width: 86px;
+  height: 86px;
+  border: 3px solid #F59E0B;
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.35);
+}
+
+.podiumCard2 .podiumAvatarBox {
+  border: 3px solid #94A3B8;
+}
+
+.podiumCard3 .podiumAvatarBox {
+  border: 3px solid #D97706;
+}
+
+.crownBadge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.25rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+.rankPillMini {
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  white-space: nowrap;
+}
+
+.rank1Pill { background: #F59E0B; }
+.rank2Pill { background: #64748B; }
+.rank3Pill { background: #D97706; }
+
+.podiumName {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 6px 0 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 105px;
+}
+
+.podiumCatName {
+  font-size: 0.6875rem;
+  color: var(--primary-coral);
+  font-weight: 600;
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 105px;
+}
+
+.podiumXP {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.podiumSubStat {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+/* Ranking List */
+.listSection {
+  padding: 0 1rem 6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.listHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.25rem;
+}
+
+.listTitle {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.listSub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.citizenCard {
+  background: #FFFFFF;
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.citizenCard:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 107, 74, 0.4);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+}
+
+.citizenCardSelf {
+  border-color: var(--primary-coral);
+  background: #FFFBF9;
+  box-shadow: 0 4px 14px rgba(255, 107, 74, 0.12);
+}
+
+.rankNumberCol {
+  width: 24px;
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: #94A3B8;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.avatarCol {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #FFF1ED;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1.5px solid rgba(255, 107, 74, 0.2);
+}
+
+.infoCol {
+  flex: 1;
+  min-width: 0;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.citizenName {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-main);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.catBadgePill {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--primary-coral);
+  background: #FFF1ED;
+  padding: 2px 6px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.statsCol {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.statXP {
+  font-size: 0.8125rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.statDetails {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.6875rem;
+  color: #64748B;
+}
+
+.statDetailItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.visitBtn {
+  background: #F1F5F9;
+  border: none;
+  border-radius: 8px;
+  padding: 6px;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.visitBtn:hover {
+  background: var(--primary-coral);
+  color: #FFFFFF;
+}

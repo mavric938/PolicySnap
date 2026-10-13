@@ -7,7 +7,7 @@ import styles from './BottomNav.module.css';
 const NAV_ITEMS = [
   { path: '/home', label: 'Beranda', icon: 'home' },
   { path: '/evaluate', label: 'Evaluasi', icon: 'fact_check' },
-  { path: '/consensus', label: 'Konsensus', icon: 'radar' },
+  { path: '/leaderboard', label: 'Leaderboard', icon: 'leaderboard' },
   { path: '/profile', label: 'Profil', icon: 'military_tech' },
 ];
 

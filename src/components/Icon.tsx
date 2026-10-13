@@ -63,6 +63,12 @@ import {
   MdAdminPanelSettings,
   MdDelete,
   MdOpenInNew,
+  MdLeaderboard,
+  MdSchool,
+  MdHealthAndSafety,
+  MdDevices,
+  MdForest,
+  MdAccountBalance,
 } from 'react-icons/md';
 
 // Comprehensive Icon Map for Google Stitch Material Symbols
@@ -80,6 +86,8 @@ const ICON_MAP: Record<string, React.ComponentType<{ size?: number | string; cla
   tune: MdTune,
   radar: MdRadar,
   military_tech: MdMilitaryTech,
+  leaderboard: MdLeaderboard,
+  trophy: MdLeaderboard,
 
   // Status & Validation
   check_circle: MdCheckCircle,
@@ -104,6 +112,12 @@ const ICON_MAP: Record<string, React.ComponentType<{ size?: number | string; cla
   badge: MdBadge,
   local_gas_station: MdLocalGasStation,
   admin_panel_settings: MdAdminPanelSettings,
+  school: MdSchool,
+  health_and_safety: MdHealthAndSafety,
+  devices: MdDevices,
+  forest: MdForest,
+  eco: MdForest,
+  account_balance: MdAccountBalance,
 
   // Evaluation Criteria Dimensions
   target: MdTrackChanges,

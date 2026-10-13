@@ -6,6 +6,7 @@ import { MOCK_ISSUES, MOCK_USER, getRankForXP, getXPProgress } from '@/data/mock
 import { PolicyIssue, CatProfile } from '@/types';
 import { getIssues } from '@/lib/issueService';
 import { DEFAULT_CAT_PROFILE, getSavedCatProfile } from '@/data/catCostumes';
+import { getIssueBannerImage, getCategoryIllustration } from '@/lib/categoryTheme';
 import CatAvatar from '@/components/CatAvatar';
 import CatCreatorModal from '@/components/CatCreatorModal';
 import RankBadge from '@/components/RankBadge';
@@ -36,18 +37,13 @@ function getCategoryIcon(cat?: string): string {
   if (!cat) return 'policy';
   const lower = cat.toLowerCase();
   if (lower.includes('energi') || lower.includes('bbm') || lower.includes('subsidi')) return 'local_gas_station';
-  if (lower.includes('kesehatan') || lower.includes('medis') || lower.includes('cukai')) return 'health_and_safety';
-  if (lower.includes('lingkungan') || lower.includes('emisi') || lower.includes('tata kota')) return 'eco';
-  if (lower.includes('ekonomi') || lower.includes('fiskal') || lower.includes('keuangan')) return 'account_balance';
-  if (lower.includes('pendidikan')) return 'school';
+  if (lower.includes('kesehatan') || lower.includes('medis')) return 'health_and_safety';
+  if (lower.includes('pendidikan') || lower.includes('sekolah')) return 'school';
+  if (lower.includes('lingkungan') || lower.includes('emisi') || lower.includes('iklim')) return 'forest';
+  if (lower.includes('ekonomi') || lower.includes('fiskal') || lower.includes('pajak') || lower.includes('keuangan')) return 'account_balance';
+  if (lower.includes('digital') || lower.includes('teknologi') || lower.includes('ai')) return 'devices';
   return 'policy';
 }
-
-const DEFAULT_BANNER_IMAGES: Record<string, string> = {
-  'issue-001': 'https://lh3.googleusercontent.com/aida-public/AB6AXuBZbnHPd2zt3uSqDcEb2yocYglKCA0HBFYq2By8WeyoXpnTn5FYU_-D9bY95UCk9CpXdBTO6-_148klSetT_VfCyEYmknMzmpUVAOh1islnmUwssiybiuFU2lQizWTddJZy8PgEY9k8lRFUi3slGZ51DLJzJQU6kiK61gWO0HOnJ1hVcGiEM9k6iQusbexfBz6LwaoYBBDcdbwjcoolPiSrvNYuSgVHywfFHU5XCBcA-bo_1XaFqS21',
-  'issue-002': 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=800&q=80',
-  'issue-003': 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=800&q=80',
-};
 
 export default function HomePage() {
   const router = useRouter();
@@ -285,10 +281,7 @@ export default function HomePage() {
       {/* Issue Cards */}
       <div className={`${styles.issueList} stagger-children`}>
         {filteredIssues.map((issue) => {
-          const bannerImg =
-            issue.imageUrl ||
-            DEFAULT_BANNER_IMAGES[issue.id] ||
-            'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=800&q=80';
+          const bannerImg = getIssueBannerImage(issue);
 
           return (
             <article
@@ -339,6 +332,9 @@ export default function HomePage() {
                   alt={issue.title}
                   className={styles.visualImg}
                   loading="lazy"
+                  onError={(e) => {
+                    e.currentTarget.src = getCategoryIllustration(issue.category);
+                  }}
                 />
                 <div className={styles.visualOverlay} />
                 <div className={styles.visualXpPill}>

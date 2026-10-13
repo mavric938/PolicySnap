@@ -86,37 +86,49 @@ function ArgumentsContent() {
   }, [issueId]);
 
   const handleVote = (argId: string, direction: 'up' | 'down') => {
+    const currentTarget = args.find((a) => a.id === argId);
+    const wasUp = currentTarget?.userVote === 'up';
+
     // Optimistic local update
     setArgs((prev) =>
       prev.map((arg) => {
         if (arg.id !== argId) return arg;
 
-        const wasUp = arg.userVote === 'up';
-        const wasDown = arg.userVote === 'down';
+        const isUp = arg.userVote === 'up';
+        const isDown = arg.userVote === 'down';
 
         if (direction === 'up') {
-          if (wasUp) {
+          if (isUp) {
             return { ...arg, upvotes: arg.upvotes - 1, userVote: null };
           }
           return {
             ...arg,
             upvotes: arg.upvotes + 1,
-            downvotes: wasDown ? arg.downvotes - 1 : arg.downvotes,
+            downvotes: isDown ? arg.downvotes - 1 : arg.downvotes,
             userVote: 'up' as const,
           };
         } else {
-          if (wasDown) {
+          if (isDown) {
             return { ...arg, downvotes: arg.downvotes - 1, userVote: null };
           }
           return {
             ...arg,
             downvotes: arg.downvotes + 1,
-            upvotes: wasUp ? arg.upvotes - 1 : arg.upvotes,
+            upvotes: isUp ? arg.upvotes - 1 : arg.upvotes,
             userVote: 'down' as const,
           };
         }
       })
     );
+
+    if (direction === 'up') {
+      const currentCount = Number(localStorage.getItem('policysnap_upvotes_given') || 0);
+      const nextCount = wasUp ? Math.max(0, currentCount - 1) : currentCount + 1;
+      localStorage.setItem('policysnap_upvotes_given', String(nextCount));
+    } else if (direction === 'down' && wasUp) {
+      const currentCount = Number(localStorage.getItem('policysnap_upvotes_given') || 0);
+      localStorage.setItem('policysnap_upvotes_given', String(Math.max(0, currentCount - 1)));
+    }
 
     // Call backend API (Supabase / server)
     fetch('/api/arguments/vote', {

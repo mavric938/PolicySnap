@@ -8,12 +8,12 @@
     "status": "active",
     "totalEvaluations": 14280,
     "createdAt": "2026-10-12",
-    "imageUrl": "https://lh3.googleusercontent.com/aida-public/AB6AXuBZbnHPd2zt3uSqDcEb2yocYglKCA0HBFYq2By8WeyoXpnTn5FYU_-D9bY95UCk9CpXdBTO6-_148klSetT_VfCyEYmknMzmpUVAOh1islnmUwssiybiuFU2lQizWTddJZy8PgEY9k8lRFUi3slGZ51DLJzJQU6kiK61gWO0HOnJ1hVcGiEM9k6iQusbexfBz6LwaoYBBDcdbwjcoolPiSrvNYuSgVHywfFHU5XCBcA-bo_1XaFqS21",
+    "imageUrl": "/images/categories/energi_transportasi.jpg",
     "actorTags": [
       "Pengemudi Ojol & Logistik UMKM",
-      "Kementerian ESDM & BPH Migas",
-      "Masyarakat Desil Rentan",
-      "Pengelola SPBU & Pertamina"
+      "Kementerian Keuangan & Fiskal APBN",
+      "Masyarakat Desil Rentan & Keluarga",
+      "Pengelola SPBU & BPH Migas"
     ],
     "criteriaDescriptions": {
       "effectiveness": "Target Terukur: Mengurangi salah sasaran subsidi hingga 40%.",
@@ -33,7 +33,7 @@
         "id": "actor-2",
         "name": "Kementerian Keuangan & Fiskal APBN",
         "role": "Regulator Anggaran Negara",
-        "description": "Potensi penghematan belanja subsidi energi hingga Rp 12 Triliun per tahun untuk direalokasikan ke program bantuan sosial terarah dan infrastruktur dasar.",
+        "description": "Potensi penghematan belanja subsidi energi hingga Rp 12 Triliun per tahun untuk direalokasikan ke program bantuan sosial terarah dan modal produktif.",
         "imageEmoji": "🏛️"
       },
       {
@@ -54,47 +54,139 @@
   },
   {
     "id": "issue-002",
-    "title": "Penerapan Cukai Minuman Berpemanis Dalam Kemasan (MBDK)",
-    "summary": "Pengenaan tarif cukai progresif hingga 20% terhadap minuman manis kemasan berpemanis gula guna menekan laju prevalensi diabetes melitus dan obesitas usia produktif.",
-    "category": "Kesehatan Publik & Fiskal",
-    "sourceUrl": "https://kemenkes.go.id",
+    "title": "Standarisasi Kurikulum & Penguatan Layanan Kesehatan Primer Terpadu",
+    "summary": "Integrasi kurikulum pendidikan vokasi nasional serta desentralisasi pembiayaan faskes puskesmas daerah guna menjamin akses kesehatan dan mutu pendidikan setara.",
+    "category": "Pendidikan & Kesehatan",
+    "sourceUrl": "https://kemkes.go.id",
     "status": "active",
     "totalEvaluations": 8420,
     "createdAt": "2026-10-10",
-    "imageUrl": "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "/images/categories/pendidikan_kesehatan.jpg",
     "actorTags": [
-      "Kementerian Kesehatan",
-      "Produsen Makanan & Minuman",
-      "Konsumen Generasi Muda",
-      "Pelaku Warung Retail Mikro"
+      "Kementerian Pendidikan & Nakes",
+      "Guru & Tenaga Pendidik Daerah",
+      "Orang Tua Siswa & Murid",
+      "Pengelola Faskes Puskesmas"
     ],
     "criteriaDescriptions": {
-      "effectiveness": "Penurunan konsumsi gula masyarakat sebesar 15-25% dalam 2 tahun.",
-      "efficiency": "Penerimaan kas cukai negara sekitar Rp 3,8 Triliun untuk dana promotif BPJS.",
-      "equity": "Dampak harga relatif terhadap daya beli kelompok rentan berpenghasilan rendah.",
-      "responsiveness": "Fleksibilitas transisi industri dalam reformulasi kadar gula produk."
+      "effectiveness": "Peningkatan capaian literasi dan standar fasilitas klinik dasar sebesar 30%.",
+      "efficiency": "Alokasi anggaran terarah tanpa tumpang tindih birokrasi daerah.",
+      "equity": "Pemerataan fasilitas bagi daerah 3T dan kelompok rentan marjinal.",
+      "responsiveness": "Cepat tanggap merespons kebutuhan obat esensial dan sarana sekolah."
     },
     "actorCards": [
       {
         "id": "actor-2-1",
-        "name": "Kementerian Kesehatan & Tenaga Medis",
-        "role": "Otoritas Kesehatan Publik",
-        "description": "Mencegah beban defisit pembiayaan BPJS Kesehatan akibat lonjakan penyakit katastropik diabetes melitus dan gagal ginjal usia muda.",
+        "name": "Kementerian Pendidikan & Nakes",
+        "role": "Otoritas Layanan Dasar",
+        "description": "Mewujudkan standar mutu pelayanan publik kesehatan dan pendidikan yang merata.",
         "imageEmoji": "🩺"
       },
       {
         "id": "actor-2-2",
-        "name": "Asosiasi Industri Minuman Kemasan",
-        "role": "Sektor Manufaktur & Usaha",
-        "description": "Kekhawatiran penurunan volume penjualan produk retail, potensi PHK lini produksi, serta kebutuhan waktu riset reformulasi pemanis alternatif.",
-        "imageEmoji": "🏭"
+        "name": "Guru & Tenaga Medis Lapangan",
+        "role": "Pelaksana Garis Depan",
+        "description": "Menuntut kepastian insentif tunjangan daerah dan beban kerja administratif yang wajar.",
+        "imageEmoji": "🏫"
       },
       {
         "id": "actor-2-3",
-        "name": "Konsumen Remaja & Keluarga Muda",
-        "role": "Konsumen Akhir",
-        "description": "Dorongan perubahan pola konsumsi menuju air mineral dan minuman sehat, diimbangi transparansi label nutrisi yang mudah dipahami.",
-        "imageEmoji": "🥤"
+        "name": "Keluarga & Komunitas Warga",
+        "role": "Penerima Manfaat Utama",
+        "description": "Menginginkan akses gratis dan berkualitas tanpa diskriminasi birokrasi.",
+        "imageEmoji": "👥"
+      }
+    ]
+  },
+  {
+    "id": "issue-004",
+    "title": "Reformasi Pajak UMKM & Insentif Fiskal Usaha Berbasis Digital",
+    "summary": "Penyederhanaan skema tarif PPh final UMKM serta insentif kepatuhan pajak elektronik untuk memacu pertumbuhan wirausaha mikro dan pemerataan penerimaan negara.",
+    "category": "Ekonomi & Pajak",
+    "sourceUrl": "https://kemenkeu.go.id",
+    "status": "active",
+    "totalEvaluations": 6240,
+    "createdAt": "2026-10-09",
+    "imageUrl": "/images/categories/ekonomi_pajak.jpg",
+    "actorTags": [
+      "Direktorat Jenderal Pajak",
+      "Pelaku UMKM & Pedagang Pasar",
+      "Platform E-Commerce & FinTech",
+      "Asosiasi Wirausaha Nasional"
+    ],
+    "criteriaDescriptions": {
+      "effectiveness": "Peningkatan rasio kepatuhan wajib pajak badan UMKM hingga 25%.",
+      "efficiency": "Kemudahan pelaporan SPT lewat satu aplikasi ringkas terpadu.",
+      "equity": "Tarif progresif berkeadilan bagi pedagang omzet mikro berpenghasilan rendah.",
+      "responsiveness": "Penyesuaian batas PTKP selaras dengan laju inflasi riil kebutuhan pokok."
+    },
+    "actorCards": [
+      {
+        "id": "actor-4-1",
+        "name": "Ditjen Pajak & Kemenkeu",
+        "role": "Regulator Fiskal Negara",
+        "description": "Memperluas basis penerimaan kas negara demi kesinambungan anggaran belanja publik.",
+        "imageEmoji": "🏛️"
+      },
+      {
+        "id": "actor-4-2",
+        "name": "Pelaku UMKM & Wirausaha",
+        "role": "Wajib Pajak Produktif",
+        "description": "Membutuhkan pelaporan pajak yang tidak membebani arus kas usaha harian.",
+        "imageEmoji": "💼"
+      },
+      {
+        "id": "actor-4-3",
+        "name": "Asosiasi FinTech & E-Commerce",
+        "role": "Penyedia Infrastruktur Transaksi",
+        "description": "Kesiapan sistem integrasi data invoice elektronik yang aman dan transparan.",
+        "imageEmoji": "📱"
+      }
+    ]
+  },
+  {
+    "id": "issue-005",
+    "title": "Tata Kelola Etika Kecerdasan Buatan (AI) & Kedaulatan Data Nasional",
+    "summary": "Regulasi komprehensif mengenai batasan audit algoritma kecerdasan buatan, perlindungan data pribadi pengguna, serta perlindungan hak cipta konten kreator lokal.",
+    "category": "Teknologi & Digital",
+    "sourceUrl": "https://kominfo.go.id",
+    "status": "active",
+    "totalEvaluations": 4890,
+    "createdAt": "2026-10-07",
+    "imageUrl": "/images/categories/teknologi_digital.jpg",
+    "actorTags": [
+      "Kementerian Komdigi & BSSN",
+      "Startup Teknologi & Pengembang AI",
+      "Komunitas Kreator Konten Digital",
+      "Koalisi Privasi Warga Netizen"
+    ],
+    "criteriaDescriptions": {
+      "effectiveness": "Standar baku verifikasi etika algoritma sebelum rilis ke publik umum.",
+      "efficiency": "Proses perizinan sandbox teknologi yang lincah tanpa menghambat inovasi.",
+      "equity": "Kompensasi adil bagi kreator karya yang dijadikan bahan pelatihan model AI.",
+      "responsiveness": "Mekanisme pelaporan cepat saat terjadi kebocoran data atau deepfake."
+    },
+    "actorCards": [
+      {
+        "id": "actor-5-1",
+        "name": "Kementerian Komdigi & BSSN",
+        "role": "Regulator Keamanan Siber",
+        "description": "Melindungi ruang digital nasional dari eksploitasi data pribadi tanpa izin.",
+        "imageEmoji": "🛡️"
+      },
+      {
+        "id": "actor-5-2",
+        "name": "Pengembang AI & Startup Lokal",
+        "role": "Inovator Sektor Teknologi",
+        "description": "Memerlukan kejelasan regulasi yang suportif terhadap riset dan pendanaan lokal.",
+        "imageEmoji": "💻"
+      },
+      {
+        "id": "actor-5-3",
+        "name": "Kreator Konten & Warga Netizen",
+        "role": "Pemilik Data & Karya Cipta",
+        "description": "Jaminan hak cipta dan perlindungan integritas identitas digital pribadi.",
+        "imageEmoji": "🎨"
       }
     ]
   },
@@ -102,12 +194,12 @@
     "id": "issue-003",
     "title": "Zonasi Emisi Rendah & Disinsentif Tarif Parkir Kendaraan Pribadi Urban",
     "summary": "Pemberlakuan tarif parkir maksimal bagi kendaraan bermotor yang belum lulus uji emisi serta pembatasan akses koridor pusat kota metropolitan pada jam sibuk kerja.",
-    "category": "Tata Kota & Lingkungan",
+    "category": "Sosial & Lingkungan",
     "sourceUrl": "https://dephub.go.id",
     "status": "active",
     "totalEvaluations": 5190,
     "createdAt": "2026-10-08",
-    "imageUrl": "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=800&q=80",
+    "imageUrl": "/images/categories/infrastruktur_tataruang.jpg",
     "actorTags": [
       "Dinas Perhubungan Urban",
       "Komuter Angkutan Umum",
