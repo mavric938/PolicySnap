@@ -64,9 +64,12 @@ export default function LeaderboardPage() {
     const list = [...users];
     const userIndex = list.findIndex((u) => u.id === currentUserId);
 
+    const localName = typeof window !== 'undefined' ? localStorage.getItem('policysnap_user_name') : null;
+    const displayName = authUser?.name || localName || myCat.name || 'Saya (Warga Aktif)';
+
     const currentUserEntry: User = {
       id: currentUserId,
-      name: authUser?.name || 'Saya (Warga Aktif)',
+      name: displayName,
       email: authUser?.email || 'warga@policysnap.id',
       avatar: authUser?.avatarUrl || '',
       totalXP: myXP,
@@ -80,6 +83,7 @@ export default function LeaderboardPage() {
     if (userIndex !== -1) {
       list[userIndex] = {
         ...list[userIndex],
+        name: list[userIndex].name && list[userIndex].name !== 'Saya (Warga Aktif)' ? list[userIndex].name : displayName,
         totalXP: Math.max(list[userIndex].totalXP, myXP),
         evaluationsCount: Math.max(list[userIndex].evaluationsCount, myEvalCount),
         upvotesCount: Math.max(list[userIndex].upvotesCount || 0, myUpvotes),

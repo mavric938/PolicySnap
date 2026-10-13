@@ -20,22 +20,23 @@ function ShareContent() {
   const [issue, setIssue] = useState<PolicyIssue>(
     MOCK_ISSUES.find((i) => i.id === issueId) || DEFAULT_FALLBACK_ISSUE
   );
-  const consensus = MOCK_CONSENSUS[issueId] || {
+  const [consensus, setConsensus] = useState({
     issueId,
     avgEffectiveness: 6.8,
     avgEfficiency: 5.9,
     avgEquity: 6.5,
     avgResponsiveness: 6.0,
-    totalVoters: issue?.totalEvaluations || 142,
+    totalVoters: 142,
     winnerPercentage: 65,
     loserPercentage: 35,
-  };
+  });
 
   const cardRef = useRef<HTMLDivElement>(null);
   const [showToast, setShowToast] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
+  const [userName, setUserName] = useState('Warga PolicySnap');
   const [userXP, setUserXP] = useState(MOCK_USER.totalXP);
   const [catProfile, setCatProfile] = useState<CatProfile>(DEFAULT_CAT_PROFILE);
   const [personalScores, setPersonalScores] = useState({
@@ -45,9 +46,7 @@ function ShareContent() {
     responsiveness: 6.0,
   });
   const [userStance, setUserStance] = useState('Dukung Bersyarat');
-  const [userComment, setUserComment] = useState(
-    'Batasan CC logis secara fiskal, namun dispensasi wajib bagi armada logistik bahan pokok & UMKM mikro agar tidak memicu lonjakan inflasi daerah.'
-  );
+  const [userComment, setUserComment] = useState('Evaluasi kebijakan publik berbasis bukti dan multi-perspektif.');
 
   useEffect(() => {
     getIssues().then((list) => {
@@ -55,12 +54,38 @@ function ShareContent() {
       if (found) setIssue(found);
     });
 
-    const timer = setTimeout(() => {
-      const savedXP = localStorage.getItem('policysnap_xp');
-      if (savedXP) setUserXP(Number(savedXP));
+    // Fetch dynamic consensus from backend
+    fetch(`/api/consensus?issueId=${encodeURIComponent(issueId)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.scores) {
+          setConsensus({
+            issueId,
+            avgEffectiveness: data.scores.effectiveness,
+            avgEfficiency: data.scores.efficiency,
+            avgEquity: data.scores.equity,
+            avgResponsiveness: data.scores.responsiveness,
+            totalVoters: data.totalParticipants || data.totalVoters || 142,
+            winnerPercentage: data.winnerPercentage || 65,
+            loserPercentage: data.loserPercentage || (100 - (data.winnerPercentage || 65)),
+          });
+        }
+      })
+      .catch((err) => console.warn('Consensus fetch warning:', err));
 
+    const timer = setTimeout(() => {
+      const localName = localStorage.getItem('policysnap_user_name');
       const savedCat = getSavedCatProfile();
       setCatProfile(savedCat);
+
+      if (localName) {
+        setUserName(localName);
+      } else if (savedCat.name) {
+        setUserName(savedCat.name);
+      }
+
+      const savedXP = localStorage.getItem('policysnap_xp');
+      if (savedXP) setUserXP(Number(savedXP));
 
       const savedEval = localStorage.getItem(`policysnap_eval_${issueId}`);
       if (savedEval) {
@@ -68,7 +93,7 @@ function ShareContent() {
           const parsed = JSON.parse(savedEval);
           if (parsed.scores) setPersonalScores(parsed.scores);
           if (parsed.stance) setUserStance(parsed.stance);
-          if (parsed.comment) setUserComment(parsed.comment);
+          if (parsed.comment && parsed.comment.trim()) setUserComment(parsed.comment);
         } catch (e) {
           console.error(e);
         }
@@ -78,7 +103,7 @@ function ShareContent() {
     return () => clearTimeout(timer);
   }, [issueId]);
 
-  const user = { ...MOCK_USER, totalXP: userXP };
+  const user = { ...MOCK_USER, name: userName, totalXP: userXP };
   const rankInfo = getRankForXP(user.totalXP);
 
   // SVG Radar coordinates calculations (Center 100, 100; scale: 8px per point, max 10 = 80px)

@@ -85,6 +85,10 @@ function ProfileContent() {
 
     if (!isViewingOtherUser) {
       const timer = setTimeout(() => {
+        const savedName = localStorage.getItem('policysnap_user_name');
+        if (savedName) setProfileName(savedName);
+        else if (authUser?.name) setProfileName(authUser.name);
+
         const savedXP = localStorage.getItem('policysnap_xp');
         if (savedXP) setUserXP(Number(savedXP));
 

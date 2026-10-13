@@ -152,9 +152,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       const defaultPersona = {
-        email: persona?.email || 'andi.prasetyo@gmail.com',
-        name: persona?.name || 'Andi Prasetyo (Warga)',
-        avatarUrl: persona?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces',
+        email: persona?.email || 'warga@policysnap.id',
+        name: persona?.name || 'Warga Kebijakan',
+        avatarUrl: persona?.avatarUrl || '',
       };
       const result = await signInWithDevAccountUseCase.execute(defaultPersona);
       if (result.user && result.session) {

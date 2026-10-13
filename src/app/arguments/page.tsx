@@ -57,12 +57,15 @@ function ArgumentsContent() {
         try {
           const parsed = JSON.parse(savedEval);
           if (parsed.comment && parsed.comment.trim()) {
+            const localName = localStorage.getItem('policysnap_user_name') || savedCat.name || 'Warga';
+            const localUserId = localStorage.getItem('policysnap_user_id') || 'user-001';
             const userArg: Argument = {
               id: `user-arg-${issueId}`,
-              userId: 'user-001',
-              userName: 'Andi Prasetyo (Anda)',
+              userId: localUserId,
+              userName: `${localName} (Anda)`,
               userAvatar: '',
               userRank: 'netizen-kritis' as RankLevel,
+              userCatAvatar: savedCat,
               issueId: issueId,
               stance: parsed.stance || 'Dukung Bersyarat',
               comment: parsed.comment,
