@@ -679,3 +679,95 @@
   display: inline-block;
   margin-top: 2px;
 }
+
+/* Admin Special Item Exclusive Showcase */
+.adminSpecialBanner {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(254, 240, 138, 0.3) 0%, rgba(254, 215, 170, 0.35) 50%, rgba(224, 242, 254, 0.45) 100%);
+  border: 1.5px solid #FDE047;
+  border-radius: 16px;
+  padding: 12px 14px;
+  margin-top: 10px;
+  margin-bottom: 12px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 4px 16px rgba(234, 179, 8, 0.15);
+  z-index: 1;
+}
+
+.adminSpecialGlow {
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(circle, rgba(253, 224, 71, 0.6) 0%, rgba(56, 189, 248, 0) 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.adminSpecialContent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  position: relative;
+  z-index: 2;
+}
+
+.adminSpecialIconWrapper {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #FDE047 0%, #F59E0B 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+  flex-shrink: 0;
+}
+
+.adminSpecialIcon {
+  font-size: 1.25rem;
+  animation: adminSparkleIcon 2s ease-in-out infinite;
+}
+
+@keyframes adminSparkleIcon {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.15) rotate(15deg); }
+}
+
+.adminSpecialText {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+}
+
+.adminSpecialTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  color: #92400E;
+}
+
+.adminExclusiveTag {
+  font-size: 0.625rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  background: #B45309;
+  color: #FFFFFF;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  letter-spacing: 0.5px;
+}
+
+.adminSpecialDesc {
+  font-size: 0.75rem;
+  color: #78350F;
+  line-height: 1.4;
+  margin: 0;
+}
+

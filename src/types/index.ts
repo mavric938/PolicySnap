@@ -62,6 +62,7 @@ export interface CatEquipped {
   eyes?: string | null;
   body?: string | null;
   accessory?: string | null;
+  special?: string | null;
 }
 
 export interface CatProfile {
@@ -73,6 +74,7 @@ export interface CatProfile {
   eyeColor: string;
   earColor: string;
   equipped: CatEquipped;
+  specialItem?: string | null;
 }
 
 export interface CriteriaDescriptions {

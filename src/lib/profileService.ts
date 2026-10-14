@@ -22,7 +22,9 @@ export function normalizeCatProfile(raw: any): CatProfile {
       eyes: raw.equipped?.eyes || raw.equippedCostumes?.glasses || null,
       body: raw.equipped?.body || raw.equippedCostumes?.outfit || null,
       accessory: raw.equipped?.accessory || raw.equippedCostumes?.accessory || null,
+      special: raw.equipped?.special || raw.special || null,
     },
+    specialItem: raw.specialItem || raw.equipped?.special || null,
   };
 }
 

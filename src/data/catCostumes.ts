@@ -390,21 +390,68 @@ export const DEFAULT_CAT_PROFILE: CatProfile = {
   },
 };
 
+export const ADMIN_SPECIAL_ITEM: CatCostumeItem = {
+  id: 'acc_admin_star',
+  name: 'Bintang Kebijakan Berkilau',
+  slot: 'accessory',
+  requiredLevel: 99,
+  description: 'Relik Bintang Kristal eksklusif Administrator yang berkilau dan bersinar terang. Menempel pada karakter kucing Admin.',
+  icon: '✨',
+  previewColor: '#F59E0B',
+  rarity: 'legendary',
+};
+
+export const DEFAULT_ADMIN_CAT_PROFILE: CatProfile = {
+  name: 'Oyen',
+  gender: 'male',
+  breed: 'domestik',
+  furColor: '#F97316',
+  bellyColor: '#FFEDD5',
+  eyeColor: '#10B981',
+  earColor: '#FDA4AF',
+  equipped: {
+    head: 'head_beanie',
+    eyes: 'eyes_kotak',
+    body: 'body_kaos',
+    accessory: 'acc_admin_star',
+    special: 'special_admin_star',
+  },
+  specialItem: 'special_admin_star',
+};
+
 export function getCostumesByLevel(level: number): CatCostumeItem[] {
   return CAT_COSTUMES.filter((c) => c.requiredLevel <= level);
 }
 
 export function getCostumeById(id?: string | null): CatCostumeItem | undefined {
   if (!id) return undefined;
+  if (id === 'acc_admin_star' || id === 'special_admin_star') {
+    return ADMIN_SPECIAL_ITEM;
+  }
   return CAT_COSTUMES.find((c) => c.id === id);
 }
 
 export function getSavedCatProfile(): CatProfile {
   if (typeof window === 'undefined') return DEFAULT_CAT_PROFILE;
   try {
+    const isAdmin = localStorage.getItem('policysnap_is_admin') === 'true' || localStorage.getItem('policysnap_user_id') === 'admin-001';
     const raw = localStorage.getItem('policysnap_cat_profile');
     if (raw) {
-      return JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      if (isAdmin && parsed.equipped) {
+        if (!parsed.equipped.accessory || parsed.equipped.accessory === 'acc_smartphone' || !parsed.equipped.special) {
+          parsed.equipped = {
+            ...parsed.equipped,
+            accessory: parsed.equipped.accessory === 'acc_smartphone' ? 'acc_admin_star' : (parsed.equipped.accessory || 'acc_admin_star'),
+            special: 'special_admin_star',
+          };
+          parsed.specialItem = 'special_admin_star';
+        }
+      }
+      return parsed;
+    }
+    if (isAdmin) {
+      return DEFAULT_ADMIN_CAT_PROFILE;
     }
   } catch (e) {
     console.error('Failed to load cat profile', e);

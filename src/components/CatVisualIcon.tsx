@@ -440,6 +440,19 @@ export default function CatVisualIcon({
         </svg>
       );
 
+    case 'acc_admin_star':
+    case 'special_admin_star':
+      return (
+        <svg viewBox="0 0 32 32" width={pixelSize} height={pixelSize} fill="none">
+          <circle cx="16" cy="16" r="13" fill="#FEF08A" fillOpacity="0.3" />
+          <polygon points="16,3 18.5,12 28,16 18.5,20 16,29 13.5,20 4,16 13.5,12" fill="#EAB308" stroke="#CA8A04" strokeWidth="1.2" />
+          <polygon points="16,6 18,13 25,16 18,19 16,26 14,19 7,16 14,13" fill="#FDE047" />
+          <circle cx="16" cy="16" r="4" fill="#38BDF8" stroke="#FFFFFF" strokeWidth="1" />
+          <circle cx="15" cy="15" r="1" fill="#FFFFFF" />
+          <path d="M26 6 Q 27 8 29 8 Q 27 8 26 10 Q 25 8 23 8 Q 25 8 26 6 Z" fill="#FFFFFF" />
+        </svg>
+      );
+
     // ==========================================
     // 10. ACHIEVEMENTS & EXTRA ITEMS
     // ==========================================

@@ -7,7 +7,7 @@ export const DEFAULT_ADMIN_CREDENTIALS = {
   email: 'admin@policysnap.id',
   username: 'admin',
   password: 'AdminSnap2026!',
-  name: 'Administrator Kebijakan',
+  name: 'Admin',
 };
 
 const LOCAL_SESSION_KEY = 'policysnap_active_session';
@@ -313,14 +313,16 @@ export class AuthRepositoryImpl implements IAuthRepository {
   private async syncUserProfile(user: User): Promise<void> {
     try {
       const client = this.dataSource.getClient();
+      let existingProfile: { id: string; name: string; total_xp: number; cat_avatar?: any } | null = null;
       if (client) {
-        const { data: existing } = await client
+        const { data } = await client
           .from('profiles')
           .select('id, name, total_xp, cat_avatar')
           .eq('id', user.id)
           .maybeSingle();
+        existingProfile = data;
 
-        if (!existing) {
+        if (!existingProfile) {
           await client.from('profiles').upsert({
             id: user.id,
             name: user.name,
@@ -340,6 +342,12 @@ export class AuthRepositoryImpl implements IAuthRepository {
         localStorage.setItem('policysnap_user_email', user.email);
         if (user.avatarUrl) {
           localStorage.setItem('policysnap_user_avatar', user.avatarUrl);
+        }
+        if (existingProfile && existingProfile.cat_avatar) {
+          localStorage.setItem('policysnap_cat_profile', JSON.stringify(existingProfile.cat_avatar));
+        }
+        if (user.id === 'admin-001' || user.role === 'admin') {
+          localStorage.setItem('policysnap_is_admin', 'true');
         }
       }
     } catch (err) {

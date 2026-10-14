@@ -25,7 +25,7 @@ import SoundToggle from '@/components/SoundToggle';
 function ProfileContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user: authUser, isAuthenticated, signOut } = useAuth();
+  const { user: authUser, isAuthenticated, isAdmin, signOut } = useAuth();
   const currentUserId = authUser?.id || (typeof window !== 'undefined' ? localStorage.getItem('policysnap_user_id') || 'user-001' : 'user-001');
 
   const queryUserId = searchParams.get('userId');
@@ -54,6 +54,27 @@ function ProfileContent() {
   };
 
   useEffect(() => {
+    let timer: NodeJS.Timeout | undefined;
+    if (!isViewingOtherUser) {
+      timer = setTimeout(() => {
+        const savedCat = getSavedCatProfile();
+        setCatProfile(savedCat);
+
+        const savedName = localStorage.getItem('policysnap_user_name');
+        if (savedName) setProfileName(savedName);
+        else if (authUser?.name) setProfileName(authUser.name);
+
+        const savedXP = localStorage.getItem('policysnap_xp');
+        if (savedXP) setUserXP(Number(savedXP));
+
+        const savedCount = localStorage.getItem('policysnap_eval_count');
+        if (savedCount) setEvalCount(Number(savedCount));
+
+        const savedUpvotes = localStorage.getItem('policysnap_upvotes_given');
+        if (savedUpvotes) setUpvoteCount(Number(savedUpvotes));
+      }, 0);
+    }
+
     // Fetch live profile from backend API
     fetch(`/api/user/profile?userId=${encodeURIComponent(targetUserId)}`)
       .then((res) => res.json())
@@ -73,37 +94,25 @@ function ProfileContent() {
             if (!isViewingOtherUser) localStorage.setItem('policysnap_upvotes_given', String(p.upvotesCount));
           }
           if (p.catAvatar) {
-            setCatProfile((prev) => ({
-              ...prev,
-              ...p.catAvatar,
-              equipped: p.catAvatar.equipped || prev.equipped,
-            }));
+            setCatProfile((prev) => {
+              const updated = {
+                ...prev,
+                ...p.catAvatar,
+                equipped: p.catAvatar.equipped || prev.equipped,
+              };
+              if (!isViewingOtherUser) {
+                saveCatProfile(updated);
+              }
+              return updated;
+            });
           }
         }
       })
       .catch((err) => console.warn('Backend profile fetch warning:', err));
 
-    if (!isViewingOtherUser) {
-      const timer = setTimeout(() => {
-        const savedName = localStorage.getItem('policysnap_user_name');
-        if (savedName) setProfileName(savedName);
-        else if (authUser?.name) setProfileName(authUser.name);
-
-        const savedXP = localStorage.getItem('policysnap_xp');
-        if (savedXP) setUserXP(Number(savedXP));
-
-        const savedCount = localStorage.getItem('policysnap_eval_count');
-        if (savedCount) setEvalCount(Number(savedCount));
-
-        const savedUpvotes = localStorage.getItem('policysnap_upvotes_given');
-        if (savedUpvotes) setUpvoteCount(Number(savedUpvotes));
-
-        const savedCat = getSavedCatProfile();
-        setCatProfile(savedCat);
-      }, 0);
-
-      return () => clearTimeout(timer);
-    }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [targetUserId, isViewingOtherUser]);
 
   const handleToggleCostume = (item: CatCostumeItem) => {
@@ -237,6 +246,27 @@ function ProfileContent() {
             ? `Profil warga analis ${profileName} dengan kucing ${catProfile.name} di PolicySnap.`
             : 'Kucing pendamping analisis kebijakan Anda. Selesaikan evaluasi publik dan buka berbagai kostum kehormatan di lemari kostum!'}
         </p>
+
+        {/* Admin Exclusive Special Item Active Banner */}
+        {(isAdmin || currentUserId === 'admin-001' || authUser?.role === 'admin') && !isViewingOtherUser && (
+          <div className={styles.adminSpecialBanner}>
+            <div className={styles.adminSpecialGlow} />
+            <div className={styles.adminSpecialContent}>
+              <div className={styles.adminSpecialIconWrapper}>
+                <span className={styles.adminSpecialIcon}>✨</span>
+              </div>
+              <div className={styles.adminSpecialText}>
+                <div className={styles.adminSpecialTitle}>
+                  <span>Item Khusus Administrator Terpasang</span>
+                  <span className={styles.adminExclusiveTag}>KHUSUS ADMIN</span>
+                </div>
+                <p className={styles.adminSpecialDesc}>
+                  <strong>Bintang Kebijakan Berkilau</strong> kini bersinar dan berkilau di karakter kucing Anda. Item legendaris ini hanya dimiliki Admin dan tidak ada di lemari kostum umum.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* 3 Key Metrics */}
         <div className={styles.metricGrid}>

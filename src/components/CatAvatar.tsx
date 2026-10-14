@@ -28,6 +28,11 @@ export default function CatAvatar({
     equipped = {},
   } = profile;
 
+  const hasAdminSpecial =
+    equipped.accessory === 'acc_admin_star' ||
+    equipped.special === 'special_admin_star' ||
+    profile.specialItem === 'special_admin_star';
+
   // Determine darker fur accent for tabby stripes / details
   const isDarkFur = furColor === '#1E293B' || furColor === '#0F172A';
   const furAccent = isDarkFur ? '#334155' : 'rgba(0, 0, 0, 0.15)';
@@ -89,6 +94,55 @@ export default function CatAvatar({
             <feGaussianBlur stdDeviation="2" result="blur" />
             <feComposite in="SourceGraphic" in2="blur" operator="over" />
           </filter>
+
+          {/* Admin Exclusive: Aura Glow Radial */}
+          <radialGradient id="adminAuraGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.95" />
+            <stop offset="30%" stopColor="#FDE047" stopOpacity="0.85" />
+            <stop offset="65%" stopColor="#38BDF8" stopOpacity="0.5" />
+            <stop offset="100%" stopColor="#818CF8" stopOpacity="0" />
+          </radialGradient>
+
+          {/* Admin Exclusive: Star 24K Gold Gradient */}
+          <linearGradient id="adminStarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FFFBEB" />
+            <stop offset="25%" stopColor="#FEF08A" />
+            <stop offset="60%" stopColor="#F59E0B" />
+            <stop offset="100%" stopColor="#B45309" />
+          </linearGradient>
+
+          {/* Admin Exclusive: Secondary Rays Gold Gradient */}
+          <linearGradient id="adminGoldGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#FEF9C3" />
+            <stop offset="50%" stopColor="#EAB308" />
+            <stop offset="100%" stopColor="#78350F" />
+          </linearGradient>
+
+          {/* Admin Exclusive: Celestial Gem Crystal Gradient */}
+          <linearGradient id="adminGemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#E0F2FE" />
+            <stop offset="35%" stopColor="#38BDF8" />
+            <stop offset="75%" stopColor="#0284C7" />
+            <stop offset="100%" stopColor="#0369A1" />
+          </linearGradient>
+
+          {/* Admin Exclusive: Royal Sash Ribbon Gradient */}
+          <linearGradient id="adminSashGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#DC2626" />
+            <stop offset="50%" stopColor="#B91C1C" />
+            <stop offset="100%" stopColor="#7F1D1D" />
+          </linearGradient>
+
+          {/* Admin Exclusive: Specular Sparkle Filter */}
+          <filter id="adminGlowFilter" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur1" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="5.5" result="blur2" />
+            <feMerge>
+              <feMergeNode in="blur2" />
+              <feMergeNode in="blur1" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
         </defs>
 
         <style>
@@ -110,6 +164,36 @@ export default function CatAvatar({
               96% { transform: rotate(-5deg); }
               98% { transform: rotate(3deg); }
             }
+            @keyframes adminPulseGlow {
+              0%, 100% {
+                transform: scale(0.92);
+                opacity: 0.75;
+              }
+              50% {
+                transform: scale(1.15);
+                opacity: 1;
+              }
+            }
+            @keyframes adminRaySpin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+            @keyframes adminSparkle1 {
+              0%, 100% { transform: scale(0.3) rotate(0deg); opacity: 0.2; }
+              50% { transform: scale(1.3) rotate(45deg); opacity: 1; }
+            }
+            @keyframes adminSparkle2 {
+              0%, 100% { transform: scale(1.2) rotate(45deg); opacity: 1; }
+              50% { transform: scale(0.2) rotate(0deg); opacity: 0.1; }
+            }
+            @keyframes adminSparkle3 {
+              0%, 100% { transform: scale(0.4) rotate(15deg); opacity: 0.3; }
+              50% { transform: scale(1.35) rotate(-30deg); opacity: 0.95; }
+            }
+            @keyframes adminStarShimmer {
+              0%, 100% { transform: scale(1); filter: drop-shadow(0 0 6px rgba(250, 204, 21, 0.85)); }
+              50% { transform: scale(1.03); filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.95)) drop-shadow(0 0 22px rgba(250, 204, 21, 0.9)); }
+            }
             .cat-animated-body {
               ${animate ? 'animation: catFloat 3.5s ease-in-out infinite;' : ''}
               transform-origin: center bottom;
@@ -125,6 +209,10 @@ export default function CatAvatar({
             .cat-left-ear {
               ${animate ? 'animation: catEarTwitch 5.5s infinite;' : ''}
               transform-origin: 65px 55px;
+            }
+            .admin-star-group {
+              animation: adminStarShimmer 3s ease-in-out infinite;
+              transform-origin: 136px 138px;
             }
           `}
         </style>
@@ -742,9 +830,104 @@ export default function CatAvatar({
           )}
 
           {/* 8. ACCESSORY COSTUME LAYER (Handheld / Side ornaments) */}
-          {equipped.accessory && (
+          {(equipped.accessory || hasAdminSpecial) && (
             <g id="costume-accessory">
-              {equipped.accessory === 'acc_totebag' && (
+              {/* ADMIN SPECIAL ITEM: Bintang Kebijakan Berkilau & Bersinar */}
+              {hasAdminSpecial && (
+                <g id="costume-admin-special" className="admin-star-group">
+                  {/* 1. Royal Crimson & Gold Sash Ribbon pinned to cat chest */}
+                  <g id="admin-sash-ribbon">
+                    <path
+                      d="M 124 136 C 128 130, 142 130, 146 136 L 143 158 L 135 150 L 127 158 Z"
+                      fill="url(#adminSashGrad)"
+                      stroke="#CA8A04"
+                      strokeWidth="1.2"
+                    />
+                    <path d="M 127 136 L 129 154" stroke="url(#adminStarGrad)" strokeWidth="0.8" />
+                    <path d="M 143 136 L 141 154" stroke="url(#adminStarGrad)" strokeWidth="0.8" />
+                  </g>
+
+                  {/* 2. Rotating Light Beams / Sunburst (Radiant Light Rays) */}
+                  <g style={{ transformOrigin: '136px 138px', animation: 'adminRaySpin 14s linear infinite' }}>
+                    <line x1="136" y1="110" x2="136" y2="166" stroke="#FDE047" strokeWidth="1" strokeOpacity="0.6" strokeDasharray="4 8" />
+                    <line x1="108" y1="138" x2="164" y2="138" stroke="#FDE047" strokeWidth="1" strokeOpacity="0.6" strokeDasharray="4 8" />
+                    <line x1="116" y1="118" x2="156" y2="158" stroke="#38BDF8" strokeWidth="0.8" strokeOpacity="0.5" strokeDasharray="3 7" />
+                    <line x1="116" y1="158" x2="156" y2="118" stroke="#38BDF8" strokeWidth="0.8" strokeOpacity="0.5" strokeDasharray="3 7" />
+                  </g>
+
+                  {/* 3. Pulsing Radiant Aura Glow */}
+                  <circle
+                    cx="136"
+                    cy="138"
+                    r="24"
+                    fill="url(#adminAuraGlow)"
+                    style={{ transformOrigin: '136px 138px', animation: 'adminPulseGlow 3.2s ease-in-out infinite' }}
+                  />
+
+                  {/* 4. Eight-pointed Sovereign Star (Faceted 24K Gold) */}
+                  <polygon
+                    points="136,120 140,133 152,122 141,140 150,152 136,143 122,152 131,140 120,122 132,133"
+                    fill="url(#adminGoldGrad2)"
+                    stroke="#CA8A04"
+                    strokeWidth="0.8"
+                  />
+                  <polygon
+                    points="136,112 141,133 162,138 141,143 136,164 131,143 110,138 131,133"
+                    fill="url(#adminStarGrad)"
+                    stroke="#FFFFFF"
+                    strokeWidth="1.2"
+                    filter="url(#adminGlowFilter)"
+                  />
+
+                  {/* 5. Center Brilliant Cyan-Sapphire Prismatic Gem */}
+                  <circle cx="136" cy="138" r="9" fill="#0F172A" stroke="url(#adminStarGrad)" strokeWidth="1.5" />
+                  <polygon
+                    points="136,130 143,138 136,146 129,138"
+                    fill="url(#adminGemGrad)"
+                    stroke="#BAE6FD"
+                    strokeWidth="1"
+                  />
+                  <polygon points="136,130 136,138 129,138" fill="#FFFFFF" opacity="0.4" />
+                  <circle cx="134" cy="135" r="2.2" fill="#FFFFFF" opacity="0.9" />
+                  <circle cx="138" cy="140" r="1" fill="#FFFFFF" opacity="0.7" />
+
+                  {/* 6. Dynamic Animated Sparkles & Stardust */}
+                  <path
+                    d="M 152 116 Q 155 120 159 120 Q 155 120 152 124 Q 149 120 145 120 Q 149 120 152 116 Z"
+                    fill="#FFFFFF"
+                    filter="drop-shadow(0 0 5px #FDE047)"
+                    style={{ transformOrigin: '152px 120px', animation: 'adminSparkle1 2.4s ease-in-out infinite' }}
+                  />
+                  <path
+                    d="M 166 138 Q 168 141 171 141 Q 168 141 166 144 Q 164 141 161 141 Q 164 141 166 138 Z"
+                    fill="#FDE047"
+                    filter="drop-shadow(0 0 4px #F59E0B)"
+                    style={{ transformOrigin: '166px 141px', animation: 'adminSparkle2 2.8s ease-in-out 0.6s infinite' }}
+                  />
+                  <path
+                    d="M 120 150 Q 122 153 125 153 Q 122 153 120 156 Q 118 153 115 153 Q 118 153 120 150 Z"
+                    fill="#38BDF8"
+                    filter="drop-shadow(0 0 5px #38BDF8)"
+                    style={{ transformOrigin: '120px 153px', animation: 'adminSparkle3 3.2s ease-in-out 1.2s infinite' }}
+                  />
+                  <circle
+                    cx="130"
+                    cy="114"
+                    r="1.8"
+                    fill="#FFFFFF"
+                    style={{ animation: 'adminSparkle1 1.9s ease-in-out 0.3s infinite' }}
+                  />
+                  <circle
+                    cx="160"
+                    cy="154"
+                    r="1.4"
+                    fill="#FDE047"
+                    style={{ animation: 'adminSparkle2 2.2s ease-in-out 1s infinite' }}
+                  />
+                </g>
+              )}
+
+              {equipped.accessory === 'acc_totebag' && !hasAdminSpecial && (
                 <g>
                   {/* Canvas Tote Bag hanging on left */}
                   <rect x="42" y="142" width="22" height="26" rx="3" fill="#D97706" />
