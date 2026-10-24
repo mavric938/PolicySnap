@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { PolicyIssue, CriteriaDescriptions, ActorCard } from '@/types';
 import {
@@ -69,6 +69,8 @@ export default function AdminPage() {
   const { user, isAdmin, isLoading: isAuthLoading, signInWithEmail, signOut } = useAuth();
   const [adminUsernameInput, setAdminUsernameInput] = useState('');
   const [adminPasswordInput, setAdminPasswordInput] = useState('');
+  const [isSavingIssue, setIsSavingIssue] = useState(false);
+  const isSavingRef = useRef(false);
   const [showAdminPassword, setShowAdminPassword] = useState(false);
   const [adminLoginError, setAdminLoginError] = useState('');
   const [isAdminLoggingIn, setIsAdminLoggingIn] = useState(false);
@@ -285,9 +287,21 @@ export default function AdminPage() {
     setShowForm(false);
   };
 
-  // Submit create or update
+  // Submit create or update — dicegah terkirim ganda (isu duplikat) saat tombol diklik berulang
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSavingRef.current) return;
+    isSavingRef.current = true;
+    setIsSavingIssue(true);
+    try {
+      await submitIssue();
+    } finally {
+      isSavingRef.current = false;
+      setIsSavingIssue(false);
+    }
+  };
+
+  const submitIssue = async () => {
     if (!formData.title.trim() || !formData.summary.trim()) {
       setToastMsg('Judul dan ringkasan kebijakan wajib diisi!');
       setToastType('error');
@@ -963,6 +977,8 @@ export default function AdminPage() {
           <button
             className="btn btn-primary btn-full"
             type="submit"
+            disabled={isSavingIssue}
+            aria-busy={isSavingIssue}
             id="btn-submit-issue"
             style={{
               display: 'inline-flex',

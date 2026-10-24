@@ -33,20 +33,30 @@ function ArgumentsContent() {
   const [catProfile, setCatProfile] = useState<CatProfile>(DEFAULT_CAT_PROFILE);
 
   useEffect(() => {
+    // Abaikan respons milik issueId sebelumnya bila pengguna sudah berpindah isu
+    let cancelled = false;
+    const controller = new AbortController();
+
     getIssues().then((list) => {
       const found = list.find((i) => i.id === issueId);
-      if (found) setIssue(found);
+      if (found && !cancelled) setIssue(found);
     });
 
     // Fetch live arguments from backend API
-    fetch(`/api/arguments?issueId=${encodeURIComponent(issueId)}`)
+    fetch(`/api/arguments?issueId=${encodeURIComponent(issueId)}`, { signal: controller.signal })
       .then((res) => res.json())
       .then((list) => {
-        if (Array.isArray(list) && list.length > 0) {
-          setArgs(list);
-        }
+        if (cancelled || !Array.isArray(list)) return;
+        // Ganti daftar isu sebelumnya, tapi pertahankan argumen lokal milik isu ini
+        setArgs((prev) => {
+          const localArg = prev.find((p) => p.id === `user-arg-${issueId}`);
+          const merged = localArg && !list.some((m: Argument) => m.comment === localArg.comment) ? [localArg, ...list] : list;
+          return merged.sort((a: Argument, b: Argument) => b.upvotes - b.downvotes - (a.upvotes - a.downvotes));
+        });
       })
-      .catch((err) => console.warn('Arguments fetch warning:', err));
+      .catch((err) => {
+        if (!cancelled) console.warn('Arguments fetch warning:', err);
+      });
 
     const timer = setTimeout(() => {
       const savedCat = getSavedCatProfile();
@@ -85,7 +95,11 @@ function ArgumentsContent() {
       }
     }, 0);
 
-    return () => clearTimeout(timer);
+    return () => {
+      cancelled = true;
+      controller.abort();
+      clearTimeout(timer);
+    };
   }, [issueId]);
 
   const handleVote = (argId: string, direction: 'up' | 'down') => {
@@ -144,20 +158,27 @@ function ArgumentsContent() {
     })
       .then((res) => res.json())
       .then((data) => {
-        if (data.success) {
-          setArgs((prev) =>
-            prev.map((arg) =>
-              arg.id === argId
-                ? {
-                    ...arg,
-                    upvotes: data.upvotes,
-                    downvotes: data.downvotes,
-                    userVote: data.userVote,
-                  }
-                : arg
-            ).sort((a, b) => b.upvotes - b.downvotes - (a.upvotes - a.downvotes))
-          );
+        if (!data.success) {
+          // Gagal di server (mis. sesi habis): kembalikan tampilan optimistis ke kondisi semula
+          if (currentTarget) {
+            setArgs((prev) => prev.map((arg) => (arg.id === argId ? currentTarget : arg)));
+          }
+          setToastMsg(data.error || 'Vote gagal diproses');
+          setShowToast(true);
+          return;
         }
+        setArgs((prev) =>
+          prev.map((arg) =>
+            arg.id === argId
+              ? {
+                  ...arg,
+                  upvotes: data.upvotes,
+                  downvotes: data.downvotes,
+                  userVote: data.userVote,
+                }
+              : arg
+          ).sort((a, b) => b.upvotes - b.downvotes - (a.upvotes - a.downvotes))
+        );
       })
       .catch((err) => console.warn('Vote backend error:', err));
 

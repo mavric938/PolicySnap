@@ -157,13 +157,55 @@ export async function submitEvaluation(params: {
   };
 }
 
+/** Persentase pendirian warga per kelompok (Dukung / Bersyarat & Netral / Tolak), total selalu 100. */
+export interface StanceDistribution {
+  support: number;
+  conditional: number;
+  reject: number;
+}
+
+export function classifyStance(stance: string): keyof StanceDistribution {
+  if (stance.includes('Tolak') || stance.includes('Tidak')) return 'reject';
+  if (stance.includes('Bersyarat') || stance.includes('Netral')) return 'conditional';
+  return 'support';
+}
+
+function computeStanceDistribution(stances: string[]): StanceDistribution {
+  const counts: StanceDistribution = { support: 0, conditional: 0, reject: 0 };
+  for (const stance of stances) counts[classifyStance(stance)] += 1;
+  if (stances.length === 0) return counts;
+
+  // Largest remainder: pembulatan tiap kelompok tetap berjumlah tepat 100%
+  const keys = Object.keys(counts) as (keyof StanceDistribution)[];
+  const exact = keys.map((k) => ({ k, v: (counts[k] / stances.length) * 100 }));
+  const result = { support: 0, conditional: 0, reject: 0 };
+  exact.forEach(({ k, v }) => (result[k] = Math.floor(v)));
+  let remainder = 100 - keys.reduce((sum, k) => sum + result[k], 0);
+  exact
+    .sort((a, b) => (b.v % 1) - (a.v % 1))
+    .forEach(({ k }) => {
+      if (remainder > 0) {
+        result[k] += 1;
+        remainder -= 1;
+      }
+    });
+  return result;
+}
+
 /**
  * Calculate dynamic Community Consensus (Radar Chart averages, Winner/Loser bar, Actor swipes)
  */
 export async function getConsensusData(
   issueId: string,
   userId: string | null
-): Promise<CommunityConsensus & { hasEvaluated: boolean; userScores?: EvaluationScores }> {
+): Promise<
+  CommunityConsensus & {
+    hasEvaluated: boolean;
+    userScores?: EvaluationScores;
+    userStance?: string;
+    stanceDistribution: StanceDistribution;
+  }
+> {
   let evals: StoredEvaluation[];
 
   if (isSupabaseConfigured()) {
@@ -177,28 +219,26 @@ export async function getConsensusData(
   const userEval = userId ? evals.find((e) => e.user_id === userId) : undefined;
   const hasEvaluated = Boolean(userEval);
 
-  // If no evals yet, provide default benchmark
+  // Belum ada evaluasi: kembalikan nol (bukan angka benchmark rekaan)
   if (evals.length === 0) {
+    const zeroScores = { effectiveness: 0, efficiency: 0, equity: 0, responsiveness: 0 };
     return {
       issueId,
       totalVoters: 0,
       totalParticipants: 0,
-      avgEffectiveness: 7.0,
-      avgEfficiency: 6.0,
-      avgEquity: 5.0,
-      avgResponsiveness: 6.5,
-      scores: {
-        effectiveness: 7.0,
-        efficiency: 6.0,
-        equity: 5.0,
-        responsiveness: 6.5,
-      },
-      winnerStance: 'Dukung Bersyarat',
-      winnerPercentage: 65,
-      loserPercentage: 35,
+      avgEffectiveness: 0,
+      avgEfficiency: 0,
+      avgEquity: 0,
+      avgResponsiveness: 0,
+      scores: zeroScores,
+      winnerStance: '',
+      winnerPercentage: 0,
+      loserPercentage: 0,
+      stanceDistribution: { support: 0, conditional: 0, reject: 0 },
       actorConsensus: [],
       hasEvaluated,
       userScores: userEval?.scores,
+      userStance: userEval?.stance,
     };
   }
 
@@ -236,6 +276,7 @@ export async function getConsensusData(
     }
   }
   const winnerPercentage = Math.round((maxStanceCount / count) * 100);
+  const stanceDistribution = computeStanceDistribution(evals.map((e) => e.stance));
 
   // Calculate actor consensus (approve / reject / neutral)
   const actorVoteCounts: Record<string, Record<ActorVote, number>> = {};
@@ -274,7 +315,9 @@ export async function getConsensusData(
     winnerPercentage,
     loserPercentage: 100 - winnerPercentage,
     actorConsensus,
+    stanceDistribution,
     hasEvaluated,
     userScores: userEval?.scores,
+    userStance: userEval?.stance,
   };
 }

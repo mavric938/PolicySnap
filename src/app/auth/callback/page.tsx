@@ -11,6 +11,11 @@ export default function AuthCallbackPage() {
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
+    let cancelled = false;
+    let settled = false; // pengganti cek `status` yang basi di dalam closure
+    let unsubscribe: (() => void) | undefined;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+
     async function handleAuthCallback() {
       try {
         const client = supabaseAuthDataSource.getClient();
@@ -20,49 +25,57 @@ export default function AuthCallbackPage() {
 
         // Supabase client with detectSessionInUrl automatically processes code / access token
         const { data, error } = await client.auth.getSession();
+        if (cancelled) return;
 
         if (error) {
           throw error;
         }
 
         if (data?.session) {
+          settled = true;
           setStatus('success');
           // Check if user has initialized cat avatar
           const hasCreatedCat = localStorage.getItem('policysnap_cat_profile_created');
-          setTimeout(() => {
-            if (!hasCreatedCat) {
-              router.replace('/home?first_login=true');
-            } else {
-              router.replace('/home');
-            }
-          }, 800);
+          timers.push(
+            setTimeout(() => {
+              router.replace(hasCreatedCat ? '/home' : '/home?first_login=true');
+            }, 800)
+          );
           return;
         }
 
         // Wait brief moment for auth state change event if URL hash parsing is asynchronous
-        const { data: listener } = client.auth.onAuthStateChange((event, session) => {
-          if (session) {
+        const { data: listener } = client.auth.onAuthStateChange((_event, session) => {
+          if (session && !settled) {
+            settled = true;
             setStatus('success');
-            listener.subscription.unsubscribe();
             router.replace('/home');
           }
         });
+        unsubscribe = () => listener.subscription.unsubscribe();
 
         // Timeout fallback if no session arrives within 3 seconds
-        setTimeout(() => {
-          if (status === 'verifying') {
-            router.replace('/home');
-          }
-        }, 3000);
-      } catch (err: any) {
+        timers.push(
+          setTimeout(() => {
+            if (!settled) router.replace('/home');
+          }, 3000)
+        );
+      } catch (err: unknown) {
+        if (cancelled) return;
         console.error('Auth callback error:', err);
         setStatus('error');
-        setErrorMessage(err?.message || 'Gagal memverifikasi otentikasi Google.');
+        setErrorMessage((err as Error)?.message || 'Gagal memverifikasi otentikasi Google.');
       }
     }
 
     handleAuthCallback();
-  }, [router, status]);
+
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+      timers.forEach(clearTimeout);
+    };
+  }, [router]);
 
   return (
     <div

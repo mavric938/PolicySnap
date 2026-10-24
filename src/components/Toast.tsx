@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface ToastProps {
   message: string;
@@ -12,13 +12,24 @@ interface ToastProps {
 export default function Toast({ message, type = 'info', duration = 3000, onClose }: ToastProps) {
   const [isVisible, setIsVisible] = useState(true);
 
+  // Simpan onClose terbaru di ref: induk biasanya mengirim arrow function baru tiap render,
+  // yang dulu me-reset timer sehingga toast tidak pernah hilang saat pengguna berinteraksi.
+  const onCloseRef = useRef(onClose);
   useEffect(() => {
-    const timer = setTimeout(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  useEffect(() => {
+    let closeTimer: ReturnType<typeof setTimeout> | undefined;
+    const hideTimer = setTimeout(() => {
       setIsVisible(false);
-      setTimeout(onClose, 300);
+      closeTimer = setTimeout(() => onCloseRef.current(), 300);
     }, duration);
-    return () => clearTimeout(timer);
-  }, [duration, onClose]);
+    return () => {
+      clearTimeout(hideTimer);
+      if (closeTimer) clearTimeout(closeTimer);
+    };
+  }, [duration, message]);
 
   const colors = {
     success: 'var(--success-500)',

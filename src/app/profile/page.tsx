@@ -94,17 +94,16 @@ function ProfileContent() {
             if (!isViewingOtherUser) localStorage.setItem('policysnap_upvotes_given', String(p.upvotesCount));
           }
           if (p.catAvatar) {
-            setCatProfile((prev) => {
-              const updated = {
-                ...prev,
-                ...p.catAvatar,
-                equipped: p.catAvatar.equipped || prev.equipped,
-              };
-              if (!isViewingOtherUser) {
-                saveCatProfile(updated);
-              }
-              return updated;
+            // Updater setState harus murni (StrictMode memanggilnya 2x) — simpan ke storage di luar updater
+            const merge = (base: CatProfile): CatProfile => ({
+              ...base,
+              ...p.catAvatar,
+              equipped: p.catAvatar.equipped || base.equipped,
             });
+            setCatProfile((prev) => merge(prev));
+            if (!isViewingOtherUser) {
+              saveCatProfile(merge(getSavedCatProfile()));
+            }
           }
         }
       })

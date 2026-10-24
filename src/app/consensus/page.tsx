@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense, useState, useEffect } from 'react';
-import { MOCK_ISSUES, MOCK_CONSENSUS, DEFAULT_FALLBACK_ISSUE } from '@/data/mock';
+import { MOCK_ISSUES, DEFAULT_FALLBACK_ISSUE } from '@/data/mock';
 import { PolicyIssue, Argument, CatProfile, RankLevel } from '@/types';
 import { getIssues } from '@/lib/issueService';
 import { DEFAULT_CAT_PROFILE, getSavedCatProfile } from '@/data/catCostumes';
@@ -22,18 +22,18 @@ function ConsensusContent() {
   const [issue, setIssue] = useState<PolicyIssue>(
     MOCK_ISSUES.find((i) => i.id === issueId) || DEFAULT_FALLBACK_ISSUE
   );
-  const [consensus, setConsensus] = useState(
-    MOCK_CONSENSUS[issueId] || {
-      issueId,
-      avgEffectiveness: 7.0,
-      avgEfficiency: 6.0,
-      avgEquity: 5.0,
-      avgResponsiveness: 6.5,
-      totalVoters: 1,
-      winnerPercentage: 65,
-      loserPercentage: 35,
-    }
-  );
+  // Nilai awal nol sampai data komunitas asli dimuat (tanpa angka rekaan)
+  const [consensus, setConsensus] = useState({
+    issueId,
+    avgEffectiveness: 0,
+    avgEfficiency: 0,
+    avgEquity: 0,
+    avgResponsiveness: 0,
+    totalVoters: 0,
+    winnerPercentage: 0,
+    loserPercentage: 0,
+    stanceDistribution: { support: 0, conditional: 0, reject: 0 },
+  });
 
   const [isEvaluated, setIsEvaluated] = useState(false);
   const [personalScores, setPersonalScores] = useState({
@@ -48,6 +48,7 @@ function ConsensusContent() {
   const [args, setArgs] = useState<Argument[]>([]);
   const [activeFilter, setActiveFilter] = useState<'all' | 'dukung' | 'netral' | 'tolak'>('all');
   const [toastMsg, setToastMsg] = useState('');
+  const [toastType, setToastType] = useState<'success' | 'error'>('success');
   const [showToast, setShowToast] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [newStance, setNewStance] = useState('Dukung Bersyarat');
@@ -55,18 +56,20 @@ function ConsensusContent() {
 
   // User details
   const [catProfile, setCatProfile] = useState<CatProfile>(DEFAULT_CAT_PROFILE);
-  const [currentUserId, setCurrentUserId] = useState('user-001');
   const [userName, setUserName] = useState('Warga');
 
   useEffect(() => {
+    // Abaikan respons milik issueId sebelumnya bila pengguna sudah berpindah isu
+    let cancelled = false;
+    const controller = new AbortController();
+
     // 1. Fetch current issue details
     getIssues().then((list) => {
       const found = list.find((i) => i.id === issueId);
-      if (found) setIssue(found);
+      if (found && !cancelled) setIssue(found);
     });
 
     const localId = typeof window !== 'undefined' ? localStorage.getItem('policysnap_user_id') || 'user-001' : 'user-001';
-    setCurrentUserId(localId);
 
     const localName = typeof window !== 'undefined' ? localStorage.getItem('policysnap_user_name') || 'Warga' : 'Warga';
     setUserName(localName);
@@ -122,7 +125,7 @@ function ConsensusContent() {
         try {
           const hist = JSON.parse(historyRaw);
           if (Array.isArray(hist)) {
-            const match = hist.find((h: any) => h.issueId === issueId);
+            const match = hist.find((h: { issueId?: string }) => h.issueId === issueId);
             if (match) {
               evaluatedLocally = true;
               setIsEvaluated(true);
@@ -146,10 +149,11 @@ function ConsensusContent() {
       }
     }
 
-    // 3. Fetch live consensus from API with userId parameter
-    fetch(`/api/consensus?issueId=${encodeURIComponent(issueId)}&userId=${encodeURIComponent(localId)}`)
+    // 3. Fetch live consensus from API (user diidentifikasi lewat cookie sesi)
+    fetch(`/api/consensus?issueId=${encodeURIComponent(issueId)}`, { signal: controller.signal })
       .then((res) => res.json())
       .then((data) => {
+        if (cancelled) return;
         if (data && data.scores) {
           const totalVotersCount = data.totalParticipants || data.totalVoters || (evaluatedLocally ? 1 : 0);
           setConsensus({
@@ -159,8 +163,9 @@ function ConsensusContent() {
             avgEquity: data.scores.equity,
             avgResponsiveness: data.scores.responsiveness,
             totalVoters: totalVotersCount,
-            winnerPercentage: data.winnerPercentage || 65,
-            loserPercentage: 100 - (data.winnerPercentage || 65),
+            winnerPercentage: data.winnerPercentage ?? 0,
+            loserPercentage: data.loserPercentage ?? 0,
+            stanceDistribution: data.stanceDistribution ?? { support: 0, conditional: 0, reject: 0 },
           });
 
           if (data.userScores) {
@@ -175,15 +180,19 @@ function ConsensusContent() {
           }
         }
       })
-      .catch((err) => console.warn('Live consensus fetch warning:', err));
+      .catch((err) => {
+        if (!cancelled) console.warn('Live consensus fetch warning:', err);
+      });
 
     // 4. Fetch live comments / arguments for this issue
-    fetch(`/api/arguments?issueId=${encodeURIComponent(issueId)}`)
+    fetch(`/api/arguments?issueId=${encodeURIComponent(issueId)}`, { signal: controller.signal })
       .then((res) => res.json())
       .then((list) => {
+        if (cancelled) return;
         if (Array.isArray(list)) {
           setArgs((prev) => {
-            const userOnly = prev.filter((p) => p.id.startsWith('user-arg-'));
+            // Hanya pertahankan argumen lokal milik isu ini (bukan sisa isu sebelumnya)
+            const userOnly = prev.filter((p) => p.id === `user-arg-${issueId}`);
             const merged = [...list];
             userOnly.forEach((u) => {
               if (!merged.some((m) => m.id === u.id || m.comment === u.comment)) {
@@ -194,7 +203,14 @@ function ConsensusContent() {
           });
         }
       })
-      .catch((err) => console.warn('Arguments fetch warning:', err));
+      .catch((err) => {
+        if (!cancelled) console.warn('Arguments fetch warning:', err);
+      });
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
   }, [issueId]);
 
   // Handle Upvote / Downvote on an Argument
@@ -244,24 +260,32 @@ function ConsensusContent() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         argumentId: argId,
-        userId: currentUserId,
         voteType: direction,
       }),
     })
       .then((res) => res.json())
       .then((data) => {
-        if (data.success) {
-          setArgs((prev) =>
-            prev.map((arg) =>
-              arg.id === argId
-                ? { ...arg, upvotes: data.upvotes, downvotes: data.downvotes, userVote: data.userVote }
-                : arg
-            ).sort((a, b) => b.upvotes - b.downvotes - (a.upvotes - a.downvotes))
-          );
+        if (!data.success) {
+          // Gagal di server (mis. sesi habis): kembalikan tampilan optimistis ke kondisi semula
+          if (currentTarget) {
+            setArgs((prev) => prev.map((arg) => (arg.id === argId ? currentTarget : arg)));
+          }
+          setToastType('error');
+          setToastMsg(data.error || 'Vote gagal diproses');
+          setShowToast(true);
+          return;
         }
+        setArgs((prev) =>
+          prev.map((arg) =>
+            arg.id === argId
+              ? { ...arg, upvotes: data.upvotes, downvotes: data.downvotes, userVote: data.userVote }
+              : arg
+          ).sort((a, b) => b.upvotes - b.downvotes - (a.upvotes - a.downvotes))
+        );
       })
       .catch((err) => console.warn('Vote error:', err));
 
+    setToastType('success');
     setToastMsg(direction === 'up' ? 'Upvoted! +1 XP reputasi argumen' : 'Downvoted');
     setShowToast(true);
   };
@@ -279,7 +303,6 @@ function ConsensusContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           issueId,
-          userId: currentUserId,
           stance: newStance,
           comment: newComment.trim(),
         }),
@@ -296,7 +319,13 @@ function ConsensusContent() {
           ...prev,
         ]);
         setNewComment('');
+        setToastType('success');
         setToastMsg('Argumen Anda berhasil dipublikasikan!');
+        setShowToast(true);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setToastType('error');
+        setToastMsg(data.error || 'Gagal mempublikasikan argumen');
         setShowToast(true);
       }
     } catch (err) {
@@ -343,13 +372,34 @@ function ConsensusContent() {
     return { ...d, diff, status, color };
   });
 
-  const nationalScore = (
-    (personalScores.effectiveness +
-      personalScores.efficiency +
-      personalScores.equity +
-      personalScores.responsiveness) /
-    4
-  ).toFixed(1);
+  // Indeks nasional = rata-rata komunitas; skor pribadi hanya bila belum ada warga lain
+  const scoreSource = isSoleVoter
+    ? personalScores
+    : {
+        effectiveness: consensus.avgEffectiveness,
+        efficiency: consensus.avgEfficiency,
+        equity: consensus.avgEquity,
+        responsiveness: consensus.avgResponsiveness,
+      };
+  const nationalScoreValue =
+    (scoreSource.effectiveness + scoreSource.efficiency + scoreSource.equity + scoreSource.responsiveness) / 4;
+  const nationalScore = nationalScoreValue.toFixed(1);
+
+  // Ambang sama dengan halaman share (getVerdictText)
+  const nationalVerdict =
+    nationalScoreValue < 4
+      ? 'Tidak Layak'
+      : nationalScoreValue < 6
+      ? 'Cukup Bersyarat'
+      : nationalScoreValue < 8
+      ? 'Layak Diterapkan'
+      : 'Sangat Layak';
+
+  const distribution = [
+    { key: 'support', label: 'Dukung Penuh', color: '#10B981', value: consensus.stanceDistribution.support },
+    { key: 'conditional', label: 'Bersyarat', color: '#F59E0B', value: consensus.stanceDistribution.conditional },
+    { key: 'reject', label: 'Tolak', color: '#F43F5E', value: consensus.stanceDistribution.reject },
+  ];
 
   const filteredArgs = args.filter((a) => {
     if (activeFilter === 'all') return true;
@@ -473,7 +523,7 @@ function ConsensusContent() {
                 }
               >
                 <Icon name={isSoleVoter ? 'person' : 'info'} size={15} />
-                <span>{isSoleVoter ? 'Penilaian Mandiri' : 'Layak Bersyarat'}</span>
+                <span>{isSoleVoter ? 'Penilaian Mandiri' : nationalVerdict}</span>
               </div>
             </div>
 
@@ -591,24 +641,17 @@ function ConsensusContent() {
               </div>
             ) : (
               <div className={styles.distributionBar}>
-                <div
-                  className={styles.distSegment}
-                  style={{ width: `${consensus.winnerPercentage}%`, background: '#10B981' }}
-                >
-                  {consensus.winnerPercentage}%
-                </div>
-                <div
-                  className={styles.distSegment}
-                  style={{ width: `${Math.max(10, 100 - consensus.winnerPercentage - 15)}%`, background: '#F59E0B' }}
-                >
-                  {Math.max(10, 100 - consensus.winnerPercentage - 15)}%
-                </div>
-                <div
-                  className={styles.distSegment}
-                  style={{ width: '15%', background: '#F43F5E' }}
-                >
-                  15%
-                </div>
+                {distribution
+                  .filter((seg) => seg.value > 0)
+                  .map((seg) => (
+                    <div
+                      key={seg.key}
+                      className={styles.distSegment}
+                      style={{ width: `${seg.value}%`, background: seg.color }}
+                    >
+                      {seg.value}%
+                    </div>
+                  ))}
               </div>
             )}
 
@@ -630,18 +673,14 @@ function ConsensusContent() {
                 </div>
               ) : (
                 <>
-                  <div className={styles.distLegendItem}>
-                    <span className={styles.distDot} style={{ background: '#10B981' }} />
-                    <span>Dukung Penuh ({consensus.winnerPercentage}%)</span>
-                  </div>
-                  <div className={styles.distLegendItem}>
-                    <span className={styles.distDot} style={{ background: '#F59E0B' }} />
-                    <span>Bersyarat ({Math.max(10, 100 - consensus.winnerPercentage - 15)}%)</span>
-                  </div>
-                  <div className={styles.distLegendItem}>
-                    <span className={styles.distDot} style={{ background: '#F43F5E' }} />
-                    <span>Tolak (15%)</span>
-                  </div>
+                  {distribution.map((seg) => (
+                    <div key={seg.key} className={styles.distLegendItem}>
+                      <span className={styles.distDot} style={{ background: seg.color }} />
+                      <span>
+                        {seg.label} ({seg.value}%)
+                      </span>
+                    </div>
+                  ))}
                 </>
               )}
             </div>
@@ -834,7 +873,7 @@ function ConsensusContent() {
       {showToast && (
         <Toast
           message={toastMsg}
-          type="success"
+          type={toastType}
           onClose={() => setShowToast(false)}
         />
       )}

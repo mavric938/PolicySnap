@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense, useRef, useState, useEffect } from 'react';
 import html2canvas from 'html2canvas';
-import { MOCK_ISSUES, MOCK_CONSENSUS, MOCK_USER, getRankForXP, DEFAULT_FALLBACK_ISSUE } from '@/data/mock';
+import { MOCK_ISSUES, MOCK_USER, getRankForXP, DEFAULT_FALLBACK_ISSUE } from '@/data/mock';
 import Toast from '@/components/Toast';
 import BottomNav from '@/components/BottomNav';
 import Icon from '@/components/Icon';
@@ -20,15 +20,16 @@ function ShareContent() {
   const [issue, setIssue] = useState<PolicyIssue>(
     MOCK_ISSUES.find((i) => i.id === issueId) || DEFAULT_FALLBACK_ISSUE
   );
+  // Nol sampai data komunitas asli dimuat (tanpa angka rekaan)
   const [consensus, setConsensus] = useState({
     issueId,
-    avgEffectiveness: 6.8,
-    avgEfficiency: 5.9,
-    avgEquity: 6.5,
-    avgResponsiveness: 6.0,
-    totalVoters: 142,
-    winnerPercentage: 65,
-    loserPercentage: 35,
+    avgEffectiveness: 0,
+    avgEfficiency: 0,
+    avgEquity: 0,
+    avgResponsiveness: 0,
+    totalVoters: 0,
+    winnerPercentage: 0,
+    loserPercentage: 0,
   });
 
   const cardRef = useRef<HTMLDivElement>(null);
@@ -65,9 +66,9 @@ function ShareContent() {
             avgEfficiency: data.scores.efficiency,
             avgEquity: data.scores.equity,
             avgResponsiveness: data.scores.responsiveness,
-            totalVoters: data.totalParticipants || data.totalVoters || 142,
-            winnerPercentage: data.winnerPercentage || 65,
-            loserPercentage: data.loserPercentage || (100 - (data.winnerPercentage || 65)),
+            totalVoters: data.totalParticipants ?? data.totalVoters ?? 0,
+            winnerPercentage: data.winnerPercentage ?? 0,
+            loserPercentage: data.loserPercentage ?? 0,
           });
         }
       })
@@ -112,10 +113,26 @@ function ShareContent() {
   const userBottom = 100 + personalScores.equity * 8;
   const userLeft = 100 - personalScores.responsiveness * 8;
 
-  const pubTop = 100 - consensus.avgEffectiveness * 8;
-  const pubRight = 100 + consensus.avgEfficiency * 8;
-  const pubBottom = 100 + consensus.avgEquity * 8;
-  const pubLeft = 100 - consensus.avgResponsiveness * 8;
+  // Belum ada warga lain → poligon publik = skor pribadi (sama seperti halaman konsensus)
+  const hasCommunity = consensus.totalVoters > 0;
+  const publicScores = hasCommunity
+    ? {
+        effectiveness: consensus.avgEffectiveness,
+        efficiency: consensus.avgEfficiency,
+        equity: consensus.avgEquity,
+        responsiveness: consensus.avgResponsiveness,
+      }
+    : personalScores;
+
+  const pubTop = 100 - publicScores.effectiveness * 8;
+  const pubRight = 100 + publicScores.efficiency * 8;
+  const pubBottom = 100 + publicScores.equity * 8;
+  const pubLeft = 100 - publicScores.responsiveness * 8;
+
+  const publicComposite = (
+    (publicScores.effectiveness + publicScores.efficiency + publicScores.equity + publicScores.responsiveness) /
+    4
+  ).toFixed(1);
 
   const compositeScore = (
     (personalScores.effectiveness +
@@ -269,7 +286,7 @@ function ShareContent() {
               </div>
               <div className={styles.radarLegendPub}>
                 <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#2563EB' }} />
-                <span>Publik (6.1)</span>
+                <span>Publik ({hasCommunity ? publicComposite : '–'})</span>
               </div>
             </div>
 

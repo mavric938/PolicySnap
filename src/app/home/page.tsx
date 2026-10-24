@@ -73,28 +73,6 @@ export default function HomePage() {
         setShowCatOnboarding(true);
       }
 
-      // If authenticated, fetch profile from backend API
-      if (authUser?.id) {
-        fetch(`/api/user/profile?userId=${encodeURIComponent(authUser.id)}`)
-          .then((res) => res.json())
-          .then((p) => {
-            if (p && !p.error) {
-              if (p.totalXP !== undefined) {
-                setUserXP(p.totalXP);
-                localStorage.setItem('policysnap_xp', String(p.totalXP));
-              }
-              if (p.catAvatar) {
-                setCatProfile((prev) => ({
-                  ...prev,
-                  ...p.catAvatar,
-                  equipped: p.catAvatar.equipped || prev.equipped,
-                }));
-              }
-            }
-          })
-          .catch(console.warn);
-      }
-
       const notifDismissed = localStorage.getItem('policysnap_notif_dismissed');
       const notifEnabled = localStorage.getItem('policysnap_push_token');
       if (!notifDismissed && !notifEnabled) {
@@ -122,6 +100,35 @@ export default function HomePage() {
 
     return () => clearTimeout(timer);
   }, []);
+
+  // Profil backend diambil setelah sesi auth selesai dimuat (authUser awalnya null)
+  const authUserId = authUser?.id;
+  useEffect(() => {
+    if (!authUserId) return;
+    let cancelled = false;
+
+    fetch(`/api/user/profile?userId=${encodeURIComponent(authUserId)}`)
+      .then((res) => res.json())
+      .then((p) => {
+        if (cancelled || !p || p.error) return;
+        if (p.totalXP !== undefined) {
+          setUserXP(p.totalXP);
+          localStorage.setItem('policysnap_xp', String(p.totalXP));
+        }
+        if (p.catAvatar) {
+          setCatProfile((prev) => ({
+            ...prev,
+            ...p.catAvatar,
+            equipped: p.catAvatar.equipped || prev.equipped,
+          }));
+        }
+      })
+      .catch(console.warn);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authUserId]);
 
   const handleEnablePush = async () => {
     if (typeof window !== 'undefined') {
@@ -414,6 +421,8 @@ export default function HomePage() {
       )}
 
       {/* First-time login Cat Creator Onboarding Modal */}
+      {/* Mount hanya saat terbuka agar state awal modal memakai profil kucing terbaru */}
+      {showCatOnboarding && (
       <CatCreatorModal
         isOpen={showCatOnboarding}
         onClose={() => setShowCatOnboarding(false)}
@@ -429,6 +438,7 @@ export default function HomePage() {
           setShowToast(true);
         }}
       />
+      )}
 
       <BottomNav />
     </div>

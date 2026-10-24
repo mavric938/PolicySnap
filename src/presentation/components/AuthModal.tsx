@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import Icon from '@/components/Icon';
 import GoogleLoginButton from './GoogleLoginButton';
 import styles from './AuthModal.module.css';
@@ -20,7 +21,14 @@ export default function AuthModal({
   title = 'Masuk dengan Akun Google',
   description = 'Sesuai regulasi partisipasi publik (US-001), Anda wajib masuk dengan akun terverifikasi Google untuk mengirim evaluasi dan mencegah bot.',
 }: AuthModalProps) {
+  const router = useRouter();
   if (!isOpen) return null;
+
+  // Google login sedang di-hold: arahkan ke halaman awal yang memuat form daftar & mode tamu
+  const goToLanding = () => {
+    onClose();
+    router.push('/');
+  };
 
   return (
     <div className={styles.overlay} onClick={onClose}>
@@ -44,6 +52,8 @@ export default function AuthModal({
               onClose();
             }}
             buttonText="Masuk dengan Google"
+            onSelectRegister={goToLanding}
+            onSelectGuest={goToLanding}
           />
         </div>
 

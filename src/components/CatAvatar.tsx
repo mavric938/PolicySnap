@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useId } from 'react';
 import { CatProfile } from '@/types';
 
 interface CatAvatarProps {
@@ -38,9 +38,13 @@ export default function CatAvatar({
   const furAccent = isDarkFur ? '#334155' : 'rgba(0, 0, 0, 0.15)';
   const muzzleMaskColor = breed === 'siam' ? '#78350F' : bellyColor;
 
+  // ID gradient/filter unik per instance: tanpa ini, url(#eyeGrad) di halaman dengan banyak
+  // avatar selalu merujuk ke <defs> milik avatar pertama (warna mata ikut kucing pertama).
+  const uid = `cat${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
+
   return (
     <div
-      className={`cat-avatar-container ${className}`}
+      className={`cat-avatar-container${animate ? ' is-animated' : ''} ${className}`}
       style={{
         width: size,
         height: size,
@@ -62,41 +66,41 @@ export default function CatAvatar({
       >
         <defs>
           {/* Background Radial Gradient */}
-          <radialGradient id="catBgGrad" cx="50%" cy="40%" r="60%">
+          <radialGradient id={`${uid}-catBgGrad`} cx="50%" cy="40%" r="60%">
             <stop offset="0%" stopColor="#FFF1ED" />
             <stop offset="70%" stopColor="#FFE4DE" />
             <stop offset="100%" stopColor="#FED7AA" />
           </radialGradient>
 
           {/* Eye Iris Gradient */}
-          <radialGradient id="eyeGrad" cx="40%" cy="35%" r="60%">
+          <radialGradient id={`${uid}-eyeGrad`} cx="40%" cy="35%" r="60%">
             <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.4" />
             <stop offset="30%" stopColor={eyeColor} />
             <stop offset="100%" stopColor="#064E3B" />
           </radialGradient>
 
           {/* Gold Shimmer Gradient */}
-          <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient id={`${uid}-goldGrad`} x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#FDE047" />
             <stop offset="50%" stopColor="#EAB308" />
             <stop offset="100%" stopColor="#CA8A04" />
           </linearGradient>
 
           {/* Ruby Royal Gradient */}
-          <linearGradient id="rubyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient id={`${uid}-rubyGrad`} x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#EF4444" />
             <stop offset="50%" stopColor="#991B1B" />
             <stop offset="100%" stopColor="#450A0A" />
           </linearGradient>
 
           {/* Subtle Inner Shadow Filter */}
-          <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+          <filter id={`${uid}-softGlow`} x="-20%" y="-20%" width="140%" height="140%">
             <feGaussianBlur stdDeviation="2" result="blur" />
             <feComposite in="SourceGraphic" in2="blur" operator="over" />
           </filter>
 
           {/* Admin Exclusive: Aura Glow Radial */}
-          <radialGradient id="adminAuraGlow" cx="50%" cy="50%" r="50%">
+          <radialGradient id={`${uid}-adminAuraGlow`} cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.95" />
             <stop offset="30%" stopColor="#FDE047" stopOpacity="0.85" />
             <stop offset="65%" stopColor="#38BDF8" stopOpacity="0.5" />
@@ -104,7 +108,7 @@ export default function CatAvatar({
           </radialGradient>
 
           {/* Admin Exclusive: Star 24K Gold Gradient */}
-          <linearGradient id="adminStarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient id={`${uid}-adminStarGrad`} x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#FFFBEB" />
             <stop offset="25%" stopColor="#FEF08A" />
             <stop offset="60%" stopColor="#F59E0B" />
@@ -112,14 +116,14 @@ export default function CatAvatar({
           </linearGradient>
 
           {/* Admin Exclusive: Secondary Rays Gold Gradient */}
-          <linearGradient id="adminGoldGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
+          <linearGradient id={`${uid}-adminGoldGrad2`} x1="100%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" stopColor="#FEF9C3" />
             <stop offset="50%" stopColor="#EAB308" />
             <stop offset="100%" stopColor="#78350F" />
           </linearGradient>
 
           {/* Admin Exclusive: Celestial Gem Crystal Gradient */}
-          <linearGradient id="adminGemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient id={`${uid}-adminGemGrad`} x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#E0F2FE" />
             <stop offset="35%" stopColor="#38BDF8" />
             <stop offset="75%" stopColor="#0284C7" />
@@ -127,14 +131,14 @@ export default function CatAvatar({
           </linearGradient>
 
           {/* Admin Exclusive: Royal Sash Ribbon Gradient */}
-          <linearGradient id="adminSashGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient id={`${uid}-adminSashGrad`} x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#DC2626" />
             <stop offset="50%" stopColor="#B91C1C" />
             <stop offset="100%" stopColor="#7F1D1D" />
           </linearGradient>
 
           {/* Admin Exclusive: Specular Sparkle Filter */}
-          <filter id="adminGlowFilter" x="-50%" y="-50%" width="200%" height="200%">
+          <filter id={`${uid}-adminGlowFilter`} x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur1" />
             <feGaussianBlur in="SourceGraphic" stdDeviation="5.5" result="blur2" />
             <feMerge>
@@ -145,82 +149,11 @@ export default function CatAvatar({
           </filter>
         </defs>
 
-        <style>
-          {`
-            @keyframes catTailWag {
-              0%, 100% { transform: rotate(0deg); }
-              50% { transform: rotate(14deg); }
-            }
-            @keyframes catFloat {
-              0%, 100% { transform: translateY(0px); }
-              50% { transform: translateY(-4px); }
-            }
-            @keyframes catBlink {
-              0%, 92%, 100% { transform: scaleY(1); }
-              96% { transform: scaleY(0.1); }
-            }
-            @keyframes catEarTwitch {
-              0%, 94%, 100% { transform: rotate(0deg); }
-              96% { transform: rotate(-5deg); }
-              98% { transform: rotate(3deg); }
-            }
-            @keyframes adminPulseGlow {
-              0%, 100% {
-                transform: scale(0.92);
-                opacity: 0.75;
-              }
-              50% {
-                transform: scale(1.15);
-                opacity: 1;
-              }
-            }
-            @keyframes adminRaySpin {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-            @keyframes adminSparkle1 {
-              0%, 100% { transform: scale(0.3) rotate(0deg); opacity: 0.2; }
-              50% { transform: scale(1.3) rotate(45deg); opacity: 1; }
-            }
-            @keyframes adminSparkle2 {
-              0%, 100% { transform: scale(1.2) rotate(45deg); opacity: 1; }
-              50% { transform: scale(0.2) rotate(0deg); opacity: 0.1; }
-            }
-            @keyframes adminSparkle3 {
-              0%, 100% { transform: scale(0.4) rotate(15deg); opacity: 0.3; }
-              50% { transform: scale(1.35) rotate(-30deg); opacity: 0.95; }
-            }
-            @keyframes adminStarShimmer {
-              0%, 100% { transform: scale(1); filter: drop-shadow(0 0 6px rgba(250, 204, 21, 0.85)); }
-              50% { transform: scale(1.03); filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.95)) drop-shadow(0 0 22px rgba(250, 204, 21, 0.9)); }
-            }
-            .cat-animated-body {
-              ${animate ? 'animation: catFloat 3.5s ease-in-out infinite;' : ''}
-              transform-origin: center bottom;
-            }
-            .cat-tail {
-              ${animate ? 'animation: catTailWag 2.8s ease-in-out infinite;' : ''}
-              transform-origin: 155px 145px;
-            }
-            .cat-eyes-group {
-              ${animate ? 'animation: catBlink 4s infinite;' : ''}
-              transform-origin: 100px 92px;
-            }
-            .cat-left-ear {
-              ${animate ? 'animation: catEarTwitch 5.5s infinite;' : ''}
-              transform-origin: 65px 55px;
-            }
-            .admin-star-group {
-              animation: adminStarShimmer 3s ease-in-out infinite;
-              transform-origin: 136px 138px;
-            }
-          `}
-        </style>
 
         {/* 0. Optional Backdrop Disc */}
         {showBackground && (
           <g>
-            <circle cx="100" cy="100" r="92" fill="url(#catBgGrad)" />
+            <circle cx="100" cy="100" r="92" fill={`url(#${uid}-catBgGrad)`} />
             <circle
               cx="100"
               cy="100"
@@ -379,7 +312,7 @@ export default function CatAvatar({
                   <path d="M 92 123 L 108 123 L 105 142 L 95 142 Z" fill="#F8FAFC" stroke="#E2E8F0" strokeWidth="1" />
                   <line x1="100" y1="123" x2="100" y2="142" stroke="#CBD5E1" strokeWidth="1" />
                   {/* Gold border */}
-                  <path d="M 68 174 Q 100 180 132 174" stroke="url(#goldGrad)" strokeWidth="3" fill="none" />
+                  <path d="M 68 174 Q 100 180 132 174" stroke={`url(#${uid}-goldGrad)`} strokeWidth="3" fill="none" />
                 </g>
               )}
 
@@ -401,10 +334,10 @@ export default function CatAvatar({
                     d="M 72 130 L 128 172 L 122 177 L 68 135 Z"
                     fill="#7C3AED"
                   />
-                  <line x1="72" y1="130" x2="128" y2="172" stroke="url(#goldGrad)" strokeWidth="2" />
-                  <line x1="68" y1="135" x2="122" y2="177" stroke="url(#goldGrad)" strokeWidth="2" />
+                  <line x1="72" y1="130" x2="128" y2="172" stroke={`url(#${uid}-goldGrad)`} strokeWidth="2" />
+                  <line x1="68" y1="135" x2="122" y2="177" stroke={`url(#${uid}-goldGrad)`} strokeWidth="2" />
                   {/* Medal pin */}
-                  <circle cx="86" cy="142" r="4" fill="url(#goldGrad)" />
+                  <circle cx="86" cy="142" r="4" fill={`url(#${uid}-goldGrad)`} />
                 </g>
               )}
 
@@ -413,7 +346,7 @@ export default function CatAvatar({
                   {/* Imperial Velvet Robe */}
                   <path
                     d="M 62 120 C 50 144, 52 175, 72 178 C 88 182, 112 182, 128 178 C 148 175, 150 144, 138 120 Z"
-                    fill="url(#rubyGrad)"
+                    fill={`url(#${uid}-rubyGrad)`}
                   />
                   {/* Ermine white fur lapels */}
                   <path
@@ -425,11 +358,11 @@ export default function CatAvatar({
                     fill="#FFFFFF"
                   />
                   {/* Gold chain clasps */}
-                  <path d="M 80 134 Q 100 142 120 134" stroke="url(#goldGrad)" strokeWidth="3" fill="none" />
-                  <circle cx="80" cy="134" r="3.5" fill="url(#goldGrad)" />
-                  <circle cx="120" cy="134" r="3.5" fill="url(#goldGrad)" />
+                  <path d="M 80 134 Q 100 142 120 134" stroke={`url(#${uid}-goldGrad)`} strokeWidth="3" fill="none" />
+                  <circle cx="80" cy="134" r="3.5" fill={`url(#${uid}-goldGrad)`} />
+                  <circle cx="120" cy="134" r="3.5" fill={`url(#${uid}-goldGrad)`} />
                   {/* Gold bottom fringe */}
-                  <path d="M 72 178 Q 100 184 128 178" stroke="url(#goldGrad)" strokeWidth="4" fill="none" />
+                  <path d="M 72 178 Q 100 184 128 178" stroke={`url(#${uid}-goldGrad)`} strokeWidth="4" fill="none" />
                 </g>
               )}
             </g>
@@ -576,7 +509,7 @@ export default function CatAvatar({
               {/* LEFT EYE */}
               <g>
                 <ellipse cx="80" cy="94" rx="10" ry="12" fill="#0F172A" />
-                <ellipse cx="80" cy="94" rx="8.5" ry="10" fill="url(#eyeGrad)" />
+                <ellipse cx="80" cy="94" rx="8.5" ry="10" fill={`url(#${uid}-eyeGrad)`} />
                 {/* Slit/Pupil */}
                 <ellipse cx="80" cy="94" rx="3.5" ry="8" fill="#022C22" />
                 {/* Highlights / Shines */}
@@ -594,7 +527,7 @@ export default function CatAvatar({
               {/* RIGHT EYE */}
               <g>
                 <ellipse cx="120" cy="94" rx="10" ry="12" fill="#0F172A" />
-                <ellipse cx="120" cy="94" rx="8.5" ry="10" fill="url(#eyeGrad)" />
+                <ellipse cx="120" cy="94" rx="8.5" ry="10" fill={`url(#${uid}-eyeGrad)`} />
                 {/* Slit/Pupil */}
                 <ellipse cx="120" cy="94" rx="3.5" ry="8" fill="#022C22" />
                 {/* Highlights */}
@@ -653,18 +586,18 @@ export default function CatAvatar({
               {equipped.eyes === 'eyes_frame_emas' && (
                 <g>
                   {/* Titanium Gold Frameless Glasses */}
-                  <ellipse cx="80" cy="94" rx="14" ry="11" fill="rgba(254,249,195,0.2)" stroke="url(#goldGrad)" strokeWidth="2.5" />
-                  <ellipse cx="120" cy="94" rx="14" ry="11" fill="rgba(254,249,195,0.2)" stroke="url(#goldGrad)" strokeWidth="2.5" />
-                  <path d="M 94 92 Q 100 89 106 92" stroke="url(#goldGrad)" strokeWidth="2.5" fill="none" />
+                  <ellipse cx="80" cy="94" rx="14" ry="11" fill="rgba(254,249,195,0.2)" stroke={`url(#${uid}-goldGrad)`} strokeWidth="2.5" />
+                  <ellipse cx="120" cy="94" rx="14" ry="11" fill="rgba(254,249,195,0.2)" stroke={`url(#${uid}-goldGrad)`} strokeWidth="2.5" />
+                  <path d="M 94 92 Q 100 89 106 92" stroke={`url(#${uid}-goldGrad)`} strokeWidth="2.5" fill="none" />
                 </g>
               )}
 
               {equipped.eyes === 'eyes_monokel' && (
                 <g>
                   {/* Regal Judicial Monocle */}
-                  <circle cx="80" cy="94" r="15" fill="rgba(254,240,138,0.2)" stroke="url(#goldGrad)" strokeWidth="3" />
+                  <circle cx="80" cy="94" r="15" fill="rgba(254,240,138,0.2)" stroke={`url(#${uid}-goldGrad)`} strokeWidth="3" />
                   {/* Monocle chain dropping to vest */}
-                  <path d="M 80 109 Q 70 128 85 142" stroke="url(#goldGrad)" strokeWidth="1.5" strokeDasharray="2,2" fill="none" />
+                  <path d="M 80 109 Q 70 128 85 142" stroke={`url(#${uid}-goldGrad)`} strokeWidth="1.5" strokeDasharray="2,2" fill="none" />
                 </g>
               )}
 
@@ -685,12 +618,12 @@ export default function CatAvatar({
               {equipped.eyes === 'eyes_sorot_bijak' && (
                 <g>
                   {/* Golden Glowing Wisdom Specs + Stars */}
-                  <ellipse cx="80" cy="94" rx="14" ry="11" fill="rgba(253,224,71,0.3)" stroke="url(#goldGrad)" strokeWidth="3" />
-                  <ellipse cx="120" cy="94" rx="14" ry="11" fill="rgba(253,224,71,0.3)" stroke="url(#goldGrad)" strokeWidth="3" />
-                  <path d="M 94 92 Q 100 89 106 92" stroke="url(#goldGrad)" strokeWidth="3" fill="none" />
+                  <ellipse cx="80" cy="94" rx="14" ry="11" fill="rgba(253,224,71,0.3)" stroke={`url(#${uid}-goldGrad)`} strokeWidth="3" />
+                  <ellipse cx="120" cy="94" rx="14" ry="11" fill="rgba(253,224,71,0.3)" stroke={`url(#${uid}-goldGrad)`} strokeWidth="3" />
+                  <path d="M 94 92 Q 100 89 106 92" stroke={`url(#${uid}-goldGrad)`} strokeWidth="3" fill="none" />
                   {/* Sparkle Stars */}
-                  <polygon points="62,82 64,86 68,88 64,90 62,94 60,90 56,88 60,86" fill="url(#goldGrad)" />
-                  <polygon points="138,82 140,86 144,88 140,90 138,94 136,90 132,88 136,86" fill="url(#goldGrad)" />
+                  <polygon points="62,82 64,86 68,88 64,90 62,94 60,90 56,88 60,86" fill={`url(#${uid}-goldGrad)`} />
+                  <polygon points="138,82 140,86 144,88 140,90 138,94 136,90 132,88 136,86" fill={`url(#${uid}-goldGrad)`} />
                   <polygon points="100,78 101,80 103,81 101,82 100,84 99,82 97,81 99,80" fill="#FFFFFF" />
                 </g>
               )}
@@ -747,7 +680,7 @@ export default function CatAvatar({
                   />
                   <ellipse cx="98" cy="66" rx="42" ry="7" fill="#78350F" />
                   {/* Gold Auditor Pin */}
-                  <circle cx="76" cy="56" r="5" fill="url(#goldGrad)" />
+                  <circle cx="76" cy="56" r="5" fill={`url(#${uid}-goldGrad)`} />
                   <path d="M 76 53 L 78 59 L 73 55 L 79 55 L 74 59 Z" fill="#78350F" />
                 </g>
               )}
@@ -762,7 +695,7 @@ export default function CatAvatar({
                   {/* Crown indentation */}
                   <ellipse cx="100" cy="38" rx="14" ry="4" fill="#1E293B" />
                   {/* Gold ribbon band */}
-                  <rect x="68" y="52" width="64" height="6" fill="url(#goldGrad)" />
+                  <rect x="68" y="52" width="64" height="6" fill={`url(#${uid}-goldGrad)`} />
                   {/* Wide brim */}
                   <path
                     d="M 48 58 C 48 54, 152 54, 152 64 C 130 68, 70 68, 48 58 Z"
@@ -777,9 +710,9 @@ export default function CatAvatar({
                   <polygon points="100,28 152,44 100,56 48,44" fill="#0F172A" />
                   <rect x="76" y="48" width="48" height="14" fill="#1E293B" />
                   {/* Golden tassel */}
-                  <circle cx="100" cy="42" r="3" fill="url(#goldGrad)" />
-                  <path d="M 100 42 C 120 44, 135 52, 138 68" stroke="url(#goldGrad)" strokeWidth="2.5" fill="none" />
-                  <ellipse cx="138" cy="70" rx="3" ry="5" fill="url(#goldGrad)" />
+                  <circle cx="100" cy="42" r="3" fill={`url(#${uid}-goldGrad)`} />
+                  <path d="M 100 42 C 120 44, 135 52, 138 68" stroke={`url(#${uid}-goldGrad)`} strokeWidth="2.5" fill="none" />
+                  <ellipse cx="138" cy="70" rx="3" ry="5" fill={`url(#${uid}-goldGrad)`} />
                 </g>
               )}
 
@@ -795,7 +728,7 @@ export default function CatAvatar({
                   {/* Bottom curve fitting head */}
                   <path d="M 66 66 Q 100 74 134 66" fill="none" stroke="#27272A" strokeWidth="2" />
                   {/* Subtle golden thread trim at bottom */}
-                  <path d="M 68 64 Q 100 72 132 64" fill="none" stroke="url(#goldGrad)" strokeWidth="1.5" />
+                  <path d="M 68 64 Q 100 72 132 64" fill="none" stroke={`url(#${uid}-goldGrad)`} strokeWidth="1.5" />
                 </g>
               )}
 
@@ -804,7 +737,7 @@ export default function CatAvatar({
                   {/* Royal Imperial Crown */}
                   <path
                     d="M 64 64 L 62 40 L 78 50 L 100 32 L 122 50 L 138 40 L 136 64 Z"
-                    fill="url(#goldGrad)"
+                    fill={`url(#${uid}-goldGrad)`}
                   />
                   <ellipse cx="100" cy="64" rx="36" ry="6" fill="#CA8A04" />
                   {/* Jewel insets */}
@@ -839,12 +772,12 @@ export default function CatAvatar({
                   <g id="admin-sash-ribbon">
                     <path
                       d="M 124 136 C 128 130, 142 130, 146 136 L 143 158 L 135 150 L 127 158 Z"
-                      fill="url(#adminSashGrad)"
+                      fill={`url(#${uid}-adminSashGrad)`}
                       stroke="#CA8A04"
                       strokeWidth="1.2"
                     />
-                    <path d="M 127 136 L 129 154" stroke="url(#adminStarGrad)" strokeWidth="0.8" />
-                    <path d="M 143 136 L 141 154" stroke="url(#adminStarGrad)" strokeWidth="0.8" />
+                    <path d="M 127 136 L 129 154" stroke={`url(#${uid}-adminStarGrad)`} strokeWidth="0.8" />
+                    <path d="M 143 136 L 141 154" stroke={`url(#${uid}-adminStarGrad)`} strokeWidth="0.8" />
                   </g>
 
                   {/* 2. Rotating Light Beams / Sunburst (Radiant Light Rays) */}
@@ -860,30 +793,30 @@ export default function CatAvatar({
                     cx="136"
                     cy="138"
                     r="24"
-                    fill="url(#adminAuraGlow)"
+                    fill={`url(#${uid}-adminAuraGlow)`}
                     style={{ transformOrigin: '136px 138px', animation: 'adminPulseGlow 3.2s ease-in-out infinite' }}
                   />
 
                   {/* 4. Eight-pointed Sovereign Star (Faceted 24K Gold) */}
                   <polygon
                     points="136,120 140,133 152,122 141,140 150,152 136,143 122,152 131,140 120,122 132,133"
-                    fill="url(#adminGoldGrad2)"
+                    fill={`url(#${uid}-adminGoldGrad2)`}
                     stroke="#CA8A04"
                     strokeWidth="0.8"
                   />
                   <polygon
                     points="136,112 141,133 162,138 141,143 136,164 131,143 110,138 131,133"
-                    fill="url(#adminStarGrad)"
+                    fill={`url(#${uid}-adminStarGrad)`}
                     stroke="#FFFFFF"
                     strokeWidth="1.2"
-                    filter="url(#adminGlowFilter)"
+                    filter={`url(#${uid}-adminGlowFilter)`}
                   />
 
                   {/* 5. Center Brilliant Cyan-Sapphire Prismatic Gem */}
-                  <circle cx="136" cy="138" r="9" fill="#0F172A" stroke="url(#adminStarGrad)" strokeWidth="1.5" />
+                  <circle cx="136" cy="138" r="9" fill="#0F172A" stroke={`url(#${uid}-adminStarGrad)`} strokeWidth="1.5" />
                   <polygon
                     points="136,130 143,138 136,146 129,138"
-                    fill="url(#adminGemGrad)"
+                    fill={`url(#${uid}-adminGemGrad)`}
                     stroke="#BAE6FD"
                     strokeWidth="1"
                   />
@@ -975,8 +908,8 @@ export default function CatAvatar({
                   {/* Handle */}
                   <path d="M 45 146 L 45 140 L 55 140 L 55 146" stroke="#CA8A04" strokeWidth="2.5" fill="none" />
                   {/* Brass Latches */}
-                  <rect x="42" y="152" width="4" height="4" fill="url(#goldGrad)" />
-                  <rect x="54" y="152" width="4" height="4" fill="url(#goldGrad)" />
+                  <rect x="42" y="152" width="4" height="4" fill={`url(#${uid}-goldGrad)`} />
+                  <rect x="54" y="152" width="4" height="4" fill={`url(#${uid}-goldGrad)`} />
                   <line x1="36" y1="154" x2="64" y2="154" stroke="#451A03" strokeWidth="1" />
                 </g>
               )}
@@ -989,7 +922,7 @@ export default function CatAvatar({
                   {/* Head */}
                   <rect x="134" y="128" width="18" height="12" rx="2" fill="#7C2D12" transform="rotate(-35 143 134)" />
                   {/* Gold rings on gavel head */}
-                  <line x1="135" y1="132" x2="149" y2="124" stroke="url(#goldGrad)" strokeWidth="1.5" />
+                  <line x1="135" y1="132" x2="149" y2="124" stroke={`url(#${uid}-goldGrad)`} strokeWidth="1.5" />
                 </g>
               )}
 
@@ -1002,7 +935,7 @@ export default function CatAvatar({
                   <line x1="142" y1="146" x2="154" y2="146" stroke="#991B1B" strokeWidth="2" />
                   <line x1="142" y1="150" x2="150" y2="150" stroke="#991B1B" strokeWidth="1.5" />
                   {/* Gold seal */}
-                  <circle cx="148" cy="160" r="3.5" fill="url(#goldGrad)" />
+                  <circle cx="148" cy="160" r="3.5" fill={`url(#${uid}-goldGrad)`} />
                 </g>
               )}
 
@@ -1010,11 +943,11 @@ export default function CatAvatar({
                 <g>
                   {/* Golden Imperial Scepter */}
                   {/* Golden Shaft */}
-                  <line x1="150" y1="92" x2="150" y2="176" stroke="url(#goldGrad)" strokeWidth="4.5" strokeLinecap="round" />
+                  <line x1="150" y1="92" x2="150" y2="176" stroke={`url(#${uid}-goldGrad)`} strokeWidth="4.5" strokeLinecap="round" />
                   {/* Top Globe & Crown */}
-                  <circle cx="150" cy="88" r="8" fill="url(#goldGrad)" stroke="#CA8A04" strokeWidth="1" />
+                  <circle cx="150" cy="88" r="8" fill={`url(#${uid}-goldGrad)`} stroke="#CA8A04" strokeWidth="1" />
                   <circle cx="150" cy="88" r="4" fill="#3B82F6" />
-                  <polygon points="150,76 153,80 147,80" fill="url(#goldGrad)" />
+                  <polygon points="150,76 153,80 147,80" fill={`url(#${uid}-goldGrad)`} />
                   {/* Ring ribbons */}
                   <path d="M 150 96 C 158 98, 162 108, 158 116" stroke="#EF4444" strokeWidth="2" fill="none" />
                 </g>

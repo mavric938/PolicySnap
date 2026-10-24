@@ -475,3 +475,69 @@ main {
   padding: var(--space-md);
   padding-bottom: calc(var(--bottom-nav-height) + var(--safe-area-bottom) + var(--space-md));
 }
+
+/* ===== CatAvatar animations =====
+   Dulu di-inject sebagai <style> per instance, sehingga satu avatar animate={true}
+   ikut menganimasikan semua avatar lain. Kini animasi hanya aktif di .is-animated. */
+@keyframes catTailWag {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(14deg); }
+}
+@keyframes catFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes catBlink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  96% { transform: scaleY(0.1); }
+}
+@keyframes catEarTwitch {
+  0%, 94%, 100% { transform: rotate(0deg); }
+  96% { transform: rotate(-5deg); }
+  98% { transform: rotate(3deg); }
+}
+@keyframes adminPulseGlow {
+  0%, 100% { transform: scale(0.92); opacity: 0.75; }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+@keyframes adminRaySpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes adminSparkle1 {
+  0%, 100% { transform: scale(0.3) rotate(0deg); opacity: 0.2; }
+  50% { transform: scale(1.3) rotate(45deg); opacity: 1; }
+}
+@keyframes adminSparkle2 {
+  0%, 100% { transform: scale(1.2) rotate(45deg); opacity: 1; }
+  50% { transform: scale(0.2) rotate(0deg); opacity: 0.1; }
+}
+@keyframes adminSparkle3 {
+  0%, 100% { transform: scale(0.4) rotate(15deg); opacity: 0.3; }
+  50% { transform: scale(1.35) rotate(-30deg); opacity: 0.95; }
+}
+@keyframes adminStarShimmer {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 6px rgba(250, 204, 21, 0.85)); }
+  50% {
+    transform: scale(1.03);
+    filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.95)) drop-shadow(0 0 22px rgba(250, 204, 21, 0.9));
+  }
+}
+
+.cat-avatar-container .cat-animated-body { transform-origin: center bottom; }
+.cat-avatar-container .cat-tail { transform-origin: 155px 145px; }
+.cat-avatar-container .cat-eyes-group { transform-origin: 100px 92px; }
+.cat-avatar-container .cat-left-ear { transform-origin: 65px 55px; }
+.cat-avatar-container .admin-star-group {
+  animation: adminStarShimmer 3s ease-in-out infinite;
+  transform-origin: 136px 138px;
+}
+
+.cat-avatar-container.is-animated .cat-animated-body { animation: catFloat 3.5s ease-in-out infinite; }
+.cat-avatar-container.is-animated .cat-tail { animation: catTailWag 2.8s ease-in-out infinite; }
+.cat-avatar-container.is-animated .cat-eyes-group { animation: catBlink 4s infinite; }
+.cat-avatar-container.is-animated .cat-left-ear { animation: catEarTwitch 5.5s infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cat-avatar-container * { animation: none !important; }
+}

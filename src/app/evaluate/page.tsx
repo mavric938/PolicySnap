@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, Suspense } from 'react';
+import { useState, useEffect, useMemo, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { MOCK_ISSUES, MOCK_ACTORS } from '@/data/mock';
@@ -235,6 +235,13 @@ function EvaluateContent() {
   const [toastMessage, setToastMessage] = useState('');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const swipeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Bersihkan timer animasi swipe saat halaman ditinggalkan
+  useEffect(() => () => {
+    if (swipeTimerRef.current) clearTimeout(swipeTimerRef.current);
+  }, []);
 
   // Load issues and evaluations from backend API & sync titles precisely
   useEffect(() => {
@@ -333,6 +340,8 @@ function EvaluateContent() {
   };
 
   const handleSwipe = (direction: 'left' | 'right' | 'neutral') => {
+    // Abaikan klik/swipe ganda selama animasi kartu sebelumnya masih berjalan
+    if (swipeDirection !== null) return;
     soundService.playTap();
     const actor = actors[currentActorIndex];
     if (!actor) return;
@@ -343,7 +352,7 @@ function EvaluateContent() {
       [actor.id]: direction === 'right' ? 'approve' : direction === 'left' ? 'reject' : 'neutral',
     }));
 
-    setTimeout(() => {
+    swipeTimerRef.current = setTimeout(() => {
       setSwipeDirection(null);
       if (currentActorIndex < actors.length - 1) {
         setCurrentActorIndex((prev) => prev + 1);
@@ -353,7 +362,9 @@ function EvaluateContent() {
     }, 280);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (isSubmitting) return;
+
     if (!isAuthenticated && !authUser) {
       setShowAuthModal(true);
       return;
@@ -365,21 +376,44 @@ function EvaluateContent() {
       return;
     }
 
-    const activeUserId = authUser?.id || (typeof window !== 'undefined' ? localStorage.getItem('policysnap_user_id') || 'user-001' : 'user-001');
+    setIsSubmitting(true);
+    try {
+      const res = await fetch('/api/evaluations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          issueId: currentIssueId,
+          scores,
+          actorVotes,
+          stance,
+          comment: comment.trim(),
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
 
-    const evalData: EvaluationRecord = {
-      issueId: currentIssueId,
-      issueTitle: issue.title,
-      category: issue.category || 'Kebijakan Publik',
-      scores,
-      actorVotes,
-      stance,
-      comment,
-      compositeScore,
-      timestamp: new Date().toISOString(),
-    };
+      if (res.status === 401) {
+        setShowAuthModal(true);
+        return;
+      }
+      if (!res.ok) {
+        setToastMessage(data.error || 'Gagal mengirim evaluasi. Coba lagi.');
+        setShowToast(true);
+        return;
+      }
 
-    if (typeof window !== 'undefined') {
+      // Simpan riwayat lokal hanya setelah server menerima evaluasi
+      const evalData: EvaluationRecord = {
+        issueId: currentIssueId,
+        issueTitle: issue.title,
+        category: issue.category || 'Kebijakan Publik',
+        scores,
+        actorVotes,
+        stance,
+        comment,
+        compositeScore,
+        timestamp: new Date().toISOString(),
+      };
+
       localStorage.setItem(`policysnap_eval_${currentIssueId}`, JSON.stringify(evalData));
       localStorage.setItem(`evaluated_${currentIssueId}`, 'true');
 
@@ -387,41 +421,25 @@ function EvaluateContent() {
       localStorage.setItem('policysnap_evaluation_history', JSON.stringify(nextHistory));
       setEvaluations(nextHistory);
 
-      const currentXP = Number(localStorage.getItem('policysnap_xp') || '0');
-      const newXP = currentXP + 10;
-      localStorage.setItem('policysnap_xp', String(newXP));
-      setUserXP(newXP);
+      // XP dari server (penilaian ulang tidak menambah XP maupun jumlah evaluasi)
+      if (typeof data.totalXP === 'number') {
+        setUserXP(data.totalXP);
+        localStorage.setItem('policysnap_xp', String(data.totalXP));
+      }
+      if (data.isFirstEvaluation) {
+        const count = Number(localStorage.getItem('policysnap_eval_count') || '0');
+        localStorage.setItem('policysnap_eval_count', String(count + 1));
+      }
 
-      const count = Number(localStorage.getItem('policysnap_eval_count') || '0');
-      localStorage.setItem('policysnap_eval_count', String(count + 1));
+      soundService.playSuccess();
+      setShowSuccessModal(true);
+    } catch (err) {
+      console.warn('Backend evaluation sync warning:', err);
+      setToastMessage('Tidak dapat terhubung ke server. Periksa koneksi Anda.');
+      setShowToast(true);
+    } finally {
+      setIsSubmitting(false);
     }
-
-    soundService.playSuccess();
-
-    fetch('/api/evaluations', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        userId: activeUserId,
-        issueId: currentIssueId,
-        scores,
-        actorVotes,
-        stance,
-        comment: comment.trim(),
-      }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.totalXP !== undefined) {
-          setUserXP(data.totalXP);
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('policysnap_xp', String(data.totalXP));
-          }
-        }
-      })
-      .catch((err) => console.warn('Backend evaluation sync warning:', err));
-
-    setShowSuccessModal(true);
   };
 
   return (
@@ -995,10 +1013,12 @@ function EvaluateContent() {
                 <button
                   className={`btn btn-primary btn-full ${styles.submitBtn}`}
                   onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  aria-busy={isSubmitting}
                   id="btn-submit-evaluation"
                 >
                   <Icon name="bolt" size={20} />
-                  <span>Kirim Evaluasi &amp; Klaim +10 XP</span>
+                  <span>{isSubmitting ? 'Mengirim Evaluasi...' : 'Kirim Evaluasi & Klaim +10 XP'}</span>
                 </button>
               </div>
             </section>
@@ -1187,10 +1207,6 @@ function EvaluateContent() {
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
-        onSuccess={() => {
-          setShowAuthModal(false);
-          handleSubmit();
-        }}
         title="Masuk untuk Mengirim Evaluasi"
         description="Sesuai standar validitas partisipasi publik PolicySnap, Anda perlu masuk dengan akun terverifikasi sebelum mengirim evaluasi."
       />
