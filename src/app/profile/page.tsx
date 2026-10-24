@@ -16,6 +16,8 @@ import CatAvatar from '@/components/CatAvatar';
 import BottomNav from '@/components/BottomNav';
 import Icon from '@/components/Icon';
 import Toast from '@/components/Toast';
+import { useToast } from '@/hooks/useToast';
+import { useCurrentUserId } from '@/hooks/useCurrentUserId';
 import styles from './profile.module.css';
 import { useAuth } from '@/presentation/hooks/useAuth';
 import GoogleLoginButton from '@/presentation/components/GoogleLoginButton';
@@ -26,30 +28,31 @@ function ProfileContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user: authUser, isAuthenticated, isAdmin, signOut } = useAuth();
-  const currentUserId = authUser?.id || (typeof window !== 'undefined' ? localStorage.getItem('policysnap_user_id') || 'user-001' : 'user-001');
+  // Cache localStorage hanya dipakai selama sesi server masih dimuat (hindari kedip "profil orang lain")
+  const sessionUserId = useCurrentUserId();
+  const authName = authUser?.name;
+  const currentUserId =
+    sessionUserId || (typeof window !== 'undefined' ? localStorage.getItem('policysnap_user_id') || '' : '');
 
   const queryUserId = searchParams.get('userId');
   const isViewingOtherUser = Boolean(queryUserId && queryUserId !== currentUserId);
   const targetUserId = queryUserId || currentUserId;
 
+  const { toast, showToast, hideToast } = useToast();
   const [profileName, setProfileName] = useState(MOCK_USER.name);
   const [userXP, setUserXP] = useState(MOCK_USER.totalXP);
   const [evalCount, setEvalCount] = useState(MOCK_USER.evaluationsCount);
   const [upvoteCount, setUpvoteCount] = useState(0);
   const [catProfile, setCatProfile] = useState<CatProfile>(DEFAULT_CAT_PROFILE);
   const [selectedSlotTab, setSelectedSlotTab] = useState<'all' | CatCostumeSlot>('all');
-  const [toastMsg, setToastMsg] = useState('');
-  const [showToast, setShowToast] = useState(false);
 
-  const syncProfileToBackend = (updates: any) => {
+  // Server hanya menerima nama/avatar/kucing milik user yang login (userId dari cookie sesi)
+  const syncProfileToBackend = (updates: { catAvatar: CatProfile }) => {
     if (isViewingOtherUser) return;
     fetch('/api/user/profile', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        userId: currentUserId,
-        ...updates,
-      }),
+      body: JSON.stringify(updates),
     }).catch((err) => console.warn('Profile sync warning:', err));
   };
 
@@ -62,7 +65,7 @@ function ProfileContent() {
 
         const savedName = localStorage.getItem('policysnap_user_name');
         if (savedName) setProfileName(savedName);
-        else if (authUser?.name) setProfileName(authUser.name);
+        else if (authName) setProfileName(authName);
 
         const savedXP = localStorage.getItem('policysnap_xp');
         if (savedXP) setUserXP(Number(savedXP));
@@ -75,7 +78,12 @@ function ProfileContent() {
       }, 0);
     }
 
-    // Fetch live profile from backend API
+    // Fetch live profile from backend API (pengunjung anonim tanpa ?userId tidak punya profil)
+    if (!targetUserId) {
+      return () => {
+        if (timer) clearTimeout(timer);
+      };
+    }
     fetch(`/api/user/profile?userId=${encodeURIComponent(targetUserId)}`)
       .then((res) => res.json())
       .then((p) => {
@@ -112,13 +120,12 @@ function ProfileContent() {
     return () => {
       if (timer) clearTimeout(timer);
     };
-  }, [targetUserId, isViewingOtherUser]);
+  }, [targetUserId, isViewingOtherUser, authName]);
 
   const handleToggleCostume = (item: CatCostumeItem) => {
     const isUnlocked = userXP >= (RANKS.find((r) => r.level === item.requiredLevel)?.minXP || 0);
     if (!isUnlocked) {
-      setToastMsg(`🔒 Kostum ini terkunci! Capai Level ${item.requiredLevel} untuk membukanya.`);
-      setShowToast(true);
+      showToast(`🔒 Kostum ini terkunci! Capai Level ${item.requiredLevel} untuk membukanya.`, 'info');
       return;
     }
 
@@ -139,12 +146,11 @@ function ProfileContent() {
     saveCatProfile(updatedProfile);
     syncProfileToBackend({ catAvatar: updatedProfile });
 
-    setToastMsg(
+    showToast(
       isAlreadyEquipped
         ? `Melepas ${item.name}`
         : `✨ Memasang ${item.name} pada ${catProfile.name}!`
-    );
-    setShowToast(true);
+    , 'info');
   };
 
   const handleUnequipSlot = (slot: CatCostumeSlot) => {
@@ -161,8 +167,7 @@ function ProfileContent() {
     setCatProfile(updatedProfile);
     saveCatProfile(updatedProfile);
     syncProfileToBackend({ catAvatar: updatedProfile });
-    setToastMsg(`Melepas ${item.name}`);
-    setShowToast(true);
+    showToast(`Melepas ${item.name}`, 'info');
   };
 
   const currentRank = getRankForXP(userXP);
@@ -247,7 +252,7 @@ function ProfileContent() {
         </p>
 
         {/* Admin Exclusive Special Item Active Banner */}
-        {(isAdmin || currentUserId === 'admin-001' || authUser?.role === 'admin') && !isViewingOtherUser && (
+        {isAdmin && !isViewingOtherUser && (
           <div className={styles.adminSpecialBanner}>
             <div className={styles.adminSpecialGlow} />
             <div className={styles.adminSpecialContent}>
@@ -730,8 +735,7 @@ function ProfileContent() {
           <div style={{ marginTop: '12px' }}>
             <GoogleLoginButton
               onSuccess={() => {
-                setToastMsg('Berhasil masuk dengan Google!');
-                setShowToast(true);
+                showToast('Berhasil masuk dengan Google!', 'info');
               }}
               buttonText="Masuk dengan Google"
             />
@@ -776,12 +780,7 @@ function ProfileContent() {
       )}
 
       {/* Toast Feedback */}
-      {showToast && (
-        <Toast
-          message={toastMsg}
-          onClose={() => setShowToast(false)}
-        />
-      )}
+      {toast && <Toast key={toast.id} message={toast.message} type={toast.type} onClose={hideToast} />}
 
       <BottomNav />
     </div>

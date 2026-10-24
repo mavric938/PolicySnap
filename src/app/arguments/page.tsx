@@ -10,7 +10,10 @@ import CatAvatar from '@/components/CatAvatar';
 import RankBadge from '@/components/RankBadge';
 import BottomNav from '@/components/BottomNav';
 import Toast from '@/components/Toast';
+import { useToast } from '@/hooks/useToast';
+import { useCurrentUserId } from '@/hooks/useCurrentUserId';
 import Icon from '@/components/Icon';
+import { compareByNetVotes, getStanceBadgeStyle, matchesStanceFilter, StanceFilter } from '@/lib/stance';
 import styles from './arguments.module.css';
 
 function ArgumentsContent() {
@@ -22,14 +25,12 @@ function ArgumentsContent() {
   );
 
   const [args, setArgs] = useState<Argument[]>(
-    MOCK_ARGUMENTS.filter((a) => a.issueId === issueId).sort(
-      (a, b) => b.upvotes - b.downvotes - (a.upvotes - a.downvotes)
-    )
+    MOCK_ARGUMENTS.filter((a) => a.issueId === issueId).sort(compareByNetVotes)
   );
 
-  const [activeFilter, setActiveFilter] = useState<'all' | 'dukung' | 'netral' | 'tolak'>('all');
-  const [showToast, setShowToast] = useState(false);
-  const [toastMsg, setToastMsg] = useState('');
+  const { toast, showToast, hideToast } = useToast();
+  const currentUserId = useCurrentUserId();
+  const [activeFilter, setActiveFilter] = useState<StanceFilter>('all');
   const [catProfile, setCatProfile] = useState<CatProfile>(DEFAULT_CAT_PROFILE);
 
   useEffect(() => {
@@ -51,7 +52,7 @@ function ArgumentsContent() {
         setArgs((prev) => {
           const localArg = prev.find((p) => p.id === `user-arg-${issueId}`);
           const merged = localArg && !list.some((m: Argument) => m.comment === localArg.comment) ? [localArg, ...list] : list;
-          return merged.sort((a: Argument, b: Argument) => b.upvotes - b.downvotes - (a.upvotes - a.downvotes));
+          return merged.sort(compareByNetVotes);
         });
       })
       .catch((err) => {
@@ -68,7 +69,7 @@ function ArgumentsContent() {
           const parsed = JSON.parse(savedEval);
           if (parsed.comment && parsed.comment.trim()) {
             const localName = localStorage.getItem('policysnap_user_name') || savedCat.name || 'Warga';
-            const localUserId = localStorage.getItem('policysnap_user_id') || 'user-001';
+            const localUserId = localStorage.getItem('policysnap_user_id') || '';
             const userArg: Argument = {
               id: `user-arg-${issueId}`,
               userId: localUserId,
@@ -86,7 +87,7 @@ function ArgumentsContent() {
             };
             setArgs((prev) => {
               if (prev.some((a) => a.id === userArg.id || a.comment === userArg.comment)) return prev;
-              return [userArg, ...prev].sort((a, b) => b.upvotes - b.downvotes - (a.upvotes - a.downvotes));
+              return [userArg, ...prev].sort(compareByNetVotes);
             });
           }
         } catch (e) {
@@ -163,8 +164,7 @@ function ArgumentsContent() {
           if (currentTarget) {
             setArgs((prev) => prev.map((arg) => (arg.id === argId ? currentTarget : arg)));
           }
-          setToastMsg(data.error || 'Vote gagal diproses');
-          setShowToast(true);
+          showToast(data.error || 'Vote gagal diproses', 'info');
           return;
         }
         setArgs((prev) =>
@@ -177,32 +177,16 @@ function ArgumentsContent() {
                   userVote: data.userVote,
                 }
               : arg
-          ).sort((a, b) => b.upvotes - b.downvotes - (a.upvotes - a.downvotes))
+          ).sort(compareByNetVotes)
         );
       })
       .catch((err) => console.warn('Vote backend error:', err));
 
-    setToastMsg(direction === 'up' ? 'Upvoted! +1 XP untuk reputasi argumen' : 'Downvoted');
-    setShowToast(true);
+    showToast(direction === 'up' ? 'Upvoted! +1 XP untuk reputasi argumen' : 'Downvoted', 'info');
   };
 
-  const getStancePillStyle = (stance: string) => {
-    if (stance.includes('Setuju') || stance.includes('Dukung')) {
-      return { background: '#ECFDF5', color: '#047857', border: '1px solid #D1FAE5' };
-    }
-    if (stance.includes('Tidak') || stance.includes('Tolak')) {
-      return { background: '#FFF1F2', color: '#BE123C', border: '1px solid #FFE4E6' };
-    }
-    return { background: '#F1F3F5', color: '#4B5563', border: '1px solid #E5E7EB' };
-  };
 
-  const filteredArgs = args.filter((a) => {
-    if (activeFilter === 'all') return true;
-    if (activeFilter === 'dukung') return a.stance.includes('Setuju') || a.stance.includes('Dukung');
-    if (activeFilter === 'tolak') return a.stance.includes('Tidak') || a.stance.includes('Tolak');
-    if (activeFilter === 'netral') return a.stance.includes('Netral');
-    return true;
-  });
+  const filteredArgs = args.filter((a) => matchesStanceFilter(a.stance, activeFilter));
 
   return (
     <div className="page">
@@ -263,7 +247,7 @@ function ArgumentsContent() {
         {filteredArgs.map((arg, idx) => {
           const isTop3 = idx < 3 && activeFilter === 'all';
           const medals = ['🥇', '🥈', '🥉'];
-          const pillStyle = getStancePillStyle(arg.stance);
+          const pillStyle = getStanceBadgeStyle(arg.stance);
 
           return (
             <div key={arg.id} className={`${styles.argCard} animate-fade-in`}>
@@ -271,7 +255,7 @@ function ArgumentsContent() {
 
               <div className={styles.argHeader}>
                 <div className={styles.argUser}>
-                  {arg.userId === 'user-001' ? (
+                  {arg.userId === currentUserId || arg.userCatAvatar ? (
                     <div
                       className={styles.argAvatar}
                       style={{
@@ -284,7 +268,12 @@ function ArgumentsContent() {
                         justifyContent: 'center',
                       }}
                     >
-                      <CatAvatar profile={catProfile} size={36} showBackground={false} animate={false} />
+                      <CatAvatar
+                        profile={arg.userId === currentUserId ? catProfile : arg.userCatAvatar ?? catProfile}
+                        size={36}
+                        showBackground={false}
+                        animate={false}
+                      />
                     </div>
                   ) : (
                     <div className={styles.argAvatar}>{arg.userName.charAt(0)}</div>
@@ -292,7 +281,7 @@ function ArgumentsContent() {
                   <div className={styles.argUserInfo}>
                     <div className={styles.argUserName}>{arg.userName}</div>
                     <div className={styles.argMeta}>
-                      <RankBadge xp={85} size="sm" />
+                      <RankBadge rank={arg.userRank} size="sm" />
                       <span>•</span>
                       <span>{arg.submittedAt}</span>
                     </div>
@@ -335,13 +324,7 @@ function ArgumentsContent() {
         })}
       </div>
 
-      {showToast && (
-        <Toast
-          message={toastMsg}
-          type="info"
-          onClose={() => setShowToast(false)}
-        />
-      )}
+      {toast && <Toast key={toast.id} message={toast.message} type={toast.type} onClose={hideToast} />}
 
       <BottomNav />
     </div>

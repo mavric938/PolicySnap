@@ -13,6 +13,7 @@ import RankBadge from '@/components/RankBadge';
 import BottomNav from '@/components/BottomNav';
 import Icon from '@/components/Icon';
 import Toast from '@/components/Toast';
+import { useToast } from '@/hooks/useToast';
 import SoundToggle from '@/components/SoundToggle';
 import styles from './home.module.css';
 import { useAuth } from '@/presentation/hooks/useAuth';
@@ -47,7 +48,8 @@ function getCategoryIcon(cat?: string): string {
 
 export default function HomePage() {
   const router = useRouter();
-  const { user: authUser, isAuthenticated } = useAuth();
+  const { user: authUser } = useAuth();
+  const { toast, showToast, hideToast } = useToast();
   const [issues, setIssues] = useState<PolicyIssue[]>(MOCK_ISSUES);
   const [activeFilter, setActiveFilter] = useState<'all' | 'active' | 'closed'>('all');
   const [userXP, setUserXP] = useState(MOCK_USER.totalXP);
@@ -55,8 +57,6 @@ export default function HomePage() {
   const [showCatOnboarding, setShowCatOnboarding] = useState(false);
   const [showNotifBanner, setShowNotifBanner] = useState(false);
   const [evaluatedMap, setEvaluatedMap] = useState<Record<string, boolean>>({});
-  const [toastMsg, setToastMsg] = useState('');
-  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -95,7 +95,7 @@ export default function HomePage() {
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
       navigator.serviceWorker
         .register('/sw.js')
-        .catch((err) => console.log('SW registration error:', err));
+        .catch((err) => console.warn('SW registration error:', err));
     }
 
     return () => clearTimeout(timer);
@@ -138,15 +138,12 @@ export default function HomePage() {
           if (permission === 'granted') {
             const fakeToken = `ps_sub_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
             localStorage.setItem('policysnap_push_token', fakeToken);
-            setToastMsg('Web Push Notifications aktif!');
-            setShowToast(true);
+            showToast('Web Push Notifications aktif!', 'success');
           } else {
-            setToastMsg('Izin notifikasi ditolak.');
-            setShowToast(true);
+            showToast('Izin notifikasi ditolak.', 'info');
           }
         } else {
-          setToastMsg('Browser tidak mendukung notifikasi.');
-          setShowToast(true);
+          showToast('Browser tidak mendukung notifikasi.', 'info');
         }
       } catch (err) {
         console.error('Push error:', err);
@@ -334,6 +331,7 @@ export default function HomePage() {
 
               {/* 4. Visual Context Snapshot Banner dengan Badge XP */}
               <div className={styles.visualBanner}>
+                {/* eslint-disable-next-line @next/next/no-img-element -- URL banner eksternal arbitrer + fallback onError */}
                 <img
                   src={bannerImg}
                   alt={issue.title}
@@ -412,13 +410,7 @@ export default function HomePage() {
         })}
       </div>
 
-      {showToast && (
-        <Toast
-          message={toastMsg}
-          type={toastMsg.includes('aktif') ? 'success' : 'info'}
-          onClose={() => setShowToast(false)}
-        />
-      )}
+      {toast && <Toast key={toast.id} message={toast.message} type={toast.type} onClose={hideToast} />}
 
       {/* First-time login Cat Creator Onboarding Modal */}
       {/* Mount hanya saat terbuka agar state awal modal memakai profil kucing terbaru */}
@@ -434,8 +426,7 @@ export default function HomePage() {
             localStorage.setItem('policysnap_cat_profile_created', 'true');
           }
           setShowCatOnboarding(false);
-          setToastMsg(`🐱 Karakter ${newCat.name} berhasil dibuat! Siap mendampingi perjalananmu.`);
-          setShowToast(true);
+          showToast(`🐱 Karakter ${newCat.name} berhasil dibuat! Siap mendampingi perjalananmu.`, 'info');
         }}
       />
       )}

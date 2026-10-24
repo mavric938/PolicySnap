@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Icon from './Icon';
 import CatVisualIcon from './CatVisualIcon';
 import styles from './OnboardingTutorialModal.module.css';
@@ -145,11 +145,12 @@ export default function OnboardingTutorialModal({
 }: OnboardingTutorialModalProps) {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
 
-  useEffect(() => {
-    if (isOpen) {
-      setCurrentSlideIndex(0);
-    }
-  }, [isOpen]);
+  // Mulai dari slide pertama setiap kali modal dibuka (adjust state saat render, tanpa effect)
+  const [wasOpen, setWasOpen] = useState(isOpen);
+  if (isOpen !== wasOpen) {
+    setWasOpen(isOpen);
+    if (isOpen) setCurrentSlideIndex(0);
+  }
 
   if (!isOpen) return null;
 

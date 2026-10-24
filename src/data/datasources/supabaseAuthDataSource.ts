@@ -97,8 +97,8 @@ export class SupabaseAuthDataSource {
       }
 
       return { url: data.url };
-    } catch (err: any) {
-      return { error: err?.message || 'Gagal memulai otentikasi Google' };
+    } catch (err: unknown) {
+      return { error: (err as Error)?.message || 'Gagal memulai otentikasi Google' };
     }
   }
 

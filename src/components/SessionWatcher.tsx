@@ -54,7 +54,6 @@ export default function SessionWatcher() {
             currentPath !== '/home' &&
             !currentPath.startsWith('/admin')
           ) {
-            console.log('[PolicySnap Session] Tidak aktif selama > 5 menit. Mengembalikan halaman awal ke Beranda.');
             recordActive();
             router.push('/home');
             return;

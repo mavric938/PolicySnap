@@ -1,9 +1,9 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState, useEffect, useMemo } from 'react';
 import { MOCK_ISSUES, DEFAULT_FALLBACK_ISSUE } from '@/data/mock';
-import { PolicyIssue, Argument, CatProfile, RankLevel } from '@/types';
+import { PolicyIssue, Argument, EvaluationScores, RankLevel } from '@/types';
 import { getIssues } from '@/lib/issueService';
 import { DEFAULT_CAT_PROFILE, getSavedCatProfile } from '@/data/catCostumes';
 import BottomNav from '@/components/BottomNav';
@@ -11,8 +11,21 @@ import Icon from '@/components/Icon';
 import RadarChart from '@/components/RadarChart';
 import CatAvatar from '@/components/CatAvatar';
 import Toast from '@/components/Toast';
+import { useToast } from '@/hooks/useToast';
+import { useHydrated } from '@/hooks/useHydrated';
+import { readLocalEvaluation } from '@/lib/localEvaluation';
 import { soundService } from '@/lib/soundService';
+import { classifyStance, compareByNetVotes, getStanceBadgeStyle, matchesStanceFilter, StanceFilter, STANCE_COLORS } from '@/lib/stance';
+import { averageScore, getVerdict } from '@/lib/scoring';
 import styles from './consensus.module.css';
+
+// Skor tampilan default sebelum ada evaluasi (lokal maupun server)
+const DEFAULT_PERSONAL_SCORES: EvaluationScores = {
+  effectiveness: 7.0,
+  efficiency: 5.0,
+  equity: 4.0,
+  responsiveness: 6.0,
+};
 
 function ConsensusContent() {
   const router = useRouter();
@@ -35,28 +48,63 @@ function ConsensusContent() {
     stanceDistribution: { support: 0, conditional: 0, reject: 0 },
   });
 
-  const [isEvaluated, setIsEvaluated] = useState(false);
-  const [personalScores, setPersonalScores] = useState({
-    effectiveness: 7.0,
-    efficiency: 5.0,
-    equity: 4.0,
-    responsiveness: 6.0,
-  });
-  const [personalStance, setPersonalStance] = useState('Dukung Bersyarat');
+  const { toast, showToast, hideToast } = useToast();
+  // Evaluasi milik user menurut server (cookie sesi); cache lokal dipakai sampai/bila server belum punya
+  const [serverEval, setServerEval] = useState<{
+    hasEvaluated: boolean;
+    userScores?: EvaluationScores;
+    userStance?: string;
+  } | null>(null);
 
   // Comments / Arguments state
   const [args, setArgs] = useState<Argument[]>([]);
-  const [activeFilter, setActiveFilter] = useState<'all' | 'dukung' | 'netral' | 'tolak'>('all');
-  const [toastMsg, setToastMsg] = useState('');
-  const [toastType, setToastType] = useState<'success' | 'error'>('success');
-  const [showToast, setShowToast] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<StanceFilter>('all');
   const [newComment, setNewComment] = useState('');
   const [newStance, setNewStance] = useState('Dukung Bersyarat');
   const [isPosting, setIsPosting] = useState(false);
 
-  // User details
-  const [catProfile, setCatProfile] = useState<CatProfile>(DEFAULT_CAT_PROFILE);
-  const [userName, setUserName] = useState('Warga');
+  // Data lokal (localStorage) dibaca setelah hidrasi, sebagai nilai turunan — bukan setState di effect
+  const hydrated = useHydrated();
+  const localUser = useMemo(
+    () =>
+      hydrated
+        ? {
+            id: localStorage.getItem('policysnap_user_id') || '',
+            name: localStorage.getItem('policysnap_user_name') || 'Warga',
+            cat: getSavedCatProfile(),
+          }
+        : { id: '', name: 'Warga', cat: DEFAULT_CAT_PROFILE },
+    [hydrated]
+  );
+  const catProfile = localUser.cat;
+  const userName = localUser.name;
+  const localEval = useMemo(() => (hydrated ? readLocalEvaluation(issueId) : null), [hydrated, issueId]);
+
+  const isEvaluated = Boolean(serverEval?.hasEvaluated || localEval?.evaluated);
+  const personalScores = serverEval?.userScores ?? localEval?.scores ?? DEFAULT_PERSONAL_SCORES;
+  const personalStance = serverEval?.userStance ?? localEval?.stance ?? 'Dukung Bersyarat';
+
+  // Argumen lokal user (dari komentar evaluasi) ditampilkan sampai versi server-nya muncul
+  const displayArgs = useMemo(() => {
+    if (!localEval?.comment?.trim()) return args;
+    if (args.some((a) => a.comment === localEval.comment)) return args;
+    const userArg: Argument = {
+      id: `user-arg-${issueId}`,
+      userId: localUser.id,
+      userName: `${localUser.name} (Anda)`,
+      userAvatar: '',
+      userRank: 'netizen-kritis' as RankLevel,
+      userCatAvatar: localUser.cat,
+      issueId,
+      stance: localEval.stance || 'Dukung Bersyarat',
+      comment: localEval.comment,
+      upvotes: 1,
+      downvotes: 0,
+      userVote: 'up',
+      submittedAt: localEval.timestamp ? localEval.timestamp.split('T')[0] : 'Hari ini',
+    };
+    return [userArg, ...args].sort(compareByNetVotes);
+  }, [args, localEval, localUser, issueId]);
 
   useEffect(() => {
     // Abaikan respons milik issueId sebelumnya bila pengguna sudah berpindah isu
@@ -69,115 +117,29 @@ function ConsensusContent() {
       if (found && !cancelled) setIssue(found);
     });
 
-    const localId = typeof window !== 'undefined' ? localStorage.getItem('policysnap_user_id') || 'user-001' : 'user-001';
-
-    const localName = typeof window !== 'undefined' ? localStorage.getItem('policysnap_user_name') || 'Warga' : 'Warga';
-    setUserName(localName);
-
-    const savedCat = getSavedCatProfile();
-    setCatProfile(savedCat);
-
-    // 2. CHECK LOCAL EVALUATION CACHE FIRST (IMMEDIATELY)
-    let evaluatedLocally = false;
-    if (typeof window !== 'undefined') {
-      const savedEval = localStorage.getItem(`policysnap_eval_${issueId}`);
-      const evalFlag = localStorage.getItem(`evaluated_${issueId}`);
-      const historyRaw = localStorage.getItem('policysnap_evaluation_history');
-
-      if (savedEval) {
-        try {
-          const parsed = JSON.parse(savedEval);
-          if (parsed.scores) {
-            setPersonalScores(parsed.scores);
-          }
-          if (parsed.stance) {
-            setPersonalStance(parsed.stance);
-          }
-          evaluatedLocally = true;
-          setIsEvaluated(true);
-
-          if (parsed.comment && parsed.comment.trim()) {
-            const userArg: Argument = {
-              id: `user-arg-${issueId}`,
-              userId: localId,
-              userName: `${localName} (Anda)`,
-              userAvatar: '',
-              userRank: 'netizen-kritis' as RankLevel,
-              userCatAvatar: savedCat,
-              issueId: issueId,
-              stance: parsed.stance || 'Dukung Bersyarat',
-              comment: parsed.comment,
-              upvotes: 1,
-              downvotes: 0,
-              userVote: 'up',
-              submittedAt: parsed.timestamp ? parsed.timestamp.split('T')[0] : 'Hari ini',
-            };
-            setArgs((prev) => {
-              if (prev.some((a) => a.id === userArg.id || a.comment === userArg.comment)) return prev;
-              return [userArg, ...prev].sort((a, b) => b.upvotes - b.downvotes - (a.upvotes - a.downvotes));
-            });
-          }
-        } catch {}
-      } else if (evalFlag === 'true') {
-        evaluatedLocally = true;
-        setIsEvaluated(true);
-      } else if (historyRaw) {
-        try {
-          const hist = JSON.parse(historyRaw);
-          if (Array.isArray(hist)) {
-            const match = hist.find((h: { issueId?: string }) => h.issueId === issueId);
-            if (match) {
-              evaluatedLocally = true;
-              setIsEvaluated(true);
-              if (match.scores) setPersonalScores(match.scores);
-              if (match.stance) setPersonalStance(match.stance);
-            }
-          }
-        } catch {}
-      }
-
-      // Also scan any localStorage key matching policysnap_eval_
-      if (!evaluatedLocally) {
-        for (let i = 0; i < localStorage.length; i++) {
-          const k = localStorage.key(i);
-          if (k && (k === `policysnap_eval_${issueId}` || k === `evaluated_${issueId}`)) {
-            evaluatedLocally = true;
-            setIsEvaluated(true);
-            break;
-          }
-        }
-      }
-    }
-
     // 3. Fetch live consensus from API (user diidentifikasi lewat cookie sesi)
     fetch(`/api/consensus?issueId=${encodeURIComponent(issueId)}`, { signal: controller.signal })
       .then((res) => res.json())
       .then((data) => {
         if (cancelled) return;
         if (data && data.scores) {
-          const totalVotersCount = data.totalParticipants || data.totalVoters || (evaluatedLocally ? 1 : 0);
           setConsensus({
             issueId,
             avgEffectiveness: data.scores.effectiveness,
             avgEfficiency: data.scores.efficiency,
             avgEquity: data.scores.equity,
             avgResponsiveness: data.scores.responsiveness,
-            totalVoters: totalVotersCount,
+            totalVoters: data.totalParticipants || data.totalVoters || 0,
             winnerPercentage: data.winnerPercentage ?? 0,
             loserPercentage: data.loserPercentage ?? 0,
             stanceDistribution: data.stanceDistribution ?? { support: 0, conditional: 0, reject: 0 },
           });
 
-          if (data.userScores) {
-            setPersonalScores(data.userScores);
-          }
-          if (data.userStance) {
-            setPersonalStance(data.userStance);
-          }
-          // NEVER downgrade to false if already evaluated locally!
-          if (data.hasEvaluated || evaluatedLocally) {
-            setIsEvaluated(true);
-          }
+          setServerEval({
+            hasEvaluated: Boolean(data.hasEvaluated),
+            userScores: data.userScores,
+            userStance: data.userStance,
+          });
         }
       })
       .catch((err) => {
@@ -190,17 +152,7 @@ function ConsensusContent() {
       .then((list) => {
         if (cancelled) return;
         if (Array.isArray(list)) {
-          setArgs((prev) => {
-            // Hanya pertahankan argumen lokal milik isu ini (bukan sisa isu sebelumnya)
-            const userOnly = prev.filter((p) => p.id === `user-arg-${issueId}`);
-            const merged = [...list];
-            userOnly.forEach((u) => {
-              if (!merged.some((m) => m.id === u.id || m.comment === u.comment)) {
-                merged.unshift(u);
-              }
-            });
-            return merged.sort((a, b) => b.upvotes - b.downvotes - (a.upvotes - a.downvotes));
-          });
+          setArgs([...list].sort(compareByNetVotes));
         }
       })
       .catch((err) => {
@@ -216,7 +168,7 @@ function ConsensusContent() {
   // Handle Upvote / Downvote on an Argument
   const handleVote = (argId: string, direction: 'up' | 'down') => {
     soundService.playTap();
-    const currentTarget = args.find((a) => a.id === argId);
+    const currentTarget = displayArgs.find((a) => a.id === argId);
     const wasUp = currentTarget?.userVote === 'up';
 
     setArgs((prev) =>
@@ -270,9 +222,7 @@ function ConsensusContent() {
           if (currentTarget) {
             setArgs((prev) => prev.map((arg) => (arg.id === argId ? currentTarget : arg)));
           }
-          setToastType('error');
-          setToastMsg(data.error || 'Vote gagal diproses');
-          setShowToast(true);
+          showToast(data.error || 'Vote gagal diproses', 'error');
           return;
         }
         setArgs((prev) =>
@@ -280,14 +230,12 @@ function ConsensusContent() {
             arg.id === argId
               ? { ...arg, upvotes: data.upvotes, downvotes: data.downvotes, userVote: data.userVote }
               : arg
-          ).sort((a, b) => b.upvotes - b.downvotes - (a.upvotes - a.downvotes))
+          ).sort(compareByNetVotes)
         );
       })
       .catch((err) => console.warn('Vote error:', err));
 
-    setToastType('success');
-    setToastMsg(direction === 'up' ? 'Upvoted! +1 XP reputasi argumen' : 'Downvoted');
-    setShowToast(true);
+    showToast(direction === 'up' ? 'Upvoted! +1 XP reputasi argumen' : 'Downvoted', 'success');
   };
 
   // Handle Post New Comment / Argument directly in Consensus
@@ -319,14 +267,10 @@ function ConsensusContent() {
           ...prev,
         ]);
         setNewComment('');
-        setToastType('success');
-        setToastMsg('Argumen Anda berhasil dipublikasikan!');
-        setShowToast(true);
+        showToast('Argumen Anda berhasil dipublikasikan!', 'success');
       } else {
         const data = await res.json().catch(() => ({}));
-        setToastType('error');
-        setToastMsg(data.error || 'Gagal mempublikasikan argumen');
-        setShowToast(true);
+        showToast(data.error || 'Gagal mempublikasikan argumen', 'error');
       }
     } catch (err) {
       console.warn('Post comment error:', err);
@@ -335,7 +279,9 @@ function ConsensusContent() {
     }
   };
 
-  const isSoleVoter = !consensus.totalVoters || consensus.totalVoters <= 1;
+  // User yang sudah menilai minimal terhitung 1 partisipan meski server belum mengembalikan datanya
+  const totalVoters = consensus.totalVoters || (isEvaluated ? 1 : 0);
+  const isSoleVoter = totalVoters <= 1;
 
   // Deltas for 4 Dimensions
   const deltas = [
@@ -381,43 +327,19 @@ function ConsensusContent() {
         equity: consensus.avgEquity,
         responsiveness: consensus.avgResponsiveness,
       };
-  const nationalScoreValue =
-    (scoreSource.effectiveness + scoreSource.efficiency + scoreSource.equity + scoreSource.responsiveness) / 4;
+  const nationalScoreValue = averageScore(scoreSource);
   const nationalScore = nationalScoreValue.toFixed(1);
-
-  // Ambang sama dengan halaman share (getVerdictText)
-  const nationalVerdict =
-    nationalScoreValue < 4
-      ? 'Tidak Layak'
-      : nationalScoreValue < 6
-      ? 'Cukup Bersyarat'
-      : nationalScoreValue < 8
-      ? 'Layak Diterapkan'
-      : 'Sangat Layak';
+  const nationalVerdict = getVerdict(nationalScoreValue).label;
+  const personalStanceColor = STANCE_COLORS[classifyStance(personalStance)];
 
   const distribution = [
-    { key: 'support', label: 'Dukung Penuh', color: '#10B981', value: consensus.stanceDistribution.support },
-    { key: 'conditional', label: 'Bersyarat', color: '#F59E0B', value: consensus.stanceDistribution.conditional },
-    { key: 'reject', label: 'Tolak', color: '#F43F5E', value: consensus.stanceDistribution.reject },
+    { key: 'support', label: 'Dukung Penuh', color: STANCE_COLORS.support, value: consensus.stanceDistribution.support },
+    { key: 'conditional', label: 'Bersyarat', color: STANCE_COLORS.conditional, value: consensus.stanceDistribution.conditional },
+    { key: 'reject', label: 'Tolak', color: STANCE_COLORS.reject, value: consensus.stanceDistribution.reject },
   ];
 
-  const filteredArgs = args.filter((a) => {
-    if (activeFilter === 'all') return true;
-    if (activeFilter === 'dukung') return a.stance.includes('Setuju') || a.stance.includes('Dukung');
-    if (activeFilter === 'netral') return a.stance.includes('Netral') || a.stance.includes('Bersyarat');
-    if (activeFilter === 'tolak') return a.stance.includes('Tolak') || a.stance.includes('Tidak');
-    return true;
-  });
+  const filteredArgs = displayArgs.filter((a) => matchesStanceFilter(a.stance, activeFilter));
 
-  const getStanceBadgeStyle = (stance: string) => {
-    if (stance.includes('Setuju') || (stance.includes('Dukung') && !stance.includes('Bersyarat'))) {
-      return { background: '#ECFDF5', color: '#047857', border: '1px solid #D1FAE5' };
-    }
-    if (stance.includes('Bersyarat') || stance.includes('Netral')) {
-      return { background: '#FFFBEB', color: '#B45309', border: '1px solid #FDE68A' };
-    }
-    return { background: '#FFF1F2', color: '#BE123C', border: '1px solid #FFE4E6' };
-  };
 
   return (
     <div className="page">
@@ -454,7 +376,7 @@ function ConsensusContent() {
             <span>
               {isSoleVoter
                 ? '1 Warga (Penilaian Perdana Anda)'
-                : `${consensus.totalVoters.toLocaleString('id-ID')} Warga Berpartisipasi`}
+                : `${totalVoters.toLocaleString('id-ID')} Warga Berpartisipasi`}
             </span>
           </div>
         </div>
@@ -629,11 +551,7 @@ function ConsensusContent() {
                   style={{
                     width: '100%',
                     background:
-                      personalStance.includes('Tolak') || personalStance.includes('Tidak')
-                        ? '#F43F5E'
-                        : personalStance.includes('Netral')
-                        ? '#F59E0B'
-                        : '#10B981',
+                      personalStanceColor,
                   }}
                 >
                   100% {personalStance}
@@ -662,11 +580,7 @@ function ConsensusContent() {
                     className={styles.distDot}
                     style={{
                       background:
-                        personalStance.includes('Tolak') || personalStance.includes('Tidak')
-                          ? '#F43F5E'
-                          : personalStance.includes('Netral')
-                          ? '#F59E0B'
-                          : '#10B981',
+                        personalStanceColor,
                     }}
                   />
                   <span>100% Suara Mandiri Anda ({personalStance})</span>
@@ -695,7 +609,7 @@ function ConsensusContent() {
                   Beri upvote pada argumen paling solutif dan kritis
                 </span>
               </div>
-              <span className={styles.argCountBadge}>{args.length} Pendapat</span>
+              <span className={styles.argCountBadge}>{displayArgs.length} Pendapat</span>
             </div>
 
             {/* Filter Tabs */}
@@ -705,7 +619,7 @@ function ConsensusContent() {
                 className={`${styles.argFilterBtn} ${activeFilter === 'all' ? styles.argFilterBtnActive : ''}`}
                 onClick={() => setActiveFilter('all')}
               >
-                Semua ({args.length})
+                Semua ({displayArgs.length})
               </button>
               <button
                 type="button"
@@ -870,13 +784,7 @@ function ConsensusContent() {
         </>
       )}
 
-      {showToast && (
-        <Toast
-          message={toastMsg}
-          type={toastType}
-          onClose={() => setShowToast(false)}
-        />
-      )}
+      {toast && <Toast key={toast.id} message={toast.message} type={toast.type} onClose={hideToast} />}
 
       <BottomNav />
     </div>

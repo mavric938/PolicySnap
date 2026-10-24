@@ -77,8 +77,8 @@ export default function LandingPage() {
 
       // Sesuai urutan yang diminta: Landing -> Onboarding Kucing -> Evaluasi
       router.push('/onboarding');
-    } catch (err: any) {
-      setErrorMessage(err?.message || 'Terjadi kesalahan sistem saat membuat akun.');
+    } catch (err: unknown) {
+      setErrorMessage((err as Error)?.message || 'Terjadi kesalahan sistem saat membuat akun.');
     } finally {
       setIsSubmitting(false);
     }
@@ -119,8 +119,8 @@ export default function LandingPage() {
       } else {
         router.push('/onboarding');
       }
-    } catch (err: any) {
-      setErrorMessage(err?.message || 'Terjadi kesalahan saat masuk.');
+    } catch (err: unknown) {
+      setErrorMessage((err as Error)?.message || 'Terjadi kesalahan saat masuk.');
     } finally {
       setIsSubmitting(false);
     }
@@ -151,8 +151,8 @@ export default function LandingPage() {
       } else {
         setGuestInputError(res.error || 'Gagal masuk sebagai tamu.');
       }
-    } catch (err: any) {
-      setGuestInputError(err?.message || 'Gagal masuk sebagai tamu.');
+    } catch (err: unknown) {
+      setGuestInputError((err as Error)?.message || 'Gagal masuk sebagai tamu.');
     } finally {
       setIsSubmitting(false);
     }

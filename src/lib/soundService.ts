@@ -9,7 +9,7 @@ class SoundService {
   private ctx: AudioContext | null = null;
   private isMuted: boolean = false;
   private bgmPlaying: boolean = false;
-  private bgmIntervalId: any = null;
+  private bgmIntervalId: ReturnType<typeof setInterval> | null = null;
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -21,7 +21,9 @@ class SoundService {
   private getContext(): AudioContext | null {
     if (typeof window === 'undefined') return null;
     if (!this.ctx) {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      // Safari lama hanya menyediakan versi ber-prefix webkit
+      const AudioCtx =
+        window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
       if (AudioCtx) {
         this.ctx = new AudioCtx();
       }

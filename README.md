@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PolicySnap
 
-## Getting Started
+PWA *crowdsourcing* evaluasi kebijakan publik: warga menilai isu dengan 4 dimensi (Efektivitas, Efisiensi, Keadilan, Responsivitas), menggeser kartu aktor, memberi argumen ber-*upvote*, dan naik level lewat gamifikasi kucing 2D. Spesifikasi lengkap ada di [PS.prd](PS.prd).
 
-First, run the development server:
+## Stack
+
+- Next.js 16 (App Router) + React 19, TypeScript
+- Supabase (PostgreSQL + trigger XP) — atau file JSON lokal untuk development
+- Sesi server: cookie HttpOnly bertanda tangan HMAC (`src/lib/auth/session.ts`)
+
+## Menjalankan
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env   # isi nilainya, lihat tabel di bawah
+npm run dev            # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| Variabel | Wajib | Keterangan |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Production | Klien Supabase di browser (login Google) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Production | Semua penulisan data lewat API server. Tanpa ini server memakai JSON lokal di `src/data/` |
+| `AUTH_SECRET` | Production | ≥ 32 karakter (`openssl rand -hex 32`). Di development dibuat sementara bila kosong |
+| `ADMIN_PASSWORD` | Ya, untuk `/admin` | Password admin (diverifikasi server). `ADMIN_EMAIL`/`ADMIN_USERNAME` opsional |
+| `DEEPSEEK_API_KEY` | Opsional | AI Auto-Pilot ekstraksi berita di panel admin |
+| `ALLOW_DEV_LOGIN` | Opsional | `true` untuk mengizinkan login persona dev di production |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Database
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Database baru: jalankan [supabase/schema.sql](supabase/schema.sql) di Supabase SQL Editor.
+Database lama: jalankan migrasi di [supabase/migrations/](supabase/migrations/) secara berurutan.
 
-## Learn More
+## Struktur
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+  app/                 halaman (App Router) & API route (app/api/*)
+    <halaman>/_components/   komponen khusus halaman itu (evaluate, admin)
+  components/          komponen UI bersama (CatAvatar + cat/, Toast, RadarChart, …)
+  hooks/               useToast, useCurrentUserId, useHydrated
+  lib/                 service sisi server (profile/evaluation/argument), auth/, util bersama
+                       (scoring.ts, stance.ts, validation.ts, safeFetch.ts)
+  domain/, data/, presentation/   lapisan auth sisi client (use case → repository → context)
+supabase/              schema & migrasi
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Aturan penting:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Identitas user selalu dari sesi server** (`requireUser()` / `getSessionUser()`), bukan dari body/query request.
+- **Satu sumber data**: Supabase bila dikonfigurasi, selain itu JSON lokal — tidak ada fallback diam-diam.
+- XP & level dihitung trigger database (mode Supabase) atau `applyLocalStats` (mode lokal), tidak pernah dari client.
 
-## Deploy on Vercel
+## Skrip
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run lint   # ESLint
+npx tsc --noEmit
+npm run build
+```

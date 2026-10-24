@@ -9,6 +9,7 @@ import CatAvatar from '@/components/CatAvatar';
 import BottomNav from '@/components/BottomNav';
 import Icon from '@/components/Icon';
 import SoundToggle from '@/components/SoundToggle';
+import { useCurrentUserId } from '@/hooks/useCurrentUserId';
 import { useAuth } from '@/presentation/hooks/useAuth';
 import styles from './leaderboard.module.css';
 
@@ -17,11 +18,10 @@ type LeaderboardTab = 'all' | 'upvotes' | 'xp' | 'analysis';
 export default function LeaderboardPage() {
   const router = useRouter();
   const { user: authUser } = useAuth();
-  const currentUserId = authUser?.id || (typeof window !== 'undefined' ? localStorage.getItem('policysnap_user_id') || 'user-001' : 'user-001');
+  const currentUserId = useCurrentUserId();
 
   const [users, setUsers] = useState<User[]>([]);
   const [activeTab, setActiveTab] = useState<LeaderboardTab>('all');
-  const [loading, setLoading] = useState(true);
 
   // Load current user details from localStorage
   const [myXP, setMyXP] = useState(MOCK_USER.totalXP);
@@ -53,44 +53,46 @@ export default function LeaderboardPage() {
           setUsers(data);
         }
       })
-      .catch((err) => console.warn('Leaderboard fetch warning:', err))
-      .finally(() => setLoading(false));
+      .catch((err) => console.warn('Leaderboard fetch warning:', err));
 
     return () => clearTimeout(timer);
   }, []);
 
   // Merge current user's active session stats into leaderboard
+  // (hanya untuk user yang login — pengunjung anonim tidak lagi mendapat baris palsu)
   const enrichedUsers = useMemo(() => {
     const list = [...users];
-    const userIndex = list.findIndex((u) => u.id === currentUserId);
 
-    const localName = typeof window !== 'undefined' ? localStorage.getItem('policysnap_user_name') : null;
-    const displayName = authUser?.name || localName || myCat.name || 'Saya (Warga Aktif)';
+    if (currentUserId) {
+      const userIndex = list.findIndex((u) => u.id === currentUserId);
+      const localName = typeof window !== 'undefined' ? localStorage.getItem('policysnap_user_name') : null;
+      const displayName = authUser?.name || localName || myCat.name || 'Saya (Warga Aktif)';
 
-    const currentUserEntry: User = {
-      id: currentUserId,
-      name: displayName,
-      email: authUser?.email || 'warga@policysnap.id',
-      avatar: authUser?.avatarUrl || '',
-      totalXP: myXP,
-      rankLevel: getRankForXP(myXP).key,
-      evaluationsCount: myEvalCount,
-      upvotesCount: myUpvotes,
-      joinedAt: '2026-10-12',
-      catAvatar: myCat,
-    };
-
-    if (userIndex !== -1) {
-      list[userIndex] = {
-        ...list[userIndex],
-        name: list[userIndex].name && list[userIndex].name !== 'Saya (Warga Aktif)' ? list[userIndex].name : displayName,
-        totalXP: Math.max(list[userIndex].totalXP, myXP),
-        evaluationsCount: Math.max(list[userIndex].evaluationsCount, myEvalCount),
-        upvotesCount: Math.max(list[userIndex].upvotesCount || 0, myUpvotes),
+      const currentUserEntry: User = {
+        id: currentUserId,
+        name: displayName,
+        email: authUser?.email || 'warga@policysnap.id',
+        avatar: authUser?.avatarUrl || '',
+        totalXP: myXP,
+        rankLevel: getRankForXP(myXP).key,
+        evaluationsCount: myEvalCount,
+        upvotesCount: myUpvotes,
+        joinedAt: '2026-10-12',
         catAvatar: myCat,
       };
-    } else {
-      list.push(currentUserEntry);
+
+      if (userIndex !== -1) {
+        list[userIndex] = {
+          ...list[userIndex],
+          name: list[userIndex].name && list[userIndex].name !== 'Saya (Warga Aktif)' ? list[userIndex].name : displayName,
+          totalXP: Math.max(list[userIndex].totalXP, myXP),
+          evaluationsCount: Math.max(list[userIndex].evaluationsCount, myEvalCount),
+          upvotesCount: Math.max(list[userIndex].upvotesCount || 0, myUpvotes),
+          catAvatar: myCat,
+        };
+      } else {
+        list.push(currentUserEntry);
+      }
     }
 
     // Sort according to active tab
@@ -111,7 +113,6 @@ export default function LeaderboardPage() {
   }, [enrichedUsers, currentUserId]);
 
   const top3 = enrichedUsers.slice(0, 3);
-  const restOfList = enrichedUsers.slice(3);
 
   const getRankMedal = (rank: number) => {
     if (rank === 1) return '🥇';

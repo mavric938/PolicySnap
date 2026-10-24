@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useHydrated } from '@/hooks/useHydrated';
 import { useRouter } from 'next/navigation';
 import { CatProfile, CatBreed, CatGender } from '@/types';
 import {
@@ -88,17 +89,10 @@ export default function OnboardingCatPage() {
   const [bellyColor, setBellyColor] = useState('#FFEDD5');
   const [eyeColor, setEyeColor] = useState('#10B981');
   const [saving, setSaving] = useState(false);
-  const [showTutorial, setShowTutorial] = useState(false);
-
-  // Auto trigger tutorial for new visitors
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const seen = localStorage.getItem('policysnap_tutorial_seen');
-      if (!seen) {
-        setShowTutorial(true);
-      }
-    }
-  }, []);
+  // Tutorial otomatis untuk pengunjung baru; null = belum dibuka/ditutup manual
+  const hydrated = useHydrated();
+  const [tutorialOverride, setShowTutorial] = useState<boolean | null>(null);
+  const showTutorial = tutorialOverride ?? (hydrated && !localStorage.getItem('policysnap_tutorial_seen'));
 
   const currentPreview: CatProfile = {
     ...DEFAULT_CAT_PROFILE,

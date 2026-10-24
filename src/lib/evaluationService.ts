@@ -4,6 +4,7 @@ import { EvaluationScores, CommunityConsensus, PolicyIssue, RankLevel } from '@/
 import { getProfile, applyLocalStats } from './profileService';
 import { createArgument } from './argumentService';
 import type { ActorVote } from './validation';
+import { classifyStance } from './stance';
 
 const EVALS_FILE = 'evaluations.json';
 const ISSUES_FILE = 'issues.json';
@@ -164,11 +165,6 @@ export interface StanceDistribution {
   reject: number;
 }
 
-export function classifyStance(stance: string): keyof StanceDistribution {
-  if (stance.includes('Tolak') || stance.includes('Tidak')) return 'reject';
-  if (stance.includes('Bersyarat') || stance.includes('Netral')) return 'conditional';
-  return 'support';
-}
 
 function computeStanceDistribution(stances: string[]): StanceDistribution {
   const counts: StanceDistribution = { support: 0, conditional: 0, reject: 0 };

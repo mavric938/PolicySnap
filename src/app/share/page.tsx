@@ -5,6 +5,8 @@ import { Suspense, useRef, useState, useEffect } from 'react';
 import html2canvas from 'html2canvas';
 import { MOCK_ISSUES, MOCK_USER, getRankForXP, DEFAULT_FALLBACK_ISSUE } from '@/data/mock';
 import Toast from '@/components/Toast';
+import { useToast } from '@/hooks/useToast';
+import { averageScore, getVerdict } from '@/lib/scoring';
 import BottomNav from '@/components/BottomNav';
 import Icon from '@/components/Icon';
 import { PolicyIssue, CatProfile } from '@/types';
@@ -33,8 +35,7 @@ function ShareContent() {
   });
 
   const cardRef = useRef<HTMLDivElement>(null);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMsg, setToastMsg] = useState('');
+  const { toast, showToast, hideToast } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
 
   const [userName, setUserName] = useState('Warga PolicySnap');
@@ -129,25 +130,9 @@ function ShareContent() {
   const pubBottom = 100 + publicScores.equity * 8;
   const pubLeft = 100 - publicScores.responsiveness * 8;
 
-  const publicComposite = (
-    (publicScores.effectiveness + publicScores.efficiency + publicScores.equity + publicScores.responsiveness) /
-    4
-  ).toFixed(1);
+  const publicComposite = averageScore(publicScores).toFixed(1);
 
-  const compositeScore = (
-    (personalScores.effectiveness +
-      personalScores.efficiency +
-      personalScores.equity +
-      personalScores.responsiveness) /
-    4
-  ).toFixed(1);
-
-  const getVerdictText = (val: number) => {
-    if (val < 4) return 'Tidak Layak';
-    if (val < 6) return 'Cukup Bersyarat';
-    if (val < 8) return 'Layak Diterapkan';
-    return 'Sangat Layak';
-  };
+  const compositeScore = averageScore(personalScores).toFixed(1);
 
   const generateCanvas = async () => {
     if (!cardRef.current) return null;
@@ -171,8 +156,7 @@ function ShareContent() {
   const handleDownload = async () => {
     const canvas = await generateCanvas();
     if (!canvas) {
-      setToastMsg('Gagal menghasilkan gambar');
-      setShowToast(true);
+      showToast('Gagal menghasilkan gambar', 'success');
       return;
     }
 
@@ -181,13 +165,11 @@ function ShareContent() {
     link.href = image;
     link.download = `PolicySnap-Report-Card-${issueId}.png`;
     link.click();
-    setToastMsg('Raport Visual 9:16 berhasil diunduh! ⬇️');
-    setShowToast(true);
+    showToast('Raport Visual 9:16 berhasil diunduh! ⬇️', 'success');
   };
 
   const handleSocialShare = (platform: string) => {
-    setToastMsg(`Membuka format ekspor untuk ${platform}...`);
-    setShowToast(true);
+    showToast(`Membuka format ekspor untuk ${platform}...`, 'success');
     handleDownload();
   };
 
@@ -195,8 +177,7 @@ function ShareContent() {
     if (typeof window !== 'undefined') {
       const shareUrl = `${window.location.origin}/evaluate?issue=${issueId}`;
       navigator.clipboard.writeText(shareUrl).then(() => {
-        setToastMsg('Tautan raport interaktif berhasil disalin! 📋');
-        setShowToast(true);
+        showToast('Tautan raport interaktif berhasil disalin! 📋', 'success');
       });
     }
   };
@@ -348,7 +329,7 @@ function ShareContent() {
                 <span className={styles.scoreBannerVal}>{compositeScore}</span>
                 <span className={styles.scoreBannerMax}>/ 10</span>
                 <span className={styles.scoreBannerPill}>
-                  {getVerdictText(Number(compositeScore))}
+                  {getVerdict(Number(compositeScore)).label}
                 </span>
               </div>
             </div>
@@ -454,13 +435,7 @@ function ShareContent() {
         </button>
       </div>
 
-      {showToast && (
-        <Toast
-          message={toastMsg}
-          type="success"
-          onClose={() => setShowToast(false)}
-        />
-      )}
+      {toast && <Toast key={toast.id} message={toast.message} type={toast.type} onClose={hideToast} />}
 
       <BottomNav />
     </div>

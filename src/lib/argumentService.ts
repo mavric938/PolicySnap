@@ -1,6 +1,7 @@
 import { getSupabaseClient, isSupabaseConfigured } from './supabase';
 import { readLocalJson, writeLocalJson } from './localStore';
 import { Argument, CatProfile, RankLevel, User } from '@/types';
+import { compareByNetVotes } from './stance';
 import { getAllProfiles, getProfile, applyLocalStats, normalizeCatProfile } from './profileService';
 
 const ARGS_FILE = 'arguments.json';
@@ -106,7 +107,7 @@ export async function getArgumentsByIssue(issueId: string, currentUserId: string
   return rawArgs
     .filter((a) => a.issue_id === issueId)
     .map((a) => toArgument(a, profileMap.get(a.user_id) || {}, voteMap.get(a.id) || null))
-    .sort((a, b) => b.upvotes - b.downvotes - (a.upvotes - a.downvotes));
+    .sort(compareByNetVotes);
 }
 
 /**

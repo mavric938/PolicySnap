@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState, useMemo } from 'react';
 import { User, AuthSession, AuthResult } from '@/domain/entities/auth';
 import { authRepository } from '@/data/repositories/AuthRepositoryImpl';
 import { SignInWithGoogleUseCase } from '@/domain/usecases/SignInWithGoogleUseCase';
@@ -87,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [getCurrentUserUseCase, watchAuthStateUseCase]);
 
-  const registerWithEmail = async (data: { name: string; email: string; password?: string }): Promise<AuthResult> => {
+  const registerWithEmail = useCallback(async (data: { name: string; email: string; password?: string }): Promise<AuthResult> => {
     setIsLoading(true);
     try {
       const res = await registerWithEmailUseCase.execute(data);
@@ -99,9 +99,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [registerWithEmailUseCase]);
 
-  const signInWithEmail = async (email: string, password?: string): Promise<AuthResult> => {
+  const signInWithEmail = useCallback(async (email: string, password?: string): Promise<AuthResult> => {
     setIsLoading(true);
     try {
       const res = await signInWithEmailUseCase.execute(email, password);
@@ -113,9 +113,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [signInWithEmailUseCase]);
 
-  const signInAsGuest = async (name?: string): Promise<AuthResult> => {
+  const signInAsGuest = useCallback(async (name?: string): Promise<AuthResult> => {
     setIsLoading(true);
     try {
       const res = await signInAsGuestUseCase.execute(name);
@@ -127,9 +127,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [signInAsGuestUseCase]);
 
-  const signInWithGoogle = async (options?: { redirectTo?: string }) => {
+  const signInWithGoogle = useCallback(async (options?: { redirectTo?: string }) => {
     setIsLoading(true);
     try {
       const result = await signInWithGoogleUseCase.execute(options);
@@ -146,9 +146,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [signInWithGoogleUseCase]);
 
-  const signInWithDevAccount = async (persona?: { email?: string; name?: string; avatarUrl?: string }) => {
+  const signInWithDevAccount = useCallback(async (persona?: { email?: string; name?: string; avatarUrl?: string }) => {
     setIsLoading(true);
     try {
       const defaultPersona = {
@@ -164,9 +164,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [signInWithDevAccountUseCase]);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     setIsLoading(true);
     try {
       await signOutUseCase.execute();
@@ -175,7 +175,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [signOutUseCase]);
 
   // Role & provider berasal dari sesi server (bukan flag localStorage yang bisa diubah pengguna)
   const isGuest = user?.provider === 'guest';
@@ -197,7 +197,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signInWithDevAccount,
       signOut,
     }),
-    [user, session, isGuest, isAdmin, isLoading, isGoogleOAuthAvailable]
+    [
+      user,
+      session,
+      isGuest,
+      isAdmin,
+      isLoading,
+      isGoogleOAuthAvailable,
+      registerWithEmail,
+      signInWithEmail,
+      signInAsGuest,
+      signInWithGoogle,
+      signInWithDevAccount,
+      signOut,
+    ]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

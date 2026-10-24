@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useHydrated } from '@/hooks/useHydrated';
 import { soundService } from '@/lib/soundService';
 import Icon from './Icon';
 
@@ -10,14 +11,13 @@ interface SoundToggleProps {
 }
 
 export default function SoundToggle({ className = '', style = {} }: SoundToggleProps) {
-  const [isMuted, setIsMuted] = useState(false);
-  const [bgmActive, setBgmActive] = useState(false);
+  // null = belum diubah user → ikuti status soundService (dibaca setelah hidrasi)
+  const hydrated = useHydrated();
+  const [mutedOverride, setIsMuted] = useState<boolean | null>(null);
+  const [bgmOverride, setBgmActive] = useState<boolean | null>(null);
+  const isMuted = mutedOverride ?? (hydrated && soundService.getIsMuted());
+  const bgmActive = bgmOverride ?? (hydrated && soundService.isBgmPlaying());
   const [menuOpen, setMenuOpen] = useState(false);
-
-  useEffect(() => {
-    setIsMuted(soundService.getIsMuted());
-    setBgmActive(soundService.isBgmPlaying());
-  }, []);
 
   const handleToggleMute = () => {
     const nextMuted = soundService.toggleMute();
