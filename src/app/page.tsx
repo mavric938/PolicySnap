@@ -90,11 +90,11 @@ export default function LandingPage() {
     setErrorMessage('');
 
     const cleanEmail = email.trim();
-    const isAdminLogin =
-      cleanEmail.toLowerCase() === 'admin@policysnap.id' || cleanEmail.toLowerCase() === 'admin';
+    // Identifier tanpa '@' = username admin; validasi sebenarnya dilakukan server
+    const isUsernameLogin = !cleanEmail.includes('@');
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!isAdminLogin && !emailRegex.test(cleanEmail)) {
+    if (!isUsernameLogin && !emailRegex.test(cleanEmail)) {
       setErrorMessage('Format email tidak valid.');
       return;
     }
@@ -108,7 +108,7 @@ export default function LandingPage() {
       }
 
       // Khusus Administrator: langsung arahkan ke Panel Admin
-      if (res.user?.role === 'admin' || isAdminLogin) {
+      if (res.user?.role === 'admin') {
         router.push('/admin');
         return;
       }
@@ -148,6 +148,8 @@ export default function LandingPage() {
       if (res.success) {
         setShowGuestModal(false);
         router.push('/onboarding');
+      } else {
+        setGuestInputError(res.error || 'Gagal masuk sebagai tamu.');
       }
     } catch (err: any) {
       setGuestInputError(err?.message || 'Gagal masuk sebagai tamu.');

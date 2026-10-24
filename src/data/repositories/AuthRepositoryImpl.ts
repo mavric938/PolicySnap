@@ -1,25 +1,28 @@
 import { IAuthRepository } from '@/domain/repositories/IAuthRepository';
 import { User, AuthSession, AuthResult } from '@/domain/entities/auth';
 import { SupabaseAuthDataSource, supabaseAuthDataSource } from '../datasources/supabaseAuthDataSource';
-import { AuthMapper } from '../mappers/authMapper';
-
-export const DEFAULT_ADMIN_CREDENTIALS = {
-  email: 'admin@policysnap.id',
-  username: 'admin',
-  password: 'AdminSnap2026!',
-  name: 'Admin',
-};
 
 const LOCAL_SESSION_KEY = 'policysnap_active_session';
+const AUTH_EVENT = 'policysnap_auth_change';
+
+interface ServerAuthResponse {
+  user: User | null;
+  expiresAt?: number;
+  catAvatar?: unknown;
+  error?: string;
+}
 
 /**
  * Authentication Repository Implementation
  * Layer: DATA
- * 
+ *
  * Implements IAuthRepository from the Domain layer.
- * Bridges Supabase Auth, Offline Cache Storage, and Domain Entities.
+ * Server (/api/auth/*) adalah sumber kebenaran sesi lewat cookie HttpOnly.
+ * localStorage hanya cache tampilan (nama, avatar, kucing) dan cadangan saat offline.
  */
 export class AuthRepositoryImpl implements IAuthRepository {
+  private sessionRequest: Promise<AuthSession | null> | null = null;
+
   constructor(private readonly dataSource: SupabaseAuthDataSource = supabaseAuthDataSource) {}
 
   async isGoogleOAuthAvailable(): Promise<boolean> {
@@ -46,14 +49,9 @@ export class AuthRepositoryImpl implements IAuthRepository {
       };
     }
 
-    const currentSession = await this.getCurrentSession();
-    if (currentSession) {
-      await this.syncUserProfile(currentSession.user);
-      return {
-        success: true,
-        user: currentSession.user,
-        session: currentSession,
-      };
+    const sbSession = await this.dataSource.getCurrentSession();
+    if (sbSession) {
+      return this.postAuth('/api/auth/oauth', { accessToken: sbSession.access_token });
     }
 
     return {
@@ -62,195 +60,30 @@ export class AuthRepositoryImpl implements IAuthRepository {
   }
 
   async signInWithDevAccount(user: { email: string; name: string; avatarUrl?: string }): Promise<AuthResult> {
-    const { user: sbUser, session: sbSession } = await this.dataSource.signInWithDevAccount(user);
-    const domainUser = AuthMapper.toDomainUser(sbUser);
-    const domainSession = AuthMapper.toDomainSession(sbSession);
-
-    await this.syncUserProfile(domainUser);
-
-    return {
-      success: true,
-      user: domainUser,
-      session: domainSession,
-    };
+    return this.postAuth('/api/auth/dev', user);
   }
 
   async registerWithEmail(data: { name: string; email: string; password?: string }): Promise<AuthResult> {
-    const userId = 'user-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 6);
-    const domainUser: User = {
-      id: userId,
-      name: data.name,
-      email: data.email,
-      avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(data.name)}`,
-      provider: 'email',
-      role: 'user',
-      createdAt: new Date().toISOString(),
-    };
-
-    const domainSession: AuthSession = {
-      user: domainUser,
-      accessToken: 'token-email-' + Date.now(),
-      expiresAt: Math.floor(Date.now() / 1000) + 86400 * 30, // 30 days
-    };
-
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(LOCAL_SESSION_KEY, JSON.stringify(domainSession));
-      window.localStorage.setItem('policysnap_user_logged_in', 'true');
-      window.localStorage.removeItem('policysnap_is_guest');
-      window.localStorage.removeItem('policysnap_is_admin');
-      window.dispatchEvent(new CustomEvent('policysnap_auth_change', { detail: domainSession }));
-    }
-
-    await this.syncUserProfile(domainUser);
-
-    return {
-      success: true,
-      user: domainUser,
-      session: domainSession,
-    };
+    return this.postAuth('/api/auth/register', data);
   }
 
   async signInWithEmail(email: string, password?: string): Promise<AuthResult> {
-    const cleanEmail = email.trim().toLowerCase();
-    const isAdminEmail =
-      cleanEmail === DEFAULT_ADMIN_CREDENTIALS.email.toLowerCase() ||
-      cleanEmail === DEFAULT_ADMIN_CREDENTIALS.username.toLowerCase();
-
-    // Khusus Login Administrator
-    if (isAdminEmail) {
-      if (!password || password !== DEFAULT_ADMIN_CREDENTIALS.password) {
-        return {
-          success: false,
-          error: 'Password administrator salah. Silakan periksa kembali.',
-        };
-      }
-
-      const adminUser: User = {
-        id: 'admin-001',
-        name: DEFAULT_ADMIN_CREDENTIALS.name,
-        email: DEFAULT_ADMIN_CREDENTIALS.email,
-        avatarUrl: 'https://api.dicebear.com/7.x/bottts/svg?seed=AdminPolicySnap',
-        provider: 'email',
-        role: 'admin',
-        createdAt: new Date().toISOString(),
-      };
-
-      const adminSession: AuthSession = {
-        user: adminUser,
-        accessToken: 'admin-token-' + Date.now(),
-        expiresAt: Math.floor(Date.now() / 1000) + 86400 * 30,
-      };
-
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem(LOCAL_SESSION_KEY, JSON.stringify(adminSession));
-        window.localStorage.setItem('policysnap_user_logged_in', 'true');
-        window.localStorage.setItem('policysnap_is_admin', 'true');
-        window.localStorage.removeItem('policysnap_is_guest');
-        window.dispatchEvent(new CustomEvent('policysnap_auth_change', { detail: adminSession }));
-      }
-
-      await this.syncUserProfile(adminUser);
-
-      return {
-        success: true,
-        user: adminUser,
-        session: adminSession,
-      };
-    }
-
-    const existing = await this.getCurrentUser();
-    if (existing && existing.email.toLowerCase() === email.toLowerCase()) {
-      const currentSession = await this.getCurrentSession();
-      return {
-        success: true,
-        user: existing,
-        session: currentSession || undefined,
-      };
-    }
-
-    // Login with new or recognized email
-    const userId = 'user-' + Math.abs(email.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0)).toString(36);
-    const userName = email.split('@')[0].replace(/[._-]/g, ' ');
-    const formattedName = userName.charAt(0).toUpperCase() + userName.slice(1);
-
-    const domainUser: User = {
-      id: userId,
-      name: formattedName,
-      email: email,
-      avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(email)}`,
-      provider: 'email',
-      role: 'user',
-      createdAt: new Date().toISOString(),
-    };
-
-    const domainSession: AuthSession = {
-      user: domainUser,
-      accessToken: 'token-email-' + Date.now(),
-      expiresAt: Math.floor(Date.now() / 1000) + 86400 * 30,
-    };
-
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(LOCAL_SESSION_KEY, JSON.stringify(domainSession));
-      window.localStorage.setItem('policysnap_user_logged_in', 'true');
-      window.localStorage.removeItem('policysnap_is_guest');
-      window.localStorage.removeItem('policysnap_is_admin');
-      window.dispatchEvent(new CustomEvent('policysnap_auth_change', { detail: domainSession }));
-    }
-
-    await this.syncUserProfile(domainUser);
-
-    return {
-      success: true,
-      user: domainUser,
-      session: domainSession,
-    };
+    return this.postAuth('/api/auth/login', { email, password });
   }
 
   async signInAsGuest(customName?: string): Promise<AuthResult> {
-    const guestId = 'guest-' + Date.now().toString(36);
-    const cleanName = (customName && customName.trim()) ? customName.trim() : 'Warga Tamu';
-    const domainUser: User = {
-      id: guestId,
-      name: cleanName,
-      email: `${cleanName.toLowerCase().replace(/\s+/g, '')}@policysnap.local`,
-      avatarUrl: '',
-      provider: 'guest',
-      createdAt: new Date().toISOString(),
-    };
-
-    const domainSession: AuthSession = {
-      user: domainUser,
-      accessToken: 'guest-offline-token-' + Date.now(),
-      expiresAt: Math.floor(Date.now() / 1000) + 86400 * 7, // 7 days cache
-    };
-
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(LOCAL_SESSION_KEY, JSON.stringify(domainSession));
-      window.localStorage.setItem('policysnap_is_guest', 'true');
-      window.localStorage.setItem('policysnap_user_logged_in', 'true');
-      window.localStorage.setItem('policysnap_user_name', domainUser.name);
-      window.localStorage.setItem('policysnap_user_id', domainUser.id);
-      window.dispatchEvent(new CustomEvent('policysnap_auth_change', { detail: domainSession }));
-    }
-
-    await this.syncUserProfile(domainUser);
-
-    return {
-      success: true,
-      user: domainUser,
-      session: domainSession,
-    };
+    return this.postAuth('/api/auth/guest', { name: customName || 'Warga Tamu' });
   }
 
   async signOut(): Promise<void> {
     await this.dataSource.signOut();
-    if (typeof window !== 'undefined') {
-      window.localStorage.removeItem(LOCAL_SESSION_KEY);
-      window.localStorage.removeItem('policysnap_user_logged_in');
-      window.localStorage.removeItem('policysnap_is_guest');
-      window.localStorage.removeItem('policysnap_is_admin');
-      window.dispatchEvent(new CustomEvent('policysnap_auth_change', { detail: null }));
+    try {
+      await fetch('/api/auth/session', { method: 'DELETE' });
+    } catch (err) {
+      console.warn('Server sign out gagal (offline?):', err);
     }
+    this.clearLocalSession();
+    this.emit(null);
   }
 
   async getCurrentUser(): Promise<User | null> {
@@ -258,101 +91,143 @@ export class AuthRepositoryImpl implements IAuthRepository {
     return session?.user || null;
   }
 
+  /**
+   * Sesi aktif menurut server. Permintaan paralel digabung menjadi satu request.
+   */
   async getCurrentSession(): Promise<AuthSession | null> {
-    // 1. Check local session cache (register, email, guest, dev)
-    if (typeof window !== 'undefined') {
-      const localRaw = window.localStorage.getItem(LOCAL_SESSION_KEY);
-      if (localRaw) {
-        try {
-          return JSON.parse(localRaw) as AuthSession;
-        } catch {
-          window.localStorage.removeItem(LOCAL_SESSION_KEY);
-        }
-      }
+    if (!this.sessionRequest) {
+      this.sessionRequest = this.fetchServerSession().finally(() => {
+        this.sessionRequest = null;
+      });
     }
-
-    // 2. Check Supabase OAuth session
-    const sbSession = await this.dataSource.getCurrentSession();
-    if (sbSession) {
-      return AuthMapper.toDomainSession(sbSession);
-    }
-
-    return null;
+    return this.sessionRequest;
   }
 
   onAuthStateChange(callback: (user: User | null, session: AuthSession | null) => void): () => void {
     const localListener = (e: Event) => {
-      const customEvent = e as CustomEvent<AuthSession | null>;
-      const newSession = customEvent.detail;
+      const newSession = (e as CustomEvent<AuthSession | null>).detail;
       callback(newSession?.user || null, newSession);
     };
 
     if (typeof window !== 'undefined') {
-      window.addEventListener('policysnap_auth_change', localListener);
+      window.addEventListener(AUTH_EVENT, localListener);
     }
 
-    const unsubSupabase = this.dataSource.onAuthStateChange((_event, sbSession) => {
-      if (sbSession) {
-        const domainSession = AuthMapper.toDomainSession(sbSession);
-        this.syncUserProfile(domainSession.user).catch(console.warn);
-        callback(domainSession.user, domainSession);
+    // Login Google selesai → tukar token Supabase menjadi sesi server (hasilnya memicu AUTH_EVENT)
+    const unsubSupabase = this.dataSource.onAuthStateChange((event, sbSession) => {
+      if (event === 'SIGNED_IN' && sbSession) {
+        this.postAuth('/api/auth/oauth', { accessToken: sbSession.access_token }).catch(console.warn);
       }
     });
 
     return () => {
       unsubSupabase();
       if (typeof window !== 'undefined') {
-        window.removeEventListener('policysnap_auth_change', localListener);
+        window.removeEventListener(AUTH_EVENT, localListener);
       }
     };
   }
 
-  /**
-   * Helper: Ensure authenticated user has a record in the profiles table and localStorage
-   */
-  private async syncUserProfile(user: User): Promise<void> {
+  // ===== Private helpers =====
+
+  private async fetchServerSession(): Promise<AuthSession | null> {
+    let data: ServerAuthResponse;
     try {
-      const client = this.dataSource.getClient();
-      let existingProfile: { id: string; name: string; total_xp: number; cat_avatar?: any } | null = null;
-      if (client) {
-        const { data } = await client
-          .from('profiles')
-          .select('id, name, total_xp, cat_avatar')
-          .eq('id', user.id)
-          .maybeSingle();
-        existingProfile = data;
-
-        if (!existingProfile) {
-          await client.from('profiles').upsert({
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            avatar: user.avatarUrl || '',
-            total_xp: 0,
-            rank_level: 'warga-aktif',
-            evaluations_count: 0,
-            created_at: new Date().toISOString(),
-          });
-        }
-      }
-
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('policysnap_user_id', user.id);
-        localStorage.setItem('policysnap_user_name', user.name);
-        localStorage.setItem('policysnap_user_email', user.email);
-        if (user.avatarUrl) {
-          localStorage.setItem('policysnap_user_avatar', user.avatarUrl);
-        }
-        if (existingProfile && existingProfile.cat_avatar) {
-          localStorage.setItem('policysnap_cat_profile', JSON.stringify(existingProfile.cat_avatar));
-        }
-        if (user.id === 'admin-001' || user.role === 'admin') {
-          localStorage.setItem('policysnap_is_admin', 'true');
-        }
-      }
+      const res = await fetch('/api/auth/session', { cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      data = await res.json();
     } catch (err) {
-      console.warn('Could not sync user profile in database:', err);
+      // Offline (PWA): pakai cache lokal agar UI tetap tampil; API tetap butuh cookie valid.
+      console.warn('Tidak dapat memeriksa sesi server, memakai cache lokal:', err);
+      return this.readLocalSession();
     }
+
+    if (data.user) {
+      const session: AuthSession = { user: data.user, expiresAt: data.expiresAt };
+      this.persistLocalSession(session);
+      return session;
+    }
+
+    // Server tidak punya sesi. Bila baru kembali dari Google OAuth, tukar tokennya.
+    const sbSession = await this.dataSource.getCurrentSession();
+    if (sbSession) {
+      const result = await this.postAuth('/api/auth/oauth', { accessToken: sbSession.access_token });
+      if (result.success && result.session) return result.session;
+    }
+
+    this.clearLocalSession();
+    return null;
+  }
+
+  private async postAuth(url: string, body: unknown): Promise<AuthResult> {
+    let data: ServerAuthResponse;
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      data = await res.json();
+      if (!res.ok || !data.user) {
+        return { success: false, error: data.error || 'Autentikasi gagal.' };
+      }
+    } catch {
+      return { success: false, error: 'Tidak dapat terhubung ke server. Periksa koneksi Anda.' };
+    }
+
+    const session: AuthSession = { user: data.user, expiresAt: data.expiresAt };
+    this.persistLocalSession(session, data.catAvatar);
+    this.emit(session);
+    return { success: true, user: session.user, session };
+  }
+
+  private emit(session: AuthSession | null): void {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent(AUTH_EVENT, { detail: session }));
+    }
+  }
+
+  private readLocalSession(): AuthSession | null {
+    if (typeof window === 'undefined') return null;
+    const raw = window.localStorage.getItem(LOCAL_SESSION_KEY);
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw) as AuthSession;
+    } catch {
+      window.localStorage.removeItem(LOCAL_SESSION_KEY);
+      return null;
+    }
+  }
+
+  /** Cache tampilan di localStorage (dibaca halaman-halaman untuk nama/avatar/kucing). */
+  private persistLocalSession(session: AuthSession, catAvatar?: unknown): void {
+    if (typeof window === 'undefined') return;
+    const { user } = session;
+    const ls = window.localStorage;
+
+    ls.setItem(LOCAL_SESSION_KEY, JSON.stringify(session));
+    ls.setItem('policysnap_user_logged_in', 'true');
+    ls.setItem('policysnap_user_id', user.id);
+    ls.setItem('policysnap_user_name', user.name);
+    ls.setItem('policysnap_user_email', user.email);
+    if (user.avatarUrl) ls.setItem('policysnap_user_avatar', user.avatarUrl);
+    if (catAvatar) ls.setItem('policysnap_cat_profile', JSON.stringify(catAvatar));
+
+    if (user.provider === 'guest') ls.setItem('policysnap_is_guest', 'true');
+    else ls.removeItem('policysnap_is_guest');
+
+    // Hanya untuk tampilan (kostum khusus admin); otorisasi tetap di server.
+    if (user.role === 'admin') ls.setItem('policysnap_is_admin', 'true');
+    else ls.removeItem('policysnap_is_admin');
+  }
+
+  private clearLocalSession(): void {
+    if (typeof window === 'undefined') return;
+    const ls = window.localStorage;
+    ls.removeItem(LOCAL_SESSION_KEY);
+    ls.removeItem('policysnap_user_logged_in');
+    ls.removeItem('policysnap_is_guest');
+    ls.removeItem('policysnap_is_admin');
   }
 }
 

@@ -139,7 +139,6 @@ function ArgumentsContent() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         argumentId: argId,
-        userId: 'user-001',
         voteType: direction,
       }),
     })

@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { errorResponse, requireAdmin } from '@/lib/auth/session';
+import { safeFetch } from '@/lib/safeFetch';
 
 interface AIResponseData {
   title: string;
@@ -40,7 +42,8 @@ function cleanHtml(rawHtml: string): string {
 
 // Scrape article text, title, and metadata from URL
 async function scrapeUrl(targetUrl: string): Promise<{ title: string; description: string; text: string }> {
-  const response = await fetch(targetUrl, {
+  // safeFetch: blokir URL ke jaringan internal (SSRF) termasuk lewat redirect
+  const response = await safeFetch(targetUrl, {
     headers: {
       'User-Agent':
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
@@ -413,8 +416,14 @@ function generateHeuristicFallback(
   };
 }
 
-// GET: Check backend AI status
+// GET: Check backend AI status (admin)
 export async function GET() {
+  try {
+    await requireAdmin();
+  } catch (error: unknown) {
+    return errorResponse(error, 'Gagal memeriksa status AI');
+  }
+
   const deepseekKey = process.env.DEEPSEEK_API_KEY?.trim();
   const geminiKey = process.env.GEMINI_API_KEY?.trim();
   const openAiKey = process.env.OPENAI_API_KEY?.trim();
@@ -444,6 +453,7 @@ export async function GET() {
 // POST: Extract issue from news URL
 export async function POST(request: Request) {
   try {
+    await requireAdmin();
     const body = await request.json();
     const url = body.url?.trim();
 
@@ -535,10 +545,6 @@ export async function POST(request: Request) {
       hasApiKey: Boolean(deepseekKey || geminiKey || openAiKey),
     });
   } catch (error: unknown) {
-    console.error('Extraction API error:', error);
-    return NextResponse.json(
-      { error: (error as Error).message || 'Terjadi kesalahan saat memproses tautan berita' },
-      { status: 500 }
-    );
+    return errorResponse(error, 'Terjadi kesalahan saat memproses tautan berita');
   }
 }

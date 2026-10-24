@@ -15,7 +15,6 @@ import {
 import Toast from '@/components/Toast';
 import Icon from '@/components/Icon';
 import { useAuth } from '@/presentation/hooks/useAuth';
-import { DEFAULT_ADMIN_CREDENTIALS } from '@/data/repositories/AuthRepositoryImpl';
 import styles from './admin.module.css';
 
 const CATEGORIES = [
@@ -67,7 +66,7 @@ const DEFAULT_ACTORS: ActorCard[] = [
 
 export default function AdminPage() {
   const router = useRouter();
-  const { user, isAdmin, signInWithEmail, signOut } = useAuth();
+  const { user, isAdmin, isLoading: isAuthLoading, signInWithEmail, signOut } = useAuth();
   const [adminUsernameInput, setAdminUsernameInput] = useState('');
   const [adminPasswordInput, setAdminPasswordInput] = useState('');
   const [showAdminPassword, setShowAdminPassword] = useState(false);
@@ -426,6 +425,11 @@ export default function AdminPage() {
       setIsAdminLoggingIn(false);
     }
   };
+
+  // Tunggu verifikasi sesi server agar form login tidak berkedip untuk admin yang sudah masuk
+  if (isAuthLoading && !isAdmin && !isAdminLoggingIn) {
+    return <div className="page" aria-busy="true" />;
+  }
 
   // Gerbang Keamanan Admin (Jika belum login sebagai administrator)
   if (!isAdmin) {

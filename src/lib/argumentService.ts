@@ -1,11 +1,12 @@
-import fs from 'fs/promises';
-import path from 'path';
 import { getSupabaseClient, isSupabaseConfigured } from './supabase';
-import { Argument } from '@/types';
-import { getProfile, addXP } from './profileService';
+import { readLocalJson, writeLocalJson } from './localStore';
+import { Argument, CatProfile, RankLevel, User } from '@/types';
+import { getAllProfiles, getProfile, applyLocalStats, normalizeCatProfile } from './profileService';
 
-const ARGS_FILE = path.join(process.cwd(), 'src', 'data', 'arguments.json');
-const VOTES_FILE = path.join(process.cwd(), 'src', 'data', 'argument_votes.json');
+const ARGS_FILE = 'arguments.json';
+const VOTES_FILE = 'argument_votes.json';
+
+type VoteType = 'up' | 'down';
 
 interface StoredArgument {
   id: string;
@@ -23,126 +24,89 @@ interface StoredVote {
   id: string;
   argument_id: string;
   user_id: string;
-  vote_type: 'up' | 'down';
+  vote_type: VoteType;
   created_at: string;
 }
 
-async function readLocalArgs(): Promise<StoredArgument[]> {
-  try {
-    const raw = await fs.readFile(ARGS_FILE, 'utf-8');
-    return JSON.parse(raw);
-  } catch {
-    return [];
-  }
+interface SupabaseArgumentRow extends StoredArgument {
+  profiles: { name?: string; avatar?: string; rank_level?: string; cat_avatar?: unknown } | null;
 }
 
-async function writeLocalArgs(data: StoredArgument[]): Promise<void> {
-  try {
-    await fs.writeFile(ARGS_FILE, JSON.stringify(data, null, 2), 'utf-8');
-  } catch (err) {
-    console.warn('writeLocalArgs ignored write error (normal in read-only hosting):', err);
-  }
-}
-
-async function readLocalVotes(): Promise<StoredVote[]> {
-  try {
-    const raw = await fs.readFile(VOTES_FILE, 'utf-8');
-    return JSON.parse(raw);
-  } catch {
-    return [];
-  }
-}
-
-async function writeLocalVotes(data: StoredVote[]): Promise<void> {
-  try {
-    await fs.writeFile(VOTES_FILE, JSON.stringify(data, null, 2), 'utf-8');
-  } catch (err) {
-    console.warn('writeLocalVotes ignored write error (normal in read-only hosting):', err);
-  }
+function toArgument(
+  arg: StoredArgument,
+  author: { name?: string; avatar?: string; rankLevel?: string; catAvatar?: CatProfile },
+  userVote: VoteType | null
+): Argument {
+  return {
+    id: arg.id,
+    userId: arg.user_id,
+    userName: author.name || 'Warga Publik',
+    userAvatar: author.avatar || '',
+    userRank: (author.rankLevel || 'warga-aktif') as RankLevel,
+    userCatAvatar: author.catAvatar,
+    issueId: arg.issue_id,
+    stance: arg.stance,
+    comment: arg.comment,
+    upvotes: arg.upvotes,
+    downvotes: arg.downvotes,
+    userVote,
+    submittedAt: (arg.created_at || new Date().toISOString()).split('T')[0],
+  };
 }
 
 /**
  * Get arguments for an issue, sorted by net votes descending
  */
-export async function getArgumentsByIssue(
-  issueId: string,
-  currentUserId: string = 'user-001'
-): Promise<Argument[]> {
-  // 1. Try Supabase
+export async function getArgumentsByIssue(issueId: string, currentUserId: string | null): Promise<Argument[]> {
   if (isSupabaseConfigured()) {
     const supabase = getSupabaseClient();
-    if (supabase) {
-      try {
-        const { data: args, error } = await supabase
-          .from('arguments')
-          .select('*, profiles(name, avatar, rank_level, cat_avatar)')
-          .eq('issue_id', issueId)
-          .order('net_votes', { ascending: false });
+    const { data: args, error } = await supabase
+      .from('arguments')
+      .select('*, profiles(name, avatar, rank_level, cat_avatar)')
+      .eq('issue_id', issueId)
+      .order('net_votes', { ascending: false });
+    if (error) throw error;
 
-        if (!error && args) {
-          // Fetch current user votes
-          const { data: userVotes } = await supabase
-            .from('argument_votes')
-            .select('argument_id, vote_type')
-            .eq('user_id', currentUserId);
-
-          const voteMap = new Map((userVotes || []).map((v) => [v.argument_id, v.vote_type]));
-
-          return args.map((arg: any) => ({
-            id: arg.id,
-            userId: arg.user_id,
-            userName: arg.profiles?.name || 'Warga Publik',
-            userAvatar: arg.profiles?.avatar || '',
-            userRank: arg.profiles?.rank_level || 'warga-aktif',
-            userCatAvatar: arg.profiles?.cat_avatar,
-            issueId: arg.issue_id,
-            stance: arg.stance,
-            comment: arg.comment,
-            upvotes: arg.upvotes,
-            downvotes: arg.downvotes,
-            userVote: (voteMap.get(arg.id) as 'up' | 'down') || null,
-            submittedAt: arg.created_at?.split('T')[0] || '2026-10-11',
-          }));
-        }
-      } catch (err) {
-        console.warn('Supabase fetch arguments error, using local fallback:', err);
-      }
+    let voteMap = new Map<string, VoteType>();
+    if (currentUserId && args?.length) {
+      const { data: userVotes, error: votesErr } = await supabase
+        .from('argument_votes')
+        .select('argument_id, vote_type')
+        .eq('user_id', currentUserId)
+        .in('argument_id', args.map((a) => a.id));
+      if (votesErr) throw votesErr;
+      voteMap = new Map((userVotes || []).map((v) => [v.argument_id, v.vote_type as VoteType]));
     }
+
+    return ((args || []) as SupabaseArgumentRow[]).map((arg) =>
+      toArgument(
+        arg,
+        {
+          name: arg.profiles?.name,
+          avatar: arg.profiles?.avatar,
+          rankLevel: arg.profiles?.rank_level,
+          catAvatar: arg.profiles?.cat_avatar ? normalizeCatProfile(arg.profiles.cat_avatar) : undefined,
+        },
+        voteMap.get(arg.id) || null
+      )
+    );
   }
 
-  // 2. Local JSON fallback
-  const rawArgs = await readLocalArgs();
-  const rawVotes = await readLocalVotes();
-  const filtered = rawArgs.filter((a) => a.issue_id === issueId);
-
+  // Mode lokal: ambil semua profil sekali (hindari N+1 getProfile per argumen)
+  const [rawArgs, rawVotes, profiles] = await Promise.all([
+    readLocalJson<StoredArgument>(ARGS_FILE),
+    readLocalJson<StoredVote>(VOTES_FILE),
+    getAllProfiles(),
+  ]);
+  const profileMap = new Map<string, User>(profiles.map((p) => [p.id, p]));
   const voteMap = new Map(
-    rawVotes
-      .filter((v) => v.user_id === currentUserId)
-      .map((v) => [v.argument_id, v.vote_type])
+    rawVotes.filter((v) => v.user_id === currentUserId).map((v) => [v.argument_id, v.vote_type])
   );
 
-  const enriched: Argument[] = [];
-  for (const a of filtered) {
-    const profile = await getProfile(a.user_id);
-    enriched.push({
-      id: a.id,
-      userId: a.user_id,
-      userName: profile.name,
-      userAvatar: profile.avatar || '',
-      userRank: profile.rankLevel || 'warga-aktif',
-      userCatAvatar: profile.catAvatar,
-      issueId: a.issue_id,
-      stance: a.stance,
-      comment: a.comment,
-      upvotes: a.upvotes,
-      downvotes: a.downvotes,
-      userVote: (voteMap.get(a.id) as 'up' | 'down') || null,
-      submittedAt: a.created_at?.split('T')[0] || '2026-10-11',
-    });
-  }
-
-  // Sort by net votes desc
-  return enriched.sort((a, b) => b.upvotes - b.downvotes - (a.upvotes - a.downvotes));
+  return rawArgs
+    .filter((a) => a.issue_id === issueId)
+    .map((a) => toArgument(a, profileMap.get(a.user_id) || {}, voteMap.get(a.id) || null))
+    .sort((a, b) => b.upvotes - b.downvotes - (a.upvotes - a.downvotes));
 }
 
 /**
@@ -151,84 +115,67 @@ export async function getArgumentsByIssue(
 export async function voteArgument(params: {
   argumentId: string;
   userId: string;
-  voteType: 'up' | 'down';
+  voteType: VoteType;
 }): Promise<{
   success: boolean;
-  userVote: 'up' | 'down' | null;
+  userVote: VoteType | null;
   upvotes: number;
   downvotes: number;
   authorXPGained?: number;
 }> {
   const { argumentId, userId, voteType } = params;
 
-  // 1. Try Supabase
+  // ===== Supabase: hitungan vote & XP penulis disinkronkan trigger =====
   if (isSupabaseConfigured()) {
     const supabase = getSupabaseClient();
-    if (supabase) {
-      try {
-        const { data: existing } = await supabase
-          .from('argument_votes')
-          .select('*')
-          .eq('argument_id', argumentId)
-          .eq('user_id', userId)
-          .maybeSingle();
 
-        let nextUserVote: 'up' | 'down' | null = voteType;
+    const { data: existing, error: findErr } = await supabase
+      .from('argument_votes')
+      .select('id, vote_type')
+      .eq('argument_id', argumentId)
+      .eq('user_id', userId)
+      .maybeSingle();
+    if (findErr) throw findErr;
 
-        if (existing) {
-          if (existing.vote_type === voteType) {
-            // Remove vote
-            await supabase.from('argument_votes').delete().eq('id', existing.id);
-            nextUserVote = null;
-          } else {
-            // Change vote
-            await supabase
-              .from('argument_votes')
-              .update({ vote_type: voteType })
-              .eq('id', existing.id);
-            nextUserVote = voteType;
-          }
-        } else {
-          // Insert new vote
-          await supabase.from('argument_votes').insert({
-            argument_id: argumentId,
-            user_id: userId,
-            vote_type: voteType,
-          });
-          nextUserVote = voteType;
-        }
-
-        // Fetch updated argument
-        const { data: updatedArg } = await supabase
-          .from('arguments')
-          .select('upvotes, downvotes')
-          .eq('id', argumentId)
-          .single();
-
-        return {
-          success: true,
-          userVote: nextUserVote,
-          upvotes: updatedArg?.upvotes || 0,
-          downvotes: updatedArg?.downvotes || 0,
-        };
-      } catch (err) {
-        console.warn('Supabase vote failed, falling back to local:', err);
-      }
+    let nextUserVote: VoteType | null = voteType;
+    if (existing && existing.vote_type === voteType) {
+      const { error } = await supabase.from('argument_votes').delete().eq('id', existing.id);
+      if (error) throw error;
+      nextUserVote = null;
+    } else if (existing) {
+      const { error } = await supabase.from('argument_votes').update({ vote_type: voteType }).eq('id', existing.id);
+      if (error) throw error;
+    } else {
+      const { error } = await supabase
+        .from('argument_votes')
+        .insert({ argument_id: argumentId, user_id: userId, vote_type: voteType });
+      if (error) throw error;
     }
+
+    const { data: updatedArg, error: argErr } = await supabase
+      .from('arguments')
+      .select('upvotes, downvotes')
+      .eq('id', argumentId)
+      .single();
+    if (argErr) throw argErr;
+
+    return {
+      success: true,
+      userVote: nextUserVote,
+      upvotes: updatedArg.upvotes,
+      downvotes: updatedArg.downvotes,
+    };
   }
 
-  // 2. Local JSON fallback
-  const args = await readLocalArgs();
-  const votes = await readLocalVotes();
-  const argIdx = args.findIndex((a) => a.id === argumentId);
-
-  if (argIdx === -1) {
+  // ===== Mode lokal (development) =====
+  const [args, votes] = await Promise.all([readLocalJson<StoredArgument>(ARGS_FILE), readLocalJson<StoredVote>(VOTES_FILE)]);
+  const targetArg = args.find((a) => a.id === argumentId);
+  if (!targetArg) {
     throw new Error('Argumen tidak ditemukan');
   }
 
-  const targetArg = args[argIdx];
   const voteIdx = votes.findIndex((v) => v.argument_id === argumentId && v.user_id === userId);
-  let nextUserVote: 'up' | 'down' | null = voteType;
+  let nextUserVote: VoteType | null = voteType;
   let xpDelta = 0;
 
   if (voteIdx !== -1) {
@@ -239,7 +186,7 @@ export async function voteArgument(params: {
       nextUserVote = null;
       if (voteType === 'up') {
         targetArg.upvotes = Math.max(0, targetArg.upvotes - 1);
-        xpDelta = -1; // remove +1 XP
+        xpDelta = -1;
       } else {
         targetArg.downvotes = Math.max(0, targetArg.downvotes - 1);
       }
@@ -259,10 +206,8 @@ export async function voteArgument(params: {
         targetArg.downvotes += 1;
       }
       votes[voteIdx].vote_type = voteType;
-      nextUserVote = voteType;
     }
   } else {
-    // New vote
     votes.push({
       id: `vote-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       argument_id: argumentId,
@@ -276,18 +221,16 @@ export async function voteArgument(params: {
     } else {
       targetArg.downvotes += 1;
     }
-    nextUserVote = voteType;
   }
 
   targetArg.net_votes = targetArg.upvotes - targetArg.downvotes;
-  args[argIdx] = targetArg;
 
-  await writeLocalArgs(args);
-  await writeLocalVotes(votes);
+  await writeLocalJson(ARGS_FILE, args);
+  await writeLocalJson(VOTES_FILE, votes);
 
-  // If XP delta applies to author and author is not voter
+  // XP hanya untuk penulis, dan tidak dari vote dirinya sendiri
   if (xpDelta !== 0 && targetArg.user_id !== userId) {
-    await addXP(targetArg.user_id, xpDelta);
+    await applyLocalStats(targetArg.user_id, { xp: xpDelta });
   }
 
   return {
@@ -300,7 +243,7 @@ export async function voteArgument(params: {
 }
 
 /**
- * Create a new public argument
+ * Create a new public argument (dengan self-upvote otomatis)
  */
 export async function createArgument(data: {
   userId: string;
@@ -308,100 +251,59 @@ export async function createArgument(data: {
   stance: string;
   comment: string;
 }): Promise<Argument> {
-  const argId = `arg-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
   const author = await getProfile(data.userId);
 
-  // 1. Try Supabase
   if (isSupabaseConfigured()) {
     const supabase = getSupabaseClient();
-    if (supabase) {
-      try {
-        const { data: inserted, error } = await supabase
-          .from('arguments')
-          .insert({
-            id: argId,
-            user_id: data.userId,
-            issue_id: data.issueId,
-            stance: data.stance,
-            comment: data.comment.trim(),
-            upvotes: 1,
-            downvotes: 0,
-            net_votes: 1,
-          })
-          .select()
-          .single();
+    const { data: inserted, error } = await supabase
+      .from('arguments')
+      .insert({
+        user_id: data.userId,
+        issue_id: data.issueId,
+        stance: data.stance,
+        comment: data.comment,
+        upvotes: 0,
+        downvotes: 0,
+        net_votes: 0,
+      })
+      .select()
+      .single();
+    if (error) throw error;
 
-        if (!error && inserted) {
-          // Add self-upvote
-          await supabase.from('argument_votes').insert({
-            argument_id: argId,
-            user_id: data.userId,
-            vote_type: 'up',
-          });
+    // Self-upvote; trigger menghitung ulang upvotes menjadi 1 (tanpa XP untuk diri sendiri)
+    const { error: voteErr } = await supabase
+      .from('argument_votes')
+      .insert({ argument_id: inserted.id, user_id: data.userId, vote_type: 'up' });
+    if (voteErr) throw voteErr;
 
-          return {
-            id: argId,
-            userId: data.userId,
-            userName: author.name,
-            userAvatar: author.avatar || '',
-            userRank: author.rankLevel || 'warga-aktif',
-            userCatAvatar: author.catAvatar,
-            issueId: data.issueId,
-            stance: data.stance,
-            comment: data.comment.trim(),
-            upvotes: 1,
-            downvotes: 0,
-            userVote: 'up',
-            submittedAt: new Date().toISOString().split('T')[0],
-          };
-        }
-      } catch (err) {
-        console.warn('Supabase create argument failed, using local fallback:', err);
-      }
-    }
+    return toArgument({ ...inserted, upvotes: 1, net_votes: 1 }, author, 'up');
   }
 
-  // 2. Local JSON fallback
-  const args = await readLocalArgs();
-  const votes = await readLocalVotes();
-
+  const [args, votes] = await Promise.all([readLocalJson<StoredArgument>(ARGS_FILE), readLocalJson<StoredVote>(VOTES_FILE)]);
+  const now = new Date().toISOString();
   const newArg: StoredArgument = {
-    id: argId,
+    id: `arg-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     user_id: data.userId,
     issue_id: data.issueId,
     stance: data.stance,
-    comment: data.comment.trim(),
+    comment: data.comment,
     upvotes: 1,
     downvotes: 0,
     net_votes: 1,
-    created_at: new Date().toISOString(),
+    created_at: now,
   };
 
   args.unshift(newArg);
   votes.push({
-    id: `vote-${Date.now()}`,
-    argument_id: argId,
+    id: `vote-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    argument_id: newArg.id,
     user_id: data.userId,
     vote_type: 'up',
-    created_at: new Date().toISOString(),
+    created_at: now,
   });
 
-  await writeLocalArgs(args);
-  await writeLocalVotes(votes);
+  await writeLocalJson(ARGS_FILE, args);
+  await writeLocalJson(VOTES_FILE, votes);
 
-  return {
-    id: argId,
-    userId: data.userId,
-    userName: author.name,
-    userAvatar: author.avatar || '',
-    userRank: author.rankLevel || 'warga-aktif',
-    userCatAvatar: author.catAvatar,
-    issueId: data.issueId,
-    stance: data.stance,
-    comment: data.comment.trim(),
-    upvotes: 1,
-    downvotes: 0,
-    userVote: 'up',
-    submittedAt: new Date().toISOString().split('T')[0],
-  };
+  return toArgument(newArg, author, 'up');
 }

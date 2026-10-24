@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server';
-import { getAllProfiles } from '@/lib/profileService';
+import { getAllProfiles, toPublicProfile } from '@/lib/profileService';
+import { errorResponse } from '@/lib/auth/session';
 
 export async function GET() {
   try {
-    const profiles = await getAllProfiles();
+    const profiles = (await getAllProfiles()).map(toPublicProfile);
     return NextResponse.json(profiles, {
       headers: {
         'Cache-Control': 'no-store, no-cache, must-revalidate',
       },
     });
   } catch (error: unknown) {
-    console.error('Error fetching leaderboard data:', error);
-    return NextResponse.json({ error: 'Gagal memuat data leaderboard' }, { status: 500 });
+    return errorResponse(error, 'Gagal memuat data leaderboard');
   }
 }

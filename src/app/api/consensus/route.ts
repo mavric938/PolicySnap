@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
 import { getConsensusData } from '@/lib/evaluationService';
+import { errorResponse, getSessionUser } from '@/lib/auth/session';
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const issueId = searchParams.get('issueId') || searchParams.get('issue') || 'issue-001';
-    const userId = searchParams.get('userId') || 'user-001';
+    const session = await getSessionUser();
 
-    const consensus = await getConsensusData(issueId, userId);
+    const consensus = await getConsensusData(issueId, session?.id ?? null);
 
     return NextResponse.json(consensus, {
       headers: {
@@ -15,7 +16,6 @@ export async function GET(request: Request) {
       },
     });
   } catch (error: unknown) {
-    console.error('Error fetching consensus data:', error);
-    return NextResponse.json({ error: 'Gagal menghitung konsensus komunitas' }, { status: 500 });
+    return errorResponse(error, 'Gagal menghitung konsensus komunitas');
   }
 }

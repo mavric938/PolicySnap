@@ -25,6 +25,9 @@
 *.pem
 policysnap-temp/
 
+# local auth store (mode tanpa Supabase) — berisi hash password
+src/data/credentials.json
+
 # debug
 npm-debug.log*
 yarn-debug.log*

@@ -177,8 +177,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const isGuest = user?.provider === 'guest' || (typeof window !== 'undefined' && localStorage.getItem('policysnap_is_guest') === 'true');
-  const isAdmin = user?.role === 'admin' || (typeof window !== 'undefined' && localStorage.getItem('policysnap_is_admin') === 'true');
+  // Role & provider berasal dari sesi server (bukan flag localStorage yang bisa diubah pengguna)
+  const isGuest = user?.provider === 'guest';
+  const isAdmin = user?.role === 'admin';
 
   const value = useMemo(
     () => ({

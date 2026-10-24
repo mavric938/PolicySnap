@@ -1,10 +1,14 @@
 // PolicySnap PWA Service Worker
-const CACHE_NAME = 'policysnap-cache-v1';
+// v2: API & data dinamis tidak pernah di-cache; aset UI memakai network-first (offline fallback).
+const CACHE_NAME = 'policysnap-cache-v2';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
   '/favicon.ico',
 ];
+
+// Path yang selalu langsung ke jaringan (data live, auth, dev tooling)
+const BYPASS_PREFIXES = ['/api/', '/auth/', '/_next/webpack-hmr', '/__nextjs'];
 
 // Install Event - Pre-cache essential assets
 self.addEventListener('install', (event) => {
@@ -16,7 +20,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate Event - Clean old caches
+// Activate Event - Clean old caches (termasuk v1 yang sempat menyimpan respons API)
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -32,30 +36,34 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch Event - Stale-while-revalidate for UI assets
+// Fetch Event - Network-first untuk aset UI, cache hanya sebagai cadangan offline
 self.addEventListener('fetch', (event) => {
-  // Only handle GET requests
-  if (event.request.method !== 'GET') return;
+  const { request } = event;
+  if (request.method !== 'GET') return;
+
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+  if (BYPASS_PREFIXES.some((prefix) => url.pathname.startsWith(prefix))) return;
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      const fetchPromise = fetch(event.request)
-        .then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-            const responseToCache = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, responseToCache);
-            });
-          }
-          return networkResponse;
-        })
-        .catch(() => {
-          // If network fails, return cached response if available
-          return cachedResponse;
-        });
-
-      return cachedResponse || fetchPromise;
-    })
+    fetch(request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, responseToCache));
+        }
+        return networkResponse;
+      })
+      .catch(async () => {
+        const cached = await caches.match(request);
+        if (cached) return cached;
+        // Navigasi offline ke halaman yang belum pernah dibuka → tampilkan beranda yang ter-cache
+        if (request.mode === 'navigate') {
+          const fallback = await caches.match('/');
+          if (fallback) return fallback;
+        }
+        return Response.error();
+      })
   );
 });
 

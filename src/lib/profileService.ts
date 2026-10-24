@@ -1,18 +1,61 @@
-import fs from 'fs/promises';
-import path from 'path';
 import { getSupabaseClient, isSupabaseConfigured } from './supabase';
-import { User, CatProfile } from '@/types';
+import { readLocalJson, writeLocalJson } from './localStore';
+import { User, CatProfile, RankLevel } from '@/types';
 import { getRankForXP } from '@/data/mock';
 import { DEFAULT_CAT_PROFILE } from '@/data/catCostumes';
 
-const DATA_FILE = path.join(process.cwd(), 'src', 'data', 'profiles.json');
+const LOCAL_FILE = 'profiles.json';
 
-export function normalizeCatProfile(raw: any): CatProfile {
-  if (!raw) return DEFAULT_CAT_PROFILE;
+/** Bentuk baris `profiles` (Supabase & file JSON lokal memakai kolom snake_case yang sama). */
+interface ProfileRow {
+  id: string;
+  name?: string;
+  email?: string;
+  avatar?: string;
+  total_xp?: number;
+  rank_level?: string;
+  evaluations_count?: number;
+  upvotes_count?: number;
+  cat_avatar?: unknown;
+  created_at?: string;
+  // Format lama (camelCase) yang mungkin masih ada di file lokal
+  totalXP?: number;
+  rankLevel?: string;
+  evaluationsCount?: number;
+  upvotesCount?: number;
+  catAvatar?: unknown;
+  joinedAt?: string;
+}
+
+// Bentuk cat_avatar lama dan baru yang perlu dinormalisasi
+interface RawCatProfile {
+  name?: string;
+  catName?: string;
+  gender?: string;
+  breed?: string;
+  furColor?: string;
+  bellyColor?: string;
+  eyeColor?: string;
+  earColor?: string;
+  colors?: { fur?: string; chest?: string; eyes?: string };
+  equipped?: Partial<Record<'head' | 'eyes' | 'body' | 'accessory' | 'special', string | null>>;
+  equippedCostumes?: Partial<Record<'hat' | 'glasses' | 'outfit' | 'accessory', string>>;
+  special?: string | null;
+  specialItem?: string | null;
+}
+
+export function normalizeCatProfile(input: unknown): CatProfile {
+  if (!input || typeof input !== 'object') return DEFAULT_CAT_PROFILE;
+  const raw = input as RawCatProfile;
   return {
     name: raw.name || raw.catName || 'Kucing Warga',
     gender: raw.gender === 'girl' || raw.gender === 'female' ? 'female' : 'male',
-    breed: raw.breed === 'persian-fluffy' || raw.breed === 'persia' ? 'persia' : raw.breed === 'siamese-sleek' || raw.breed === 'siam' ? 'siam' : 'domestik',
+    breed:
+      raw.breed === 'persian-fluffy' || raw.breed === 'persia'
+        ? 'persia'
+        : raw.breed === 'siamese-sleek' || raw.breed === 'siam'
+          ? 'siam'
+          : 'domestik',
     furColor: raw.furColor || raw.colors?.fur || '#F97316',
     bellyColor: raw.bellyColor || raw.colors?.chest || '#FFEDD5',
     eyeColor: raw.eyeColor || raw.colors?.eyes || '#10B981',
@@ -28,260 +71,240 @@ export function normalizeCatProfile(raw: any): CatProfile {
   };
 }
 
-async function readLocalProfiles(): Promise<User[]> {
-  try {
-    const raw = await fs.readFile(DATA_FILE, 'utf-8');
-    return JSON.parse(raw);
-  } catch {
-    return [];
-  }
+function rowToUser(row: ProfileRow, upvotesCount?: number): User {
+  const totalXP = row.total_xp ?? row.totalXP ?? 0;
+  return {
+    id: row.id,
+    name: row.name || 'Warga Publik',
+    email: row.email || '',
+    avatar: row.avatar || '',
+    totalXP,
+    rankLevel: (row.rank_level ?? row.rankLevel ?? getRankForXP(totalXP).key) as RankLevel,
+    evaluationsCount: row.evaluations_count ?? row.evaluationsCount ?? 0,
+    upvotesCount: upvotesCount ?? row.upvotes_count ?? row.upvotesCount ?? 0,
+    catAvatar: normalizeCatProfile(row.cat_avatar ?? row.catAvatar),
+    joinedAt: row.created_at || row.joinedAt || new Date().toISOString(),
+  };
 }
 
-async function writeLocalProfiles(profiles: User[]): Promise<void> {
-  try {
-    await fs.writeFile(DATA_FILE, JSON.stringify(profiles, null, 2), 'utf-8');
-  } catch (err) {
-    console.warn('writeLocalProfiles ignored write error (normal in read-only hosting):', err);
-  }
+function userToLocalRow(user: User): ProfileRow {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    avatar: user.avatar,
+    total_xp: user.totalXP,
+    rank_level: user.rankLevel,
+    evaluations_count: user.evaluationsCount,
+    upvotes_count: user.upvotesCount ?? 0,
+    cat_avatar: user.catAvatar,
+    created_at: user.joinedAt,
+  };
 }
 
-/**
- * Get profile for user ID
- */
-export async function getProfile(userId: string = 'user-001'): Promise<User> {
-  // 1. Try Supabase if configured
-  if (isSupabaseConfigured()) {
-    const supabase = getSupabaseClient();
-    if (supabase) {
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', userId)
-          .single();
-
-        if (!error && data) {
-          // Fetch real upvotes from arguments table
-          const { data: userArgs } = await supabase.from('arguments').select('upvotes').eq('user_id', userId);
-          const authorUpvotes = userArgs?.reduce((acc: number, cur: any) => acc + (cur.upvotes || 0), 0) || 0;
-
-          // Fetch upvotes cast by user
-          const { count: castCount } = await supabase.from('argument_votes').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('vote_type', 'up');
-
-          const totalUpvotes = (data.upvotes_count || 0) + authorUpvotes + (castCount || 0);
-
-          return {
-            id: data.id,
-            name: data.name,
-            email: data.email || '',
-            avatar: data.avatar || '',
-            totalXP: data.total_xp,
-            rankLevel: data.rank_level || getRankForXP(data.total_xp).key,
-            evaluationsCount: data.evaluations_count,
-            upvotesCount: totalUpvotes,
-            catAvatar: normalizeCatProfile(data.cat_avatar),
-            joinedAt: data.created_at,
-          };
-        }
-      } catch (err) {
-        console.warn('Supabase fetch profile error, using local fallback:', err);
-      }
-    }
-  }
-
-  // 2. Local JSON fallback
-  const profiles = await readLocalProfiles();
-  const found = profiles.find((p) => p.id === userId);
-  if (found) {
-    return {
-      ...found,
-      totalXP: (found as any).total_xp ?? found.totalXP ?? 0,
-      rankLevel: (found as any).rank_level ?? found.rankLevel ?? getRankForXP((found as any).total_xp ?? found.totalXP ?? 0).key,
-      evaluationsCount: (found as any).evaluations_count ?? found.evaluationsCount ?? 0,
-      upvotesCount: (found as any).upvotes_count ?? (found as any).upvotesCount ?? 0,
-      catAvatar: normalizeCatProfile((found as any).cat_avatar ?? found.catAvatar),
-    };
-  }
-
-  // Default fallback user
+function defaultUser(userId: string): User {
   return {
     id: userId,
     name: 'Warga Baru',
-    email: 'warga@policysnap.id',
+    email: '',
     avatar: '',
     totalXP: 0,
     rankLevel: 'warga-aktif',
     evaluationsCount: 0,
     upvotesCount: 0,
-    joinedAt: '2026-10-12',
+    joinedAt: new Date().toISOString(),
     catAvatar: DEFAULT_CAT_PROFILE,
   };
 }
 
-/**
- * Get all profiles for the citizen leaderboard (live from Supabase cloud database)
- */
-export async function getAllProfiles(): Promise<User[]> {
-  // 1. Try Supabase cloud database
-  if (isSupabaseConfigured()) {
-    const supabase = getSupabaseClient();
-    if (supabase) {
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .order('total_xp', { ascending: false });
-
-        if (!error && Array.isArray(data) && data.length > 0) {
-          // Fetch upvotes from arguments table
-          const { data: argsData } = await supabase.from('arguments').select('user_id, upvotes');
-          const upvotesByAuthor: Record<string, number> = {};
-          if (argsData) {
-            argsData.forEach((a: any) => {
-              upvotesByAuthor[a.user_id] = (upvotesByAuthor[a.user_id] || 0) + (a.upvotes || 0);
-            });
-          }
-
-          // Fetch upvotes cast by users
-          const { data: votesData } = await supabase.from('argument_votes').select('user_id').eq('vote_type', 'up');
-          const upvotesCast: Record<string, number> = {};
-          if (votesData) {
-            votesData.forEach((v: any) => {
-              upvotesCast[v.user_id] = (upvotesCast[v.user_id] || 0) + 1;
-            });
-          }
-
-          return data.map((row: any) => {
-            const authorUpvotes = upvotesByAuthor[row.id] || 0;
-            const castUpvotes = upvotesCast[row.id] || 0;
-            const totalUpvotes = (row.upvotes_count || 0) + authorUpvotes + castUpvotes;
-
-            return {
-              id: row.id,
-              name: row.name || 'Warga Publik',
-              email: row.email || '',
-              avatar: row.avatar || '',
-              totalXP: row.total_xp || 0,
-              rankLevel: row.rank_level || getRankForXP(row.total_xp || 0).key,
-              evaluationsCount: row.evaluations_count || 0,
-              upvotesCount: totalUpvotes,
-              catAvatar: normalizeCatProfile(row.cat_avatar),
-              joinedAt: row.created_at || '2026-10-12',
-            };
-          }).sort((a, b) => b.totalXP - a.totalXP);
-        }
-      } catch (err) {
-        console.warn('Supabase fetch all profiles error, using local fallback:', err);
-      }
-    }
-  }
-
-  // 2. Local fallback
-  const list = await readLocalProfiles();
-  const mapped = list.map((p) => ({
-    ...p,
-    totalXP: (p as any).total_xp ?? p.totalXP ?? 0,
-    rankLevel: (p as any).rank_level ?? p.rankLevel ?? getRankForXP((p as any).total_xp ?? p.totalXP ?? 0).key,
-    evaluationsCount: (p as any).evaluations_count ?? p.evaluationsCount ?? 0,
-    upvotesCount: (p as any).upvotes_count ?? (p as any).upvotesCount ?? 0,
-    catAvatar: normalizeCatProfile((p as any).cat_avatar ?? p.catAvatar),
-  }));
-
-  return mapped.sort((a, b) => b.totalXP - a.totalXP);
+/** Hapus data pribadi sebelum profil dikirim ke pengguna lain. */
+export function toPublicProfile(user: User): User {
+  return { ...user, email: '' };
 }
 
 /**
- * Update user profile & cat avatar customization
+ * Get profile for user ID
+ */
+export async function getProfile(userId: string): Promise<User> {
+  if (isSupabaseConfigured()) {
+    const supabase = getSupabaseClient();
+    const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
+    if (error) throw error;
+    if (!data) return defaultUser(userId);
+
+    // Upvote diterima (argumen milik user) + upvote yang diberikan user
+    const [{ data: userArgs, error: argsErr }, { count: castCount, error: castErr }] = await Promise.all([
+      supabase.from('arguments').select('upvotes').eq('user_id', userId),
+      supabase
+        .from('argument_votes')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .eq('vote_type', 'up'),
+    ]);
+    if (argsErr) throw argsErr;
+    if (castErr) throw castErr;
+
+    const authorUpvotes = (userArgs || []).reduce((acc, cur) => acc + (cur.upvotes || 0), 0);
+    return rowToUser(data, authorUpvotes + (castCount || 0));
+  }
+
+  const profiles = await readLocalJson<ProfileRow>(LOCAL_FILE);
+  const found = profiles.find((p) => p.id === userId);
+  return found ? rowToUser(found) : defaultUser(userId);
+}
+
+/**
+ * Get all profiles for the citizen leaderboard
+ */
+export async function getAllProfiles(): Promise<User[]> {
+  if (isSupabaseConfigured()) {
+    const supabase = getSupabaseClient();
+    const [profilesRes, argsRes, votesRes] = await Promise.all([
+      supabase.from('profiles').select('*').order('total_xp', { ascending: false }),
+      supabase.from('arguments').select('user_id, upvotes'),
+      supabase.from('argument_votes').select('user_id').eq('vote_type', 'up'),
+    ]);
+    if (profilesRes.error) throw profilesRes.error;
+    if (argsRes.error) throw argsRes.error;
+    if (votesRes.error) throw votesRes.error;
+
+    const upvotesByUser: Record<string, number> = {};
+    for (const a of argsRes.data || []) {
+      upvotesByUser[a.user_id] = (upvotesByUser[a.user_id] || 0) + (a.upvotes || 0);
+    }
+    for (const v of votesRes.data || []) {
+      upvotesByUser[v.user_id] = (upvotesByUser[v.user_id] || 0) + 1;
+    }
+
+    return (profilesRes.data || []).map((row: ProfileRow) => rowToUser(row, upvotesByUser[row.id] || 0));
+  }
+
+  const list = await readLocalJson<ProfileRow>(LOCAL_FILE);
+  return list.map((row) => rowToUser(row)).sort((a, b) => b.totalXP - a.totalXP);
+}
+
+/** Cari ID profil berdasarkan email (untuk menautkan akun lama saat login pertama). */
+export async function findProfileIdByEmail(email: string): Promise<string | null> {
+  const normalized = email.trim().toLowerCase();
+
+  if (isSupabaseConfigured()) {
+    const { data, error } = await getSupabaseClient()
+      .from('profiles')
+      .select('id')
+      .ilike('email', normalized)
+      .order('total_xp', { ascending: false })
+      .limit(1);
+    if (error) throw error;
+    return data?.[0]?.id ?? null;
+  }
+
+  const list = await readLocalJson<ProfileRow>(LOCAL_FILE);
+  const matches = list
+    .filter((p) => p.email?.toLowerCase() === normalized)
+    .sort((a, b) => (b.total_xp ?? 0) - (a.total_xp ?? 0));
+  return matches[0]?.id ?? null;
+}
+
+/**
+ * Pastikan profil ada (dipanggil server setelah login). Tidak menimpa profil yang sudah ada.
+ */
+export async function ensureProfile(user: { id: string; name: string; email: string; avatar?: string }): Promise<User> {
+  if (isSupabaseConfigured()) {
+    const supabase = getSupabaseClient();
+    const { error } = await supabase.from('profiles').upsert(
+      {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar || '',
+        total_xp: 0,
+        rank_level: 'warga-aktif',
+        evaluations_count: 0,
+      },
+      { onConflict: 'id', ignoreDuplicates: true }
+    );
+    if (error) throw error;
+    return getProfile(user.id);
+  }
+
+  const profiles = await readLocalJson<ProfileRow>(LOCAL_FILE);
+  const existing = profiles.find((p) => p.id === user.id);
+  if (existing) return rowToUser(existing);
+
+  const created: User = {
+    ...defaultUser(user.id),
+    name: user.name,
+    email: user.email,
+    avatar: user.avatar || '',
+  };
+  await writeLocalJson(LOCAL_FILE, [...profiles, userToLocalRow(created)]);
+  return created;
+}
+
+/**
+ * Update data profil yang boleh diubah pengguna sendiri: nama, avatar, dan kucing.
+ * XP / rank / jumlah evaluasi TIDAK bisa diubah dari sini (dikelola server/trigger).
  */
 export async function updateProfile(
   userId: string,
-  updates: {
-    name?: string;
-    avatar?: string;
-    catAvatar?: CatProfile;
-    totalXP?: number;
-    evaluationsCount?: number;
-    upvotesCount?: number;
-  }
-): Promise<{ success: boolean; profile?: User; error?: string }> {
-  const current = await getProfile(userId);
-  const newXP = updates.totalXP !== undefined ? updates.totalXP : current.totalXP;
-  const newRank = getRankForXP(newXP).key;
+  updates: { name?: string; avatar?: string; catAvatar?: CatProfile }
+): Promise<User> {
+  const payload: Record<string, unknown> = {};
+  if (updates.name?.trim()) payload.name = updates.name.trim().slice(0, 60);
+  if (updates.avatar !== undefined) payload.avatar = updates.avatar;
+  if (updates.catAvatar) payload.cat_avatar = normalizeCatProfile(updates.catAvatar);
 
+  if (isSupabaseConfigured()) {
+    if (Object.keys(payload).length > 0) {
+      const { error } = await getSupabaseClient()
+        .from('profiles')
+        .update({ ...payload, updated_at: new Date().toISOString() })
+        .eq('id', userId);
+      if (error) throw error;
+    }
+    return getProfile(userId);
+  }
+
+  const profiles = await readLocalJson<ProfileRow>(LOCAL_FILE);
+  const idx = profiles.findIndex((p) => p.id === userId);
+  const current = idx !== -1 ? rowToUser(profiles[idx]) : defaultUser(userId);
   const merged: User = {
     ...current,
-    name: updates.name || current.name,
-    avatar: updates.avatar !== undefined ? updates.avatar : current.avatar,
-    totalXP: newXP,
-    rankLevel: newRank,
-    evaluationsCount: updates.evaluationsCount !== undefined ? updates.evaluationsCount : current.evaluationsCount,
-    upvotesCount: updates.upvotesCount !== undefined ? updates.upvotesCount : current.upvotesCount,
-    catAvatar: updates.catAvatar || current.catAvatar,
+    name: (payload.name as string | undefined) ?? current.name,
+    avatar: (payload.avatar as string | undefined) ?? current.avatar,
+    catAvatar: (payload.cat_avatar as CatProfile | undefined) ?? current.catAvatar,
   };
 
-  // 1. Try Supabase
-  if (isSupabaseConfigured()) {
-    const supabase = getSupabaseClient();
-    if (supabase) {
-      try {
-        const { error } = await supabase.from('profiles').upsert({
-          id: userId,
-          name: merged.name,
-          avatar: merged.avatar,
-          total_xp: merged.totalXP,
-          rank_level: merged.rankLevel,
-          evaluations_count: merged.evaluationsCount,
-          upvotes_count: merged.upvotesCount,
-          cat_avatar: merged.catAvatar,
-          updated_at: new Date().toISOString(),
-        });
-
-        if (!error) {
-          return { success: true, profile: merged };
-        }
-      } catch (err: unknown) {
-        console.warn('Supabase profile update failed, syncing locally:', err);
-      }
-    }
-  }
-
-  // 2. Local JSON update
-  const profiles = await readLocalProfiles();
-  const idx = profiles.findIndex((p) => p.id === userId);
-  const updatedItem = {
-    id: merged.id,
-    name: merged.name,
-    email: merged.email,
-    avatar: merged.avatar,
-    total_xp: merged.totalXP,
-    rank_level: merged.rankLevel,
-    evaluations_count: merged.evaluationsCount,
-    upvotes_count: merged.upvotesCount,
-    cat_avatar: merged.catAvatar,
-    created_at: merged.joinedAt,
-  } as unknown as User;
-
-  if (idx !== -1) {
-    profiles[idx] = updatedItem;
-  } else {
-    profiles.push(updatedItem);
-  }
-  await writeLocalProfiles(profiles);
-
-  return { success: true, profile: merged };
+  const row = userToLocalRow(merged);
+  if (idx !== -1) profiles[idx] = row;
+  else profiles.push(row);
+  await writeLocalJson(LOCAL_FILE, profiles);
+  return merged;
 }
 
 /**
- * Add XP to user and update their rank automatically
+ * [Mode lokal saja] Tambah XP & counter evaluasi.
+ * Di mode Supabase hal ini dikerjakan trigger database (lihat supabase/schema.sql).
  */
-export async function addXP(
+export async function applyLocalStats(
   userId: string,
-  delta: number
-): Promise<{ success: boolean; totalXP: number; rankLevel: string }> {
-  const profile = await getProfile(userId);
-  const updatedXP = Math.max(0, profile.totalXP + delta);
-  const updatedRank = getRankForXP(updatedXP).key;
+  delta: { xp?: number; evaluations?: number }
+): Promise<{ totalXP: number; rankLevel: RankLevel }> {
+  const profiles = await readLocalJson<ProfileRow>(LOCAL_FILE);
+  const idx = profiles.findIndex((p) => p.id === userId);
+  const current = idx !== -1 ? rowToUser(profiles[idx]) : defaultUser(userId);
 
-  await updateProfile(userId, { totalXP: updatedXP });
-  return { success: true, totalXP: updatedXP, rankLevel: updatedRank };
+  const totalXP = Math.max(0, current.totalXP + (delta.xp || 0));
+  const rankLevel = getRankForXP(totalXP).key;
+  const row = userToLocalRow({
+    ...current,
+    totalXP,
+    rankLevel,
+    evaluationsCount: current.evaluationsCount + (delta.evaluations || 0),
+  });
+
+  if (idx !== -1) profiles[idx] = row;
+  else profiles.push(row);
+  await writeLocalJson(LOCAL_FILE, profiles);
+  return { totalXP, rankLevel };
 }

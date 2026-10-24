@@ -1,52 +1,42 @@
 import { NextResponse } from 'next/server';
-import { submitEvaluation, getUserEvaluation, hasUserEvaluated } from '@/lib/evaluationService';
+import { submitEvaluation, getUserEvaluation } from '@/lib/evaluationService';
+import { errorResponse, getSessionUser, requireUser } from '@/lib/auth/session';
+import { optionalString, parseActorVotes, parseScores, requireString } from '@/lib/validation';
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const issueId = searchParams.get('issueId') || 'issue-001';
-    const userId = searchParams.get('userId') || 'user-001';
+    const session = await getSessionUser();
 
-    const evaluated = await hasUserEvaluated(issueId, userId);
-    const userEval = await getUserEvaluation(issueId, userId);
+    // Status evaluasi selalu milik user yang sedang login (bukan userId dari query)
+    const userEval = session ? await getUserEvaluation(issueId, session.id) : null;
 
     return NextResponse.json({
-      hasEvaluated: evaluated,
+      hasEvaluated: Boolean(userEval),
       evaluation: userEval,
     });
   } catch (error: unknown) {
-    console.error('Error fetching evaluation status:', error);
-    return NextResponse.json({ error: 'Gagal membaca status evaluasi' }, { status: 500 });
+    return errorResponse(error, 'Gagal membaca status evaluasi');
   }
 }
 
 export async function POST(request: Request) {
   try {
+    const user = await requireUser();
     const body = await request.json();
-    const { issueId, userId = 'user-001', scores, actorVotes = {}, stance, comment } = body;
-
-    if (!issueId || !scores || !stance) {
-      return NextResponse.json(
-        { error: 'Parameter issueId, scores, dan stance wajib disertakan' },
-        { status: 400 }
-      );
-    }
 
     const result = await submitEvaluation({
-      userId,
-      issueId,
-      scores,
-      actorVotes,
-      stance,
-      comment,
+      userId: user.id,
+      issueId: requireString(body.issueId, 'issueId', { max: 100 }),
+      scores: parseScores(body.scores),
+      actorVotes: parseActorVotes(body.actorVotes),
+      stance: requireString(body.stance, 'Pendirian', { max: 60 }),
+      comment: optionalString(body.comment, 'Komentar', 300),
     });
 
     return NextResponse.json(result, { status: 201 });
   } catch (error: unknown) {
-    console.error('Error submitting evaluation:', error);
-    return NextResponse.json(
-      { error: (error as Error).message || 'Gagal mengirim evaluasi' },
-      { status: 500 }
-    );
+    return errorResponse(error, 'Gagal mengirim evaluasi');
   }
 }
