@@ -51,7 +51,11 @@ export default function IssueList({ issues, isLoading, onToggleStatus, onEdit, o
 
                 <div className={styles.issueActions}>
                   <div className={styles.statusGroup}>
-                    <div
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={issue.status === 'active'}
+                      aria-label={`Status evaluasi isu ${issue.title}`}
                       className={`toggle ${issue.status === 'active' ? 'active' : ''}`}
                       onClick={() => onToggleStatus(issue)}
                       title={
@@ -74,6 +78,7 @@ export default function IssueList({ issues, isLoading, onToggleStatus, onEdit, o
                       className={styles.actionIconBtn}
                       onClick={() => onEdit(issue)}
                       title="Edit Isu & Kriteria"
+                aria-label={`Edit isu ${issue.title}`}
                       id={`btn-edit-issue-${issue.id}`}
                     >
                       <Icon name="edit_note" size={17} />
@@ -82,6 +87,7 @@ export default function IssueList({ issues, isLoading, onToggleStatus, onEdit, o
                       className={styles.actionIconBtn}
                       onClick={() => router.push(`/evaluate?issue=${issue.id}`)}
                       title="Pratinjau Halaman Evaluasi"
+                aria-label={`Pratinjau evaluasi ${issue.title}`}
                       id={`btn-preview-issue-${issue.id}`}
                     >
                       <Icon name="open_in_new" size={16} />
@@ -90,6 +96,7 @@ export default function IssueList({ issues, isLoading, onToggleStatus, onEdit, o
                       className={`${styles.actionIconBtn} ${styles.deleteBtn}`}
                       onClick={() => onDelete(issue.id, issue.title)}
                       title="Hapus Isu"
+                aria-label={`Hapus isu ${issue.title}`}
                       id={`btn-delete-issue-${issue.id}`}
                     >
                       <Icon name="delete" size={16} />

@@ -12,6 +12,7 @@ import SoundToggle from '@/components/SoundToggle';
 import { useCurrentUserId } from '@/hooks/useCurrentUserId';
 import { useAuth } from '@/presentation/hooks/useAuth';
 import styles from './leaderboard.module.css';
+import { pressable } from '@/lib/a11y';
 
 type LeaderboardTab = 'all' | 'upvotes' | 'xp' | 'analysis';
 
@@ -195,7 +196,7 @@ export default function LeaderboardPage() {
           {/* Rank 2 (Silver) */}
           <div
             className={`${styles.podiumCard} ${styles.podiumCard2}`}
-            onClick={() => router.push(`/profile?userId=${top3[1].id}`)}
+            {...pressable(() => router.push(`/profile?userId=${top3[1].id}`))}
             title={`Lihat profil ${top3[1].name}`}
             id={`podium-rank-2`}
           >
@@ -215,7 +216,7 @@ export default function LeaderboardPage() {
           {/* Rank 1 (Gold / Crown) */}
           <div
             className={`${styles.podiumCard} ${styles.podiumCard1}`}
-            onClick={() => router.push(`/profile?userId=${top3[0].id}`)}
+            {...pressable(() => router.push(`/profile?userId=${top3[0].id}`))}
             title={`Lihat profil ${top3[0].name}`}
             id={`podium-rank-1`}
           >
@@ -235,7 +236,7 @@ export default function LeaderboardPage() {
           {/* Rank 3 (Bronze) */}
           <div
             className={`${styles.podiumCard} ${styles.podiumCard3}`}
-            onClick={() => router.push(`/profile?userId=${top3[2].id}`)}
+            {...pressable(() => router.push(`/profile?userId=${top3[2].id}`))}
             title={`Lihat profil ${top3[2].name}`}
             id={`podium-rank-3`}
           >
@@ -270,7 +271,7 @@ export default function LeaderboardPage() {
             <article
               key={citizen.id}
               className={`${styles.citizenCard} ${isSelf ? styles.citizenCardSelf : ''}`}
-              onClick={() => router.push(`/profile?userId=${citizen.id}`)}
+              {...pressable(() => router.push(`/profile?userId=${citizen.id}`))}
               id={`citizen-rank-${rank}`}
             >
               <div className={styles.rankNumberCol}>
@@ -295,8 +296,9 @@ export default function LeaderboardPage() {
                   <span style={{ color: 'var(--primary-coral)', fontWeight: 600 }}>
                     🐾 {citizen.catAvatar?.name || 'Kucing Analis'}
                   </span>
-                  <span>·</span>
-                  <span>Lvl {rankInfo.level} {rankInfo.name}</span>
+                  <span>
+                    Lvl {rankInfo.level} {rankInfo.name}
+                  </span>
                 </div>
               </div>
 
@@ -308,7 +310,7 @@ export default function LeaderboardPage() {
                     <span>{citizen.evaluationsCount} uji</span>
                   </span>
                   <span>·</span>
-                  <span className={styles.statDetailItem} style={{ color: '#059669', fontWeight: 600 }}>
+                  <span className={styles.statDetailItem} style={{ color: 'var(--success-text)', fontWeight: 600 }}>
                     <Icon name="thumb_up" size={12} />
                     <span>{citizen.upvotesCount || 0}</span>
                   </span>
@@ -319,6 +321,7 @@ export default function LeaderboardPage() {
                 type="button"
                 className={styles.visitBtn}
                 title="Kunjungi Profil Warga"
+                aria-label={`Kunjungi profil ${citizen.name}`}
                 onClick={(e) => {
                   e.stopPropagation();
                   router.push(`/profile?userId=${citizen.id}`);

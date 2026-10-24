@@ -39,7 +39,7 @@ export default function StudioHeader({ step, userXP, onBack }: StudioHeaderProps
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <SoundToggle />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#FFF1ED', padding: '4px 10px', borderRadius: '9999px', border: '1px solid #FFEDD5' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'var(--tint-primary)', padding: '4px 10px', borderRadius: '9999px', border: '1px solid var(--tint-primary-border)' }}>
             <span style={{ fontSize: '11px' }}>⭐</span>
             <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--primary-coral)', fontFamily: 'var(--font-mono)' }}>
               {userXP} XP

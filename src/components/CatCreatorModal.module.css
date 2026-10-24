@@ -21,7 +21,7 @@
   width: 100%;
   max-width: 520px;
   max-height: 92vh;
-  background: #FFFFFF;
+  background: var(--bg-card);
   border-radius: 24px 24px 0 0;
   display: flex;
   flex-direction: column;
@@ -43,7 +43,7 @@
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--border-subtle);
-  background: #FAF8F5;
+  background: var(--tint-primary);
   flex-shrink: 0;
 }
 
@@ -75,7 +75,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #F1F5F9;
+  background: var(--bg-subtle);
   border: none;
   cursor: pointer;
   color: var(--text-muted);
@@ -83,14 +83,14 @@
 }
 
 .closeBtn:hover {
-  background: #E2E8F0;
+  background: var(--bg-muted);
   color: var(--text-main);
 }
 
 /* PINNED / STICKY TOP PREVIEW DOCK (ALWAYS 100% VISIBLE & FULL VIEW) */
 .stickyPreviewDock {
-  background: linear-gradient(180deg, #FFF7ED 0%, #FFFFFF 100%);
-  border-bottom: 2px solid #FED7AA;
+  background: linear-gradient(180deg, var(--tint-primary) 0%, var(--bg-card) 100%);
+  border-bottom: 2px solid var(--tint-primary-border);
   padding: 12px 16px 14px 16px;
   display: flex;
   flex-direction: column;
@@ -107,9 +107,9 @@
   font-weight: 700;
   padding: 3px 10px;
   border-radius: 9999px;
-  background: #FFFFFF;
-  border: 1px solid #FDBA74;
-  color: #C2410C;
+  background: var(--bg-card);
+  border: 1px solid var(--tint-primary-border);
+  color: var(--primary-text);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   margin-bottom: 6px;
   display: inline-flex;
@@ -138,7 +138,7 @@
 
 .previewSub {
   font-size: 0.7rem;
-  color: #64748B;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
@@ -189,18 +189,18 @@
   align-items: center;
   gap: 10px;
   cursor: pointer;
-  background: #FFFFFF;
+  background: var(--bg-card);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .genderCard:hover {
-  border-color: #FED7AA;
+  border-color: var(--tint-primary-border);
   transform: translateY(-1px);
 }
 
 .genderCardActive {
   border-color: var(--primary-coral) !important;
-  background: #FFF1ED !important;
+  background: var(--tint-primary) !important;
   box-shadow: 0 4px 12px rgba(255, 107, 74, 0.15);
 }
 
@@ -247,19 +247,19 @@
   align-items: center;
   text-align: center;
   cursor: pointer;
-  background: #FFFFFF;
+  background: var(--bg-card);
   transition: all 0.2s;
   position: relative;
 }
 
 .breedCard:hover {
-  border-color: #FED7AA;
+  border-color: var(--tint-primary-border);
   transform: translateY(-1px);
 }
 
 .breedCardActive {
   border-color: var(--primary-coral) !important;
-  background: #FFF1ED !important;
+  background: var(--tint-primary) !important;
   box-shadow: 0 4px 12px rgba(255, 107, 74, 0.15);
 }
 
@@ -269,8 +269,8 @@
   right: 6px;
   font-size: 0.6rem;
   font-weight: 700;
-  background: #E2E8F0;
-  color: #475569;
+  background: var(--bg-muted);
+  color: var(--text-body);
   padding: 1px 6px;
   border-radius: 9999px;
 }
@@ -309,7 +309,7 @@
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  border: 3px solid #FFFFFF;
+  border: 3px solid var(--bg-card);
   box-shadow: 0 0 0 1px var(--border-subtle), 0 2px 4px rgba(0, 0, 0, 0.08);
   cursor: pointer;
   position: relative;
@@ -358,13 +358,13 @@
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  background: #FFFFFF;
+  background: var(--bg-card);
   transition: all 0.15s;
 }
 
 .presetCard:hover {
-  border-color: #CBD5E1;
-  background: #F8FAFC;
+  border-color: var(--border-strong);
+  background: var(--bg-secondary);
 }
 
 .presetDot {
@@ -409,7 +409,7 @@
   padding: 10px 14px;
   border-radius: 12px;
   border: 1px solid var(--border-subtle);
-  background: #F8FAFC;
+  background: var(--bg-secondary);
   color: var(--text-main);
   font-size: 0.75rem;
   font-weight: 600;
@@ -421,14 +421,14 @@
 }
 
 .randomNameBtn:hover {
-  background: #E2E8F0;
+  background: var(--bg-muted);
 }
 
 /* Footer */
 .footer {
   padding: 14px 20px;
   border-top: 1px solid var(--border-subtle);
-  background: #FAF8F5;
+  background: var(--tint-primary);
   display: flex;
   gap: 10px;
   flex-shrink: 0;
@@ -464,7 +464,7 @@
 .cancelBtn {
   padding: 12px 18px;
   border-radius: 14px;
-  background: #F1F5F9;
+  background: var(--bg-subtle);
   color: var(--text-muted);
   border: none;
   font-size: 0.88rem;
@@ -473,7 +473,7 @@
 }
 
 .cancelBtn:hover {
-  background: #E2E8F0;
+  background: var(--bg-muted);
   color: var(--text-main);
 }
 

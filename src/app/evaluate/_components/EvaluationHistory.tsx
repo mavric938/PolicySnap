@@ -51,14 +51,14 @@ export default function EvaluationHistory({ evaluations, userXP, onOpenDetail }:
                 gap: '4px',
                 borderColor: 'var(--primary-coral)',
                 color: 'var(--primary-coral)',
-                background: '#FFF8F6',
+                background: 'var(--tint-primary)',
               }}
             >
               <Icon name="add" size={13} />
               <span>Nilai Isu Lain</span>
             </button>
             <SoundToggle />
-            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#FFF1ED', padding: '4px 10px', borderRadius: '9999px', border: '1px solid #FFEDD5' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'var(--tint-primary)', padding: '4px 10px', borderRadius: '9999px', border: '1px solid var(--tint-primary-border)' }}>
               <span style={{ fontSize: '11px' }}>⭐</span>
               <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--primary-coral)', fontFamily: 'var(--font-mono)' }}>
                 {userXP} XP
@@ -90,9 +90,9 @@ export default function EvaluationHistory({ evaluations, userXP, onOpenDetail }:
                   <div className={styles.evalScoreStanceRow}>
                     <div>
                       <span className={styles.evalCompositeNum}>
-                        {item.compositeScore} <span style={{ fontSize: '0.6875rem', color: '#94A3B8' }}>/10</span>
+                        {item.compositeScore} <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>/10</span>
                       </span>
-                      <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#64748B', marginLeft: '6px' }}>
+                      <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--text-secondary)', marginLeft: '6px' }}>
                         {getVerdict(item.compositeScore).detail}
                       </span>
                     </div>
@@ -112,19 +112,19 @@ export default function EvaluationHistory({ evaluations, userXP, onOpenDetail }:
 
                   {/* 4 Dimensi Mini Grid */}
                   <div className={styles.evalDimMiniGrid}>
-                    <div className={styles.evalDimMiniItem} style={{ background: '#ECFDF5', color: '#047857' }}>
+                    <div className={styles.evalDimMiniItem} style={{ background: 'var(--tint-success)', color: 'var(--success-text)' }}>
                       <span className={styles.evalDimMiniName}>Efektivitas</span>
                       <span className={styles.evalDimMiniVal}>{item.scores.effectiveness}</span>
                     </div>
-                    <div className={styles.evalDimMiniItem} style={{ background: '#FFFBEB', color: '#B45309' }}>
+                    <div className={styles.evalDimMiniItem} style={{ background: 'var(--tint-warning)', color: 'var(--warning-text)' }}>
                       <span className={styles.evalDimMiniName}>Efisiensi</span>
                       <span className={styles.evalDimMiniVal}>{item.scores.efficiency}</span>
                     </div>
-                    <div className={styles.evalDimMiniItem} style={{ background: '#FFF1F2', color: '#BE123C' }}>
+                    <div className={styles.evalDimMiniItem} style={{ background: 'var(--tint-danger)', color: 'var(--danger-text)' }}>
                       <span className={styles.evalDimMiniName}>Keadilan</span>
                       <span className={styles.evalDimMiniVal}>{item.scores.equity}</span>
                     </div>
-                    <div className={styles.evalDimMiniItem} style={{ background: '#F0F9FF', color: '#0369A1' }}>
+                    <div className={styles.evalDimMiniItem} style={{ background: 'var(--tint-info)', color: 'var(--info-text)' }}>
                       <span className={styles.evalDimMiniName}>Respon</span>
                       <span className={styles.evalDimMiniVal}>{item.scores.responsiveness}</span>
                     </div>

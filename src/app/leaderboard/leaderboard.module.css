@@ -2,7 +2,7 @@
 
 .header {
   padding: 1.25rem 1rem 0.75rem;
-  background: linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0.85) 100%);
+  background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-glass) 100%);
   border-bottom: 1px solid var(--border-color);
   position: sticky;
   top: 0;
@@ -90,7 +90,7 @@
 
 .myRankInfo p {
   font-size: 0.75rem;
-  color: #94A3B8;
+  color: var(--text-muted);
   margin: 0;
 }
 
@@ -124,7 +124,7 @@
   font-size: 0.78125rem;
   font-weight: 600;
   border: 1px solid var(--border-color);
-  background: #FFFFFF;
+  background: var(--bg-card);
   color: var(--text-muted);
   white-space: nowrap;
   cursor: pointer;
@@ -190,7 +190,7 @@
   height: 72px;
   border-radius: 50%;
   overflow: hidden;
-  background: #FFF1ED;
+  background: var(--tint-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -299,13 +299,13 @@
 }
 
 .citizenCard {
-  background: #FFFFFF;
+  background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 1rem;
   padding: 10px 12px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   transition: all 0.2s ease;
   cursor: pointer;
   position: relative;
@@ -319,7 +319,7 @@
 
 .citizenCardSelf {
   border-color: var(--primary-coral);
-  background: #FFFBF9;
+  background: var(--tint-primary);
   box-shadow: 0 4px 14px rgba(255, 107, 74, 0.12);
 }
 
@@ -327,7 +327,7 @@
   width: 24px;
   font-size: 0.875rem;
   font-weight: 800;
-  color: #94A3B8;
+  color: var(--text-muted);
   text-align: center;
   flex-shrink: 0;
 }
@@ -336,7 +336,7 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: #FFF1ED;
+  background: var(--tint-primary);
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -355,6 +355,7 @@
   align-items: center;
   gap: 6px;
   margin-bottom: 2px;
+  min-width: 0;
 }
 
 .citizenName {
@@ -367,10 +368,11 @@
 }
 
 .catBadgePill {
+  flex-shrink: 0;
   font-size: 0.6875rem;
   font-weight: 600;
   color: var(--primary-coral);
-  background: #FFF1ED;
+  background: var(--tint-primary);
   padding: 2px 6px;
   border-radius: 999px;
   white-space: nowrap;
@@ -378,10 +380,17 @@
 
 .metaRow {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
   font-size: 0.75rem;
+  line-height: 1.4;
   color: var(--text-muted);
+}
+
+/* Nama kucing & level masing-masing satu baris, dipotong "…" bila terlalu panjang */
+.metaRow > span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .statsCol {
@@ -402,8 +411,9 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap;
   font-size: 0.6875rem;
-  color: #64748B;
+  color: var(--text-secondary);
 }
 
 .statDetailItem {
@@ -413,11 +423,11 @@
 }
 
 .visitBtn {
-  background: #F1F5F9;
+  background: var(--bg-subtle);
   border: none;
   border-radius: 8px;
   padding: 6px;
-  color: #475569;
+  color: var(--text-body);
   cursor: pointer;
   transition: all 0.15s ease;
   display: flex;

@@ -6,21 +6,21 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-medium);
   border-radius: 9999px;
   padding: 6px 14px;
   font-size: 0.8rem;
   font-weight: 600;
-  color: #0F172A;
+  color: var(--text-main);
   text-decoration: none;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   transition: all 0.2s ease;
 }
 
 .loginBadgeLink:hover {
-  background: #F8FAFC;
-  border-color: #CBD5E1;
+  background: var(--bg-secondary);
+  border-color: var(--border-strong);
   transform: translateY(-1px);
 }
 
@@ -38,8 +38,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-medium);
   border-radius: 9999px;
   padding: 4px 10px 4px 4px;
   cursor: pointer;
@@ -48,8 +48,8 @@
 }
 
 .userStatusPill:hover {
-  background: #F8FAFC;
-  border-color: #CBD5E1;
+  background: var(--bg-secondary);
+  border-color: var(--border-strong);
 }
 
 .avatarContainer {
@@ -60,7 +60,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #F1F5F9;
+  background: var(--bg-subtle);
   flex-shrink: 0;
 }
 
@@ -71,7 +71,7 @@
 }
 
 .defaultAvatar {
-  color: #64748B;
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -86,7 +86,7 @@
 .userRankText {
   font-size: 0.72rem;
   font-weight: 700;
-  color: #0F172A;
+  color: var(--text-main);
   line-height: 1.1;
   max-width: 90px;
   overflow: hidden;
@@ -98,12 +98,12 @@
   font-size: 0.65rem;
   font-weight: 600;
   color: #FF6B4A;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   line-height: 1;
 }
 
 .chevron {
-  color: #94A3B8;
+  color: var(--text-muted);
   margin-left: 2px;
 }
 
@@ -118,8 +118,8 @@
   top: calc(100% + 8px);
   right: 0;
   width: 240px;
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-medium);
   border-radius: 16px;
   box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.15);
   padding: 8px;
@@ -134,7 +134,7 @@
 .userFullName {
   font-size: 0.88rem;
   font-weight: 700;
-  color: #0F172A;
+  color: var(--text-main);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -142,7 +142,7 @@
 
 .userEmail {
   font-size: 0.72rem;
-  color: #64748B;
+  color: var(--text-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -168,7 +168,7 @@
 
 .dropdownDivider {
   height: 1px;
-  background: #F1F5F9;
+  background: var(--bg-subtle);
   margin: 6px 0;
 }
 
@@ -178,7 +178,7 @@
   gap: 10px;
   padding: 9px 12px;
   border-radius: 10px;
-  color: #334155;
+  color: var(--text-body);
   font-size: 0.8rem;
   font-weight: 600;
   text-decoration: none;
@@ -191,17 +191,17 @@
 }
 
 .dropdownItem:hover {
-  background: #F8FAFC;
-  color: #0F172A;
+  background: var(--bg-secondary);
+  color: var(--text-main);
 }
 
 .logoutItem {
-  color: #DC2626;
+  color: var(--danger-text);
 }
 
 .logoutItem:hover {
-  background: #FEE2E2;
-  color: #B91C1C;
+  background: var(--tint-danger);
+  color: var(--danger-text);
 }
 
 @keyframes popIn {

@@ -25,7 +25,7 @@ export default function ActorCardsEditor({
       <div className={styles.sectionHeaderRow}>
         <div>
           <span className={styles.sectionHeading}>
-            <Icon name="person" size={18} style={{ color: '#2563EB' }} />
+            <Icon name="person" size={18} style={{ color: 'var(--info-text)' }} />
             Profil Stakeholder & Aktor Kunci (Kartu Swipe Evaluasi)
           </span>
           <p className={styles.sectionSubtext}>
@@ -71,6 +71,7 @@ export default function ActorCardsEditor({
                 className={styles.actorRemoveBtn}
                 onClick={() => onRemoveActor(idx)}
                 title="Hapus Aktor"
+                aria-label="Hapus aktor"
               >
                 <Icon name="delete" size={15} />
               </button>
@@ -87,7 +88,7 @@ export default function ActorCardsEditor({
       </div>
 
       <div className={styles.formGroup} style={{ marginTop: '12px' }}>
-        <label className={styles.formLabel}>Tag Stakeholder Ringkas (Pisahkan koma)</label>
+        <label htmlFor="input-actor-tags" className={styles.formLabel}>Tag Stakeholder Ringkas (Pisahkan koma)</label>
         <input
           className="input"
           placeholder="Contoh: Kemendikdasmen, Guru, Murid, Wali Murid"

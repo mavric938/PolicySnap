@@ -60,7 +60,7 @@ export default function AdminDashboardHeader({ aiStatus, user, onSignOut }: Admi
           <button
             className="btn btn-ghost btn-sm"
             onClick={onSignOut}
-            style={{ fontSize: '0.75rem', color: '#EF4444', border: '1px solid #FEE2E2', background: '#FEF2F2' }}
+            style={{ fontSize: '0.75rem', color: '#EF4444', border: '1px solid #FEE2E2', background: 'var(--tint-danger)' }}
           >
             <Icon name="logout" size={14} />
             <span>Keluar</span>

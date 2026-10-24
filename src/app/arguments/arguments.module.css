@@ -68,7 +68,7 @@
 }
 
 .filterActive {
-  background: #FFF1ED;
+  background: var(--tint-primary);
   border-color: rgba(255, 107, 74, 0.5);
   color: var(--primary-coral);
   box-shadow: 0 1px 4px rgba(255, 107, 74, 0.15);
@@ -203,15 +203,15 @@
 }
 
 .voteBtnUpActive {
-  background: #ECFDF5;
-  border-color: #A7F3D0;
-  color: #047857;
+  background: var(--tint-success);
+  border-color: var(--tint-success-border);
+  color: var(--success-text);
 }
 
 .voteBtnDownActive {
-  background: #FFF1F2;
-  border-color: #FECDD3;
-  color: #E11D48;
+  background: var(--tint-danger);
+  border-color: var(--tint-danger-border);
+  color: var(--danger-text);
 }
 
 .voteScoreText {

@@ -373,7 +373,7 @@ export default function EvaluatePage() {
     <Suspense
       fallback={
         <div className="page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100dvh' }}>
-          <div className="spinner" style={{ width: 40, height: 40, border: '3px solid #E5E7EB', borderTopColor: 'var(--primary-coral)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+          <div className="spinner" style={{ width: 40, height: 40, border: '3px solid var(--border-medium)', borderTopColor: 'var(--primary-coral)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
         </div>
       }
     >

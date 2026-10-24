@@ -23,6 +23,7 @@ import { useAuth } from '@/presentation/hooks/useAuth';
 import GoogleLoginButton from '@/presentation/components/GoogleLoginButton';
 import CatVisualIcon from '@/components/CatVisualIcon';
 import SoundToggle from '@/components/SoundToggle';
+import { pressable } from '@/lib/a11y';
 
 function ProfileContent() {
   const router = useRouter();
@@ -180,10 +181,10 @@ function ProfileContent() {
   });
 
   const badges = [
-    { name: 'Pemberani Opini', emoji: '🏅', status: 'Terbuka', bg: '#FEF3C7', color: '#047857', badgeBg: '#ECFDF5' },
-    { name: 'Akurasi Konsensus', emoji: '🎯', status: 'Terbuka', bg: '#DBEAFE', color: '#047857', badgeBg: '#ECFDF5' },
-    { name: 'Megafon Rakyat', emoji: '📢', status: 'Terbuka', bg: '#FEE2E2', color: '#DC2626', badgeBg: '#FEF2F2' },
-    { name: 'Saksi Perpres', emoji: '🏛️', status: '8 / 10', bg: '#F1F3F5', color: '#C2410C', badgeBg: '#FFF1ED' },
+    { name: 'Pemberani Opini', emoji: '🏅', status: 'Terbuka', bg: 'var(--tint-warning)', color: 'var(--success-text)', badgeBg: 'var(--tint-success)' },
+    { name: 'Akurasi Konsensus', emoji: '🎯', status: 'Terbuka', bg: '#DBEAFE', color: 'var(--success-text)', badgeBg: 'var(--tint-success)' },
+    { name: 'Megafon Rakyat', emoji: '📢', status: 'Terbuka', bg: 'var(--tint-danger)', color: 'var(--danger-text)', badgeBg: 'var(--tint-danger)' },
+    { name: 'Saksi Perpres', emoji: '🏛️', status: '8 / 10', bg: 'var(--bg-subtle)', color: 'var(--primary-text)', badgeBg: 'var(--tint-primary)' },
   ];
 
   const slotsMeta: { slot: CatCostumeSlot; label: string; icon: string }[] = [
@@ -279,13 +280,13 @@ function ProfileContent() {
               {userXP}
             </span>
             <span className={styles.metricLabel}>Total XP</span>
-            <span className={styles.metricSub} style={{ color: '#059669' }}>
+            <span className={styles.metricSub} style={{ color: 'var(--success-text)' }}>
               Level {currentRank.level}
             </span>
           </div>
 
           <div className={styles.metricBox}>
-            <span className={styles.metricVal} style={{ color: '#2563EB' }}>
+            <span className={styles.metricVal} style={{ color: 'var(--info-text)' }}>
               {evalCount}
             </span>
             <span className={styles.metricLabel}>Evaluasi</span>
@@ -293,7 +294,7 @@ function ProfileContent() {
           </div>
 
           <div className={styles.metricBox}>
-            <span className={styles.metricVal} style={{ color: '#059669' }}>
+            <span className={styles.metricVal} style={{ color: 'var(--success-text)' }}>
               {upvoteCount.toLocaleString('id-ID')}
             </span>
             <span className={styles.metricLabel}>Upvotes</span>
@@ -344,6 +345,7 @@ function ProfileContent() {
                     className={styles.slotUnequipBtn}
                     onClick={() => handleUnequipSlot(slotInfo.slot)}
                     title="Lepas ornamen"
+                    aria-label={`Lepas ${item.name}`}
                   >
                     <Icon name="close" size={14} />
                   </button>
@@ -361,7 +363,7 @@ function ProfileContent() {
         <div className={styles.sectionHeaderRow}>
           <div className={styles.sectionTitleGroup}>
             <div className={styles.sectionIconBox}>
-              <Icon name="styler" size={18} style={{ color: '#2563EB' }} />
+              <Icon name="styler" size={18} style={{ color: 'var(--info-text)' }} />
             </div>
             <div>
               <h2 className={styles.sectionTitle}>Lemari Kostum &amp; Kamar Pas</h2>
@@ -425,7 +427,7 @@ function ProfileContent() {
                 className={`${styles.costumeCard} ${
                   isEquipped ? styles.costumeCardEquipped : ''
                 } ${!isUnlocked ? styles.costumeCardLocked : ''}`}
-                onClick={() => handleToggleCostume(item)}
+                {...pressable(() => handleToggleCostume(item), { pressed: isEquipped })}
               >
                 <div className={styles.costumeTopRow}>
                   <div className={styles.costumeEmojiBox}>
@@ -443,8 +445,8 @@ function ProfileContent() {
                       style={{
                         fontSize: '0.625rem',
                         fontWeight: 700,
-                        color: '#059669',
-                        background: '#ECFDF5',
+                        color: 'var(--success-text)',
+                        background: 'var(--tint-success)',
                         padding: '2px 6px',
                         borderRadius: '9999px',
                       }}
@@ -555,12 +557,12 @@ function ProfileContent() {
                       </span>
                     )}
                     {isCurrent && (
-                      <span className={styles.roadmapStatusBadge} style={{ background: '#FFF1ED', color: '#C2410C' }}>
+                      <span className={styles.roadmapStatusBadge} style={{ background: 'var(--tint-primary)', color: 'var(--primary-text)' }}>
                         🔥 Aktif
                       </span>
                     )}
                     {isLocked && (
-                      <span className={styles.roadmapStatusBadge} style={{ background: '#F1F5F9', color: '#64748B' }}>
+                      <span className={styles.roadmapStatusBadge} style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}>
                         🔒 Terkunci
                       </span>
                     )}
@@ -655,9 +657,9 @@ function ProfileContent() {
                 alignItems: 'center',
                 gap: '12px',
                 padding: '12px',
-                background: '#F8FAFC',
+                background: 'var(--bg-secondary)',
                 borderRadius: '14px',
-                border: '1px solid #E2E8F0',
+                border: '1px solid var(--border-medium)',
               }}
             >
               <div
@@ -666,7 +668,7 @@ function ProfileContent() {
                   height: '42px',
                   borderRadius: '50%',
                   overflow: 'hidden',
-                  background: '#E2E8F0',
+                  background: 'var(--bg-muted)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -677,14 +679,14 @@ function ProfileContent() {
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={authUser.avatarUrl} alt={authUser.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
-                  <Icon name="person" size={24} style={{ color: '#64748B' }} />
+                  <Icon name="person" size={24} style={{ color: 'var(--text-secondary)' }} />
                 )}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0F172A', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-main)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                   {authUser.name}
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#64748B', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                   {authUser.email}
                 </div>
               </div>
@@ -713,9 +715,9 @@ function ProfileContent() {
               style={{
                 width: '100%',
                 padding: '10px 14px',
-                backgroundColor: '#FFF1F2',
-                color: '#E11D48',
-                border: '1px solid #FECDD3',
+                backgroundColor: 'var(--tint-danger)',
+                color: 'var(--danger-text)',
+                border: '1px solid var(--tint-danger-border)',
                 borderRadius: '12px',
                 fontWeight: 600,
                 fontSize: '0.8125rem',
@@ -744,10 +746,10 @@ function ProfileContent() {
       </section>
 
       {/* 8. Akses Administrator Panel */}
-      <section className={styles.sectionCard} style={{ background: '#FFF1ED', borderColor: 'rgba(255, 107, 74, 0.3)' }}>
+      <section className={styles.sectionCard} style={{ background: 'var(--tint-primary)', borderColor: 'rgba(255, 107, 74, 0.3)' }}>
         <div className={styles.sectionHeaderRow}>
           <div>
-            <h3 className={styles.sectionTitle} style={{ color: '#C2410C', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <h3 className={styles.sectionTitle} style={{ color: 'var(--primary-text)', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Icon name="admin_panel_settings" size={18} style={{ color: '#FF6B4A' }} />
               <span>Panel Admin Kebijakan</span>
             </h3>
@@ -789,7 +791,7 @@ function ProfileContent() {
 
 export default function ProfilePage() {
   return (
-    <Suspense fallback={<div className="page" style={{ padding: '2rem', textAlign: 'center', color: '#64748B' }}>Memuat profil warga...</div>}>
+    <Suspense fallback={<div className="page" style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>Memuat profil warga...</div>}>
       <ProfileContent />
     </Suspense>
   );

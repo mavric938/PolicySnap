@@ -116,7 +116,7 @@ export default function IssueForm({
 
       {/* Basic Info */}
       <div className={styles.formGroup}>
-        <label className={styles.formLabel}>Kategori Kebijakan</label>
+        <label htmlFor="select-category" className={styles.formLabel}>Kategori Kebijakan</label>
         <select
           className={styles.select}
           value={formData.category}
@@ -132,7 +132,7 @@ export default function IssueForm({
       </div>
 
       <div className={styles.formGroup}>
-        <label className={styles.formLabel}>Judul Isu Regulasi *</label>
+        <label htmlFor="input-title" className={styles.formLabel}>Judul Isu Regulasi *</label>
         <input
           className="input"
           placeholder="Contoh: 2027 Siswa Tak Otomatis Naik Kelas: Uji Standar Kelulusan"
@@ -144,7 +144,7 @@ export default function IssueForm({
       </div>
 
       <div className={styles.formGroup}>
-        <label className={styles.formLabel}>Ringkasan & Konteks Kebijakan *</label>
+        <label htmlFor="input-summary" className={styles.formLabel}>Ringkasan & Konteks Kebijakan *</label>
         <textarea
           className="textarea"
           placeholder="Jelaskan latar belakang, urgensi, dan pokok regulasi secara ringkas dan objektif..."
@@ -157,7 +157,7 @@ export default function IssueForm({
       </div>
 
       <div className={styles.formGroup}>
-        <label className={styles.formLabel}>Tautan Sumber Berita Resmi</label>
+        <label htmlFor="input-source-url" className={styles.formLabel}>Tautan Sumber Berita Resmi</label>
         <input
           className="input"
           placeholder="https://kemdikbud.go.id/... atau tautan berita rujukan"

@@ -18,6 +18,7 @@ import Icon from '@/components/Icon';
 import { useAuth } from '@/presentation/hooks/useAuth';
 import { soundService } from '@/lib/soundService';
 import styles from './onboarding.module.css';
+import { pressable } from '@/lib/a11y';
 
 const RANDOM_NAMES = [
   'Oyen',
@@ -259,10 +260,10 @@ export default function OnboardingCatPage() {
           <div className={styles.genderGrid}>
             <div
               className={`${styles.genderItem} ${gender === 'male' ? styles.genderItemActive : ''}`}
-              onClick={() => {
+              {...pressable(() => {
                 soundService.playTap();
                 setGender('male');
-              }}
+              }, { pressed: gender === 'male' })}
             >
               <span className={styles.genderIcon}>♂️</span>
               <div>
@@ -273,10 +274,10 @@ export default function OnboardingCatPage() {
 
             <div
               className={`${styles.genderItem} ${gender === 'female' ? styles.genderItemActive : ''}`}
-              onClick={() => {
+              {...pressable(() => {
                 soundService.playTap();
                 setGender('female');
-              }}
+              }, { pressed: gender === 'female' })}
             >
               <span className={styles.genderIcon}>♀️</span>
               <div>
@@ -301,10 +302,10 @@ export default function OnboardingCatPage() {
               <div
                 key={b.id}
                 className={`${styles.breedItem} ${breed === b.id ? styles.breedItemActive : ''}`}
-                onClick={() => {
+                {...pressable(() => {
                   soundService.playSelect();
                   setBreed(b.id);
-                }}
+                }, { pressed: breed === b.id })}
               >
                 <span className={styles.breedTag}>{b.tagline}</span>
                 <div style={{ display: 'flex', justifyContent: 'center', margin: '4px 0' }}>
@@ -328,7 +329,7 @@ export default function OnboardingCatPage() {
           </div>
           <div className={styles.presetGrid}>
             {PRESETS.map((p, idx) => (
-              <div key={idx} className={styles.presetCard} onClick={() => handleApplyPreset(p)}>
+              <div key={idx} className={styles.presetCard} {...pressable(() => handleApplyPreset(p))}>
                 <div
                   className={styles.presetDot}
                   style={{

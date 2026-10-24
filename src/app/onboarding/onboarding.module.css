@@ -11,7 +11,7 @@
 
 .topHeader {
   padding: 14px 20px;
-  background: #FFFFFF;
+  background: var(--bg-card);
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
@@ -64,7 +64,7 @@
 }
 
 .skipBtn:hover {
-  background: #F1F5F9;
+  background: var(--bg-subtle);
   color: var(--text-main);
 }
 
@@ -73,8 +73,8 @@
   position: sticky;
   top: 60px;
   z-index: 15;
-  background: linear-gradient(180deg, #FFF7ED 0%, #FFFFFF 100%);
-  border-bottom: 2px solid #FED7AA;
+  background: linear-gradient(180deg, var(--tint-primary) 0%, var(--bg-card) 100%);
+  border-bottom: 2px solid var(--tint-primary-border);
   padding: 12px 20px 14px 20px;
   display: flex;
   flex-direction: column;
@@ -88,9 +88,9 @@
   font-weight: 700;
   padding: 3px 10px;
   border-radius: 9999px;
-  background: #FFFFFF;
-  border: 1px solid #FDBA74;
-  color: #C2410C;
+  background: var(--bg-card);
+  border: 1px solid var(--tint-primary-border);
+  color: var(--primary-text);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   margin-bottom: 4px;
 }
@@ -115,7 +115,7 @@
 
 .previewTagline {
   font-size: 0.72rem;
-  color: #64748B;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
@@ -129,7 +129,7 @@
 }
 
 .cardSection {
-  background: #FFFFFF;
+  background: var(--bg-card);
   border: 1px solid var(--border-card);
   border-radius: 18px;
   padding: 16px;
@@ -175,18 +175,18 @@
   align-items: center;
   gap: 10px;
   cursor: pointer;
-  background: #FFFFFF;
+  background: var(--bg-card);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .genderItem:hover {
-  border-color: #FED7AA;
+  border-color: var(--tint-primary-border);
   transform: translateY(-1px);
 }
 
 .genderItemActive {
   border-color: var(--primary-coral) !important;
-  background: #FFF1ED !important;
+  background: var(--tint-primary) !important;
   box-shadow: 0 4px 12px rgba(255, 107, 74, 0.15);
 }
 
@@ -227,19 +227,19 @@
   align-items: center;
   text-align: center;
   cursor: pointer;
-  background: #FFFFFF;
+  background: var(--bg-card);
   transition: all 0.2s;
   position: relative;
 }
 
 .breedItem:hover {
-  border-color: #FED7AA;
+  border-color: var(--tint-primary-border);
   transform: translateY(-1px);
 }
 
 .breedItemActive {
   border-color: var(--primary-coral) !important;
-  background: #FFF1ED !important;
+  background: var(--tint-primary) !important;
   box-shadow: 0 4px 12px rgba(255, 107, 74, 0.15);
 }
 
@@ -249,8 +249,8 @@
   right: 6px;
   font-size: 0.58rem;
   font-weight: 700;
-  background: #E2E8F0;
-  color: #475569;
+  background: var(--bg-muted);
+  color: var(--text-body);
   padding: 1px 6px;
   border-radius: 9999px;
 }
@@ -289,7 +289,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 3px solid #FFFFFF;
+  border: 3px solid var(--bg-card);
   box-shadow: 0 0 0 1px var(--border-subtle), 0 2px 4px rgba(0, 0, 0, 0.08);
   cursor: pointer;
   position: relative;
@@ -338,13 +338,13 @@
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  background: #FFFFFF;
+  background: var(--bg-card);
   transition: all 0.15s;
 }
 
 .presetCard:hover {
-  border-color: #CBD5E1;
-  background: #F8FAFC;
+  border-color: var(--border-strong);
+  background: var(--bg-secondary);
 }
 
 .presetDot {
@@ -389,7 +389,7 @@
   padding: 10px 14px;
   border-radius: 12px;
   border: 1px solid var(--border-subtle);
-  background: #F8FAFC;
+  background: var(--bg-secondary);
   color: var(--text-main);
   font-size: 0.75rem;
   font-weight: 600;
@@ -401,7 +401,7 @@
 }
 
 .randomNameBtn:hover {
-  background: #E2E8F0;
+  background: var(--bg-muted);
 }
 
 /* FIXED BOTTOM CTA DOCK */
@@ -410,7 +410,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--bg-glass);
   backdrop-filter: blur(8px);
   border-top: 1px solid var(--border-subtle);
   padding: 14px 20px;

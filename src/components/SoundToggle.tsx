@@ -49,6 +49,9 @@ export default function SoundToggle({ className = '', style = {} }: SoundToggleP
         type="button"
         onClick={() => setMenuOpen(!menuOpen)}
         title={isMuted ? 'Suara Senyap (Klik untuk atur)' : 'Suara Aktif (Klik untuk atur)'}
+        aria-label={isMuted ? 'Pengaturan suara (senyap)' : 'Pengaturan suara (aktif)'}
+        aria-haspopup="true"
+        aria-expanded={menuOpen}
         style={{
           width: '32px',
           height: '32px',
@@ -75,8 +78,8 @@ export default function SoundToggle({ className = '', style = {} }: SoundToggleP
             top: '40px',
             right: '0',
             zIndex: 100,
-            background: '#FFFFFF',
-            border: '1px solid #E2E8F0',
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-medium)',
             borderRadius: '16px',
             boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
             padding: '10px',
@@ -90,7 +93,7 @@ export default function SoundToggle({ className = '', style = {} }: SoundToggleP
             style={{
               fontSize: '0.6875rem',
               fontWeight: 800,
-              color: '#64748B',
+              color: 'var(--text-secondary)',
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
               padding: '2px 6px',
@@ -158,9 +161,9 @@ export default function SoundToggle({ className = '', style = {} }: SoundToggleP
               gap: '6px',
               padding: '6px 10px',
               borderRadius: '10px',
-              border: '1px dashed #CBD5E1',
+              border: '1px dashed var(--border-strong)',
               background: 'transparent',
-              color: '#475569',
+              color: 'var(--text-body)',
               fontSize: '0.75rem',
               cursor: 'pointer',
               justifyContent: 'center',

@@ -14,7 +14,7 @@
   pointer-events: auto;
   width: calc(100% - 32px);
   max-width: 360px;
-  background: rgba(255, 255, 255, 0.96);
+  background: var(--bg-glass);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(234, 236, 239, 0.95);
@@ -41,6 +41,7 @@
   border: 1px solid transparent;
   cursor: pointer;
   color: var(--text-secondary);
+  text-decoration: none;
   font-family: var(--font-sans);
   transition: all var(--transition-fast);
   -webkit-tap-highlight-color: transparent;
@@ -72,7 +73,7 @@
   flex-direction: row;
   gap: 5px;
   padding: 6px 12px;
-  background: #FFF1ED;
+  background: var(--tint-primary);
   border: 1px solid rgba(255, 107, 74, 0.35);
   color: #FF6B4A;
   box-shadow: 0 2px 6px rgba(255, 107, 74, 0.08);

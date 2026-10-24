@@ -1,7 +1,7 @@
 .googleBtn {
   width: 100%;
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-medium);
   border-radius: 16px;
   padding: 14px 18px;
   display: flex;
@@ -13,8 +13,8 @@
 }
 
 .googleBtn:hover {
-  background: #F8FAFC;
-  border-color: #CBD5E1;
+  background: var(--bg-secondary);
+  border-color: var(--border-strong);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   transform: translateY(-1px);
 }
@@ -43,7 +43,7 @@
 .spinner {
   width: 22px;
   height: 22px;
-  border: 2px solid #E2E8F0;
+  border: 2px solid var(--border-medium);
   border-top-color: #FF6B4A;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
@@ -58,22 +58,22 @@
 .googleBtnTitle {
   font-size: 0.95rem;
   font-weight: 700;
-  color: #0F172A;
+  color: var(--text-main);
   line-height: 1.25;
 }
 
 .googleBtnSub {
   font-size: 0.7rem;
-  color: #64748B;
+  color: var(--text-secondary);
   margin-top: 2px;
 }
 
 .badgeHold {
   font-size: 0.6875rem;
   font-weight: 700;
-  color: #E11D48;
-  background: #FFF1F2;
-  border: 1px solid #FECDD3;
+  color: var(--danger-text);
+  background: var(--tint-danger);
+  border: 1px solid var(--tint-danger-border);
   padding: 3px 8px;
   border-radius: 9999px;
   text-transform: uppercase;
@@ -104,7 +104,7 @@
 }
 
 .modalCard {
-  background: #FFFFFF;
+  background: var(--bg-card);
   border-radius: 20px;
   max-width: 440px;
   width: 100%;
@@ -133,7 +133,7 @@
 .closeBtn {
   background: transparent;
   border: none;
-  color: #94A3B8;
+  color: var(--text-muted);
   cursor: pointer;
   padding: 4px;
   border-radius: 8px;
@@ -141,26 +141,26 @@
 }
 
 .closeBtn:hover {
-  color: #0F172A;
+  color: var(--text-main);
 }
 
 .modalTitle {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #0F172A;
+  color: var(--text-main);
   margin: 0 0 8px 0;
 }
 
 .modalDesc {
   font-size: 0.85rem;
-  color: #64748B;
+  color: var(--text-secondary);
   line-height: 1.5;
   margin: 0 0 16px 0;
 }
 
 .instructionBox {
-  background: #F8FAFC;
-  border: 1px solid #E2E8F0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-medium);
   border-radius: 12px;
   padding: 14px;
   margin-bottom: 20px;
@@ -168,7 +168,7 @@
 
 .instructionStep {
   font-size: 0.8rem;
-  color: #334155;
+  color: var(--text-body);
   margin: 0 0 8px 0;
   line-height: 1.4;
 }
@@ -176,7 +176,7 @@
 .codeSnippet {
   background: #0F172A;
   color: #38BDF8;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.72rem;
   padding: 8px 10px;
   border-radius: 6px;
@@ -219,8 +219,8 @@
 .cancelBtn {
   width: 100%;
   background: transparent;
-  color: #64748B;
-  border: 1px solid #E2E8F0;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-medium);
   border-radius: 12px;
   padding: 10px 16px;
   font-size: 0.85rem;
@@ -230,8 +230,8 @@
 }
 
 .cancelBtn:hover {
-  background: #F1F5F9;
-  color: #0F172A;
+  background: var(--bg-subtle);
+  color: var(--text-main);
 }
 
 @keyframes spin {

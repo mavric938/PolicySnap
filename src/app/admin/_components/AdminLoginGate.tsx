@@ -73,11 +73,12 @@ export default function AdminLoginGate({ onLogin }: AdminLoginGateProps) {
 
           <form onSubmit={handleAdminLoginSubmit} className={styles.gateForm}>
             <div className={styles.formGroup}>
-              <label className={styles.gateLabel}>
+              <label htmlFor="admin-login-identifier" className={styles.gateLabel}>
                 <Icon name="badge" size={14} />
                 <span>Email / Username Admin</span>
               </label>
               <input
+                id="admin-login-identifier"
                 type="text"
                 className={styles.gateInput}
                 placeholder="admin@policysnap.id"
@@ -88,12 +89,13 @@ export default function AdminLoginGate({ onLogin }: AdminLoginGateProps) {
             </div>
 
             <div className={styles.formGroup}>
-              <label className={styles.gateLabel}>
+              <label htmlFor="admin-login-password" className={styles.gateLabel}>
                 <Icon name="lock" size={14} />
                 <span>Kata Sandi Admin</span>
               </label>
               <div className={styles.passwordWrapper}>
                 <input
+                  id="admin-login-password"
                   type={showAdminPassword ? 'text' : 'password'}
                   className={styles.gateInput}
                   placeholder="••••••••"
@@ -105,6 +107,8 @@ export default function AdminLoginGate({ onLogin }: AdminLoginGateProps) {
                   type="button"
                   className={styles.visibilityToggle}
                   onClick={() => setShowAdminPassword(!showAdminPassword)}
+                  aria-label={showAdminPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+                  aria-pressed={showAdminPassword}
                 >
                   <Icon name={showAdminPassword ? 'visibility_off' : 'visibility'} size={18} />
                 </button>

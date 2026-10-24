@@ -80,7 +80,7 @@ export default function CriteriaSliderStep({ issue, scores, onScoreChange, onNex
                     style={{
                       background: `linear-gradient(to right, ${crit.color} 0%, ${crit.color} ${
                         ((val - 1) / 9) * 100
-                      }%, #E5E7EB ${((val - 1) / 9) * 100}%, #E5E7EB 100%)`,
+                      }%, var(--bg-muted) ${((val - 1) / 9) * 100}%, var(--bg-muted) 100%)`,
                     }}
                   />
                 </div>

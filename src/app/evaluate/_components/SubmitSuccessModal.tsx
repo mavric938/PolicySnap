@@ -17,7 +17,12 @@ export default function SubmitSuccessModal({ compositeScore, issueId, onShowHist
 
   return (
       <div className={styles.modalOverlay}>
-        <div className={`${styles.modalContent} animate-slide-up`}>
+        <div
+        className={`${styles.modalContent} animate-slide-up`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Evaluasi berhasil disimpan"
+      >
           <div className={styles.modalHologram}>
             <Icon name="workspace_premium" size={36} />
           </div>

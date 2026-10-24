@@ -19,7 +19,7 @@
   align-items: center;
   gap: var(--space-md);
   padding: 14px;
-  background: #FFF1ED;
+  background: var(--tint-primary);
   border: 1px solid rgba(255, 107, 74, 0.25);
   border-radius: 20px;
   margin-bottom: var(--space-lg);
@@ -53,7 +53,7 @@
 
 /* Form */
 .form {
-  background: #FFFFFF;
+  background: var(--bg-card);
   border: 1px solid var(--border-card);
   border-radius: 20px;
   padding: 18px;
@@ -85,7 +85,7 @@
   padding: 10px 14px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-input);
-  background: #FFFFFF;
+  background: var(--bg-card);
   font-size: 0.875rem;
   font-family: var(--font-sans);
   color: var(--text-main);
@@ -130,7 +130,7 @@
   flex-direction: column;
   gap: 12px;
   padding: 16px;
-  background: #FFFFFF;
+  background: var(--bg-card);
   border: 1px solid var(--border-card);
   border-radius: 18px;
   box-shadow: var(--shadow-soft-card);
@@ -155,8 +155,8 @@
   border-radius: var(--radius-full);
   font-size: 0.6875rem;
   font-weight: 700;
-  background: #F1F5F9;
-  color: #475569;
+  background: var(--bg-subtle);
+  color: var(--text-body);
   margin-bottom: 6px;
 }
 
@@ -215,14 +215,14 @@
   align-items: center;
   justify-content: center;
   border: 1px solid var(--border-card);
-  background: #FFFFFF;
+  background: var(--bg-card);
   color: var(--text-secondary);
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
 .actionIconBtn:hover {
-  background: #F8FAFC;
+  background: var(--bg-secondary);
   color: var(--text-main);
 }
 
@@ -231,9 +231,9 @@
 }
 
 .deleteBtn:hover {
-  background: #FEF2F2;
-  border-color: #FCA5A5;
-  color: #DC2626;
+  background: var(--tint-danger);
+  border-color: var(--tint-danger-border);
+  color: var(--danger-text);
 }
 
 .emptyState {
@@ -241,15 +241,15 @@
   padding: 30px;
   color: var(--text-muted);
   font-size: 0.875rem;
-  background: #FFFFFF;
+  background: var(--bg-card);
   border-radius: 16px;
   border: 1px dashed var(--border-card);
 }
 
 /* AI Auto-Pilot Box */
 .aiBox {
-  background: linear-gradient(135deg, #FAF5FF 0%, #F5F3FF 50%, #EDE9FE 100%);
-  border: 1.5px solid #DDD6FE;
+  background: linear-gradient(135deg, #FAF5FF 0%, var(--tint-violet) 50%, var(--tint-violet) 100%);
+  border: 1.5px solid var(--tint-violet-border);
   border-radius: 16px;
   padding: 16px;
   margin-bottom: 18px;
@@ -266,7 +266,7 @@
 .aiBoxTitle {
   font-size: 0.875rem;
   font-weight: 800;
-  color: #6D28D9;
+  color: var(--violet-text);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -292,7 +292,7 @@
   font-size: 0.8125rem;
   border: 1.5px solid #C4B5FD;
   border-radius: 12px;
-  background: #FFFFFF;
+  background: var(--bg-card);
   outline: none;
   color: #1E1B4B;
   transition: all var(--transition-fast);
@@ -331,9 +331,9 @@
 }
 
 .aiConfigBtn {
-  background: #EDE9FE;
-  color: #6D28D9;
-  border: 1px solid #DDD6FE;
+  background: var(--tint-violet);
+  color: var(--violet-text);
+  border: 1px solid var(--tint-violet-border);
   padding: 5px 10px;
   border-radius: 8px;
   font-size: 0.6875rem;
@@ -365,14 +365,14 @@
 }
 
 .badgeDeepSeek {
-  background: #EEF2FF;
-  color: #4338CA;
-  border: 1px solid #C7D2FE;
+  background: var(--tint-info);
+  color: var(--info-text);
+  border: 1px solid var(--tint-info-border);
 }
 
 .badgeHeuristic {
-  background: #FEF3C7;
-  color: #B45309;
+  background: var(--tint-warning);
+  color: var(--warning-text);
 }
 
 .backendTag {
@@ -383,15 +383,15 @@
   font-weight: 700;
   padding: 4px 10px;
   border-radius: 999px;
-  background: #F8FAFC;
-  color: #64748B;
-  border: 1px solid #E2E8F0;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-medium);
 }
 
 .backendTagActive {
-  background: #EEF2FF;
-  color: #4338CA;
-  border-color: #C7D2FE;
+  background: var(--tint-info);
+  color: var(--info-text);
+  border-color: var(--tint-info-border);
 }
 
 /* Sub-sections within form */
@@ -440,8 +440,8 @@
 }
 
 .criteriaCardInput {
-  background: #F8FAFC;
-  border: 1.5px solid #E2E8F0;
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border-medium);
   border-radius: 14px;
   padding: 12px;
   transition: all var(--transition-fast);
@@ -449,7 +449,7 @@
 
 .criteriaCardInput:focus-within {
   border-color: var(--primary-coral);
-  background: #FFFFFF;
+  background: var(--bg-card);
   box-shadow: 0 2px 8px rgba(255, 107, 74, 0.08);
 }
 
@@ -482,8 +482,8 @@
   line-height: 1.4;
   padding: 8px 10px;
   border-radius: 8px;
-  border: 1px solid #CBD5E1;
-  background: #FFFFFF;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-card);
   outline: none;
   resize: vertical;
   min-height: 60px;
@@ -504,8 +504,8 @@
 }
 
 .actorCardEditRow {
-  background: #F8FAFC;
-  border: 1px solid #E2E8F0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-medium);
   border-radius: 14px;
   padding: 12px;
   display: flex;
@@ -525,8 +525,8 @@
   font-size: 1.25rem;
   text-align: center;
   border-radius: 10px;
-  border: 1px solid #CBD5E1;
-  background: #FFFFFF;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-card);
   padding: 0;
   outline: none;
 }
@@ -537,8 +537,8 @@
   font-weight: 700;
   padding: 8px 10px;
   border-radius: 10px;
-  border: 1px solid #CBD5E1;
-  background: #FFFFFF;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-card);
   outline: none;
 }
 
@@ -547,8 +547,8 @@
   font-size: 0.75rem;
   padding: 8px 10px;
   border-radius: 10px;
-  border: 1px solid #CBD5E1;
-  background: #FFFFFF;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-card);
   outline: none;
   color: var(--text-secondary);
 }
@@ -557,9 +557,9 @@
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  border: 1px solid #FCA5A5;
-  background: #FEF2F2;
-  color: #DC2626;
+  border: 1px solid var(--tint-danger-border);
+  background: var(--tint-danger);
+  color: var(--danger-text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -569,7 +569,7 @@
 }
 
 .actorRemoveBtn:hover {
-  background: #FEE2E2;
+  background: var(--tint-danger);
 }
 
 .actorDescTextarea {
@@ -578,8 +578,8 @@
   line-height: 1.4;
   padding: 8px 10px;
   border-radius: 8px;
-  border: 1px solid #CBD5E1;
-  background: #FFFFFF;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-card);
   outline: none;
   resize: vertical;
   min-height: 48px;
@@ -593,7 +593,7 @@
   font-size: 0.75rem;
   font-weight: 700;
   color: var(--primary-coral);
-  background: #FFF1ED;
+  background: var(--tint-primary);
   border: 1px dashed rgba(255, 107, 74, 0.4);
   border-radius: 8px;
   cursor: pointer;
@@ -623,7 +623,7 @@
 }
 
 .modalContent {
-  background: #FFFFFF;
+  background: var(--bg-card);
   border-radius: 20px;
   width: 100%;
   max-width: 480px;
@@ -673,7 +673,7 @@
 }
 
 .modalCloseBtn:hover {
-  background: #F1F5F9;
+  background: var(--bg-subtle);
   color: var(--text-main);
 }
 
@@ -682,8 +682,8 @@
 }
 
 .modalNotice {
-  background: #EFF6FF;
-  border: 1px solid #BFDBFE;
+  background: var(--tint-info);
+  border: 1px solid var(--tint-info-border);
   border-radius: 12px;
   padding: 12px;
   font-size: 0.75rem;
@@ -693,7 +693,7 @@
 }
 
 .modalNotice a {
-  color: #2563EB;
+  color: var(--info-text);
   font-weight: 700;
   text-decoration: underline;
 }
@@ -704,7 +704,7 @@
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  background: #F8FAFC;
+  background: var(--bg-secondary);
 }
 
 /* ==========================================================================
@@ -716,8 +716,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 14px;
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-medium);
   border-radius: 14px;
   margin-bottom: var(--space-md);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
@@ -742,7 +742,7 @@
 .adminActiveName {
   font-size: 0.8125rem;
   font-weight: 700;
-  color: #1E293B;
+  color: var(--text-main);
 }
 
 .adminActiveBadge {
@@ -757,7 +757,7 @@
 
 .adminActiveEmail {
   font-size: 0.6875rem;
-  color: #64748B;
+  color: var(--text-secondary);
   display: block;
 }
 
@@ -769,7 +769,7 @@
 }
 
 .gateCard {
-  background: #FFFFFF;
+  background: var(--bg-card);
   border: 1px solid rgba(79, 70, 229, 0.2);
   border-radius: 24px;
   padding: 28px 24px;
@@ -795,8 +795,8 @@
   align-items: center;
   gap: 6px;
   padding: 4px 12px;
-  background: #EEF2FF;
-  border: 1px solid #C7D2FE;
+  background: var(--tint-info);
+  border: 1px solid var(--tint-info-border);
   border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 700;
@@ -821,14 +821,14 @@
 .gateTitle {
   font-size: 1.25rem;
   font-weight: 800;
-  color: #0F172A;
+  color: var(--text-main);
   margin-bottom: 8px;
   letter-spacing: -0.01em;
 }
 
 .gateDesc {
   font-size: 0.8125rem;
-  color: #64748B;
+  color: var(--text-secondary);
   line-height: 1.5;
   margin-bottom: 20px;
 }
@@ -838,10 +838,10 @@
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  background: #FEF2F2;
-  border: 1px solid #FCA5A5;
+  background: var(--tint-danger);
+  border: 1px solid var(--tint-danger-border);
   border-radius: 12px;
-  color: #DC2626;
+  color: var(--danger-text);
   font-size: 0.75rem;
   font-weight: 600;
   margin-bottom: 16px;
@@ -861,7 +861,7 @@
   gap: 6px;
   font-size: 0.75rem;
   font-weight: 700;
-  color: #334155;
+  color: var(--text-body);
   margin-bottom: 6px;
 }
 
@@ -870,10 +870,10 @@
   height: 44px;
   padding: 0 14px;
   border-radius: 12px;
-  border: 1px solid #E2E8F0;
-  background: #F8FAFC;
+  border: 1px solid var(--border-medium);
+  background: var(--bg-secondary);
   font-size: 0.875rem;
-  color: #0F172A;
+  color: var(--text-main);
   transition: all 0.2s;
   box-sizing: border-box;
 }
@@ -881,7 +881,7 @@
 .gateInput:focus {
   outline: none;
   border-color: #4F46E5;
-  background: #FFFFFF;
+  background: var(--bg-card);
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
 }
 
@@ -896,7 +896,7 @@
   right: 12px;
   background: transparent;
   border: none;
-  color: #94A3B8;
+  color: var(--text-muted);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -905,14 +905,14 @@
 }
 
 .visibilityToggle:hover {
-  color: #475569;
+  color: var(--text-body);
 }
 
 .gateCredentialsBox {
   margin-top: 20px;
   padding: 14px;
-  background: #F8FAFC;
-  border: 1px dashed #CBD5E1;
+  background: var(--bg-secondary);
+  border: 1px dashed var(--border-strong);
   border-radius: 16px;
   text-align: left;
 }

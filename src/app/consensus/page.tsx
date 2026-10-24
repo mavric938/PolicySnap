@@ -393,7 +393,7 @@ function ConsensusContent() {
       {isEvaluated && isSoleVoter && (
         <div className={styles.soleVoterBanner} id="sole-voter-banner">
           <div className={styles.soleVoterIconBox}>
-            <Icon name="campaign" size={24} style={{ color: '#D97706' }} />
+            <Icon name="campaign" size={24} style={{ color: 'var(--warning-text)' }} />
           </div>
           <div className={styles.soleVoterText}>
             <h3 className={styles.soleVoterTitle}>Anda yang pertama menilai isu ini!</h3>
@@ -440,7 +440,7 @@ function ConsensusContent() {
                 className={styles.verdictBadge}
                 style={
                   isSoleVoter
-                    ? { background: '#FEF3C7', color: '#B45309', borderColor: '#FDE68A' }
+                    ? { background: 'var(--tint-warning)', color: 'var(--warning-text)', borderColor: 'var(--tint-warning-border)' }
                     : undefined
                 }
               >
@@ -689,6 +689,8 @@ function ConsensusContent() {
                           type="button"
                           className={`${styles.voteBtn} ${arg.userVote === 'up' ? styles.voteBtnUpActive : ''}`}
                           onClick={() => handleVote(arg.id, 'up')}
+                    aria-pressed={arg.userVote === 'up'}
+                    aria-label="Upvote"
                           title="Beri Upvote"
                           id={`btn-upvote-${arg.id}`}
                         >
@@ -699,6 +701,8 @@ function ConsensusContent() {
                           type="button"
                           className={`${styles.voteBtn} ${arg.userVote === 'down' ? styles.voteBtnDownActive : ''}`}
                           onClick={() => handleVote(arg.id, 'down')}
+                    aria-pressed={arg.userVote === 'down'}
+                    aria-label="Downvote"
                           title="Beri Downvote"
                           id={`btn-downvote-${arg.id}`}
                         >
@@ -714,12 +718,13 @@ function ConsensusContent() {
 
             {/* Quick Comment Input Form */}
             <form className={styles.addCommentBox} onSubmit={handlePostComment}>
-              <label className={styles.addCommentLabel}>
+              <label htmlFor="consensus-new-stance" className={styles.addCommentLabel}>
                 <Icon name="edit_note" size={16} style={{ color: 'var(--primary-coral)' }} />
                 <span>Tambahkan Opini atau Catatan Solutif Anda</span>
               </label>
               <div style={{ display: 'flex', gap: '8px', marginBottom: '4px' }}>
                 <select
+                  id="consensus-new-stance"
                   value={newStance}
                   onChange={(e) => setNewStance(e.target.value)}
                   style={{
@@ -727,7 +732,7 @@ function ConsensusContent() {
                     borderRadius: '10px',
                     border: '1px solid var(--border-card)',
                     fontSize: '0.75rem',
-                    background: '#FFFFFF',
+                    background: 'var(--bg-card)',
                     color: 'var(--text-main)',
                     fontWeight: 600,
                   }}
@@ -796,7 +801,7 @@ export default function ConsensusPage() {
     <Suspense
       fallback={
         <div className="page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100dvh' }}>
-          <div className="spinner" style={{ width: 40, height: 40, border: '3px solid #E5E7EB', borderTopColor: 'var(--primary-coral)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+          <div className="spinner" style={{ width: 40, height: 40, border: '3px solid var(--border-medium)', borderTopColor: 'var(--primary-coral)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
         </div>
       }
     >

@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import Icon from './Icon';
 import CatVisualIcon from './CatVisualIcon';
 import styles from './OnboardingTutorialModal.module.css';
+import { pressable } from '@/lib/a11y';
+import { useEscapeKey } from '@/hooks/useEscapeKey';
 
 interface OnboardingTutorialModalProps {
   isOpen: boolean;
@@ -152,6 +154,8 @@ export default function OnboardingTutorialModal({
     if (isOpen) setCurrentSlideIndex(0);
   }
 
+  useEscapeKey(onClose, isOpen);
+
   if (!isOpen) return null;
 
   const slide = TUTORIAL_SLIDES[currentSlideIndex];
@@ -185,7 +189,7 @@ export default function OnboardingTutorialModal({
 
   return (
     <div className={styles.overlay}>
-      <div className={styles.modalCard} role="dialog" aria-modal="true">
+      <div className={styles.modalCard} role="dialog" aria-modal="true" aria-label="Tutorial PolicySnap">
         {/* Header Bar */}
         <div className={styles.headerRow}>
           <span className={styles.badgeStep}>{slide.badge}</span>
@@ -252,7 +256,7 @@ export default function OnboardingTutorialModal({
             <span
               key={idx}
               className={`${styles.dot} ${idx === currentSlideIndex ? styles.dotActive : ''}`}
-              onClick={() => setCurrentSlideIndex(idx)}
+              {...pressable(() => setCurrentSlideIndex(idx), { pressed: idx === currentSlideIndex, label: `Slide ${idx + 1}` })}
             />
           ))}
         </div>

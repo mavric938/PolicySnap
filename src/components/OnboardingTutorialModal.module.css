@@ -19,7 +19,7 @@
 .modalCard {
   width: 100%;
   max-width: 460px;
-  background: #FFFFFF;
+  background: var(--bg-card);
   border-radius: 28px;
   border: 1px solid rgba(255, 255, 255, 0.8);
   box-shadow: 0 20px 48px -12px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.04);
@@ -47,7 +47,7 @@
   font-size: 0.75rem;
   font-weight: 800;
   color: #FF6B4A;
-  background: #FFF1ED;
+  background: var(--tint-primary);
   padding: 4px 10px;
   border-radius: 999px;
   border: 1px solid rgba(255, 107, 74, 0.2);
@@ -56,7 +56,7 @@
 .skipBtn {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #94A3B8;
+  color: var(--text-muted);
   background: transparent;
   border: none;
   cursor: pointer;
@@ -66,8 +66,8 @@
 }
 
 .skipBtn:hover {
-  color: #475569;
-  background: #F1F5F9;
+  color: var(--text-body);
+  background: var(--bg-subtle);
 }
 
 .heroBox {
@@ -91,10 +91,10 @@
   display: flex;
   gap: 16px;
   justify-content: center;
-  background: #F8FAFC;
+  background: var(--bg-secondary);
   padding: 12px 20px;
   border-radius: 20px;
-  border: 1px dashed #CBD5E1;
+  border: 1px dashed var(--border-strong);
 }
 
 .breedIconItem {
@@ -107,7 +107,7 @@
 .breedIconItem span {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #334155;
+  color: var(--text-body);
 }
 
 .contentBody {
@@ -118,14 +118,14 @@
 .title {
   font-size: 1.25rem;
   font-weight: 800;
-  color: #0F172A;
+  color: var(--text-main);
   letter-spacing: -0.01em;
   margin-bottom: 6px;
 }
 
 .subtitle {
   font-size: 0.8125rem;
-  color: #64748B;
+  color: var(--text-secondary);
   line-height: 1.45;
   margin-bottom: 18px;
 }
@@ -142,9 +142,9 @@
   align-items: flex-start;
   gap: 12px;
   padding: 10px 14px;
-  background: #F8FAFC;
+  background: var(--bg-secondary);
   border-radius: 14px;
-  border: 1px solid #E2E8F0;
+  border: 1px solid var(--border-medium);
 }
 
 .bulletEmoji {
@@ -155,13 +155,13 @@
 .bulletTitle {
   font-size: 0.8125rem;
   font-weight: 700;
-  color: #1E293B;
+  color: var(--text-main);
   margin-bottom: 2px;
 }
 
 .bulletDesc {
   font-size: 0.75rem;
-  color: #64748B;
+  color: var(--text-secondary);
   line-height: 1.4;
 }
 
@@ -177,7 +177,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #E2E8F0;
+  background: var(--bg-muted);
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -198,8 +198,8 @@
 .prevBtn {
   font-size: 0.8125rem;
   font-weight: 700;
-  color: #64748B;
-  background: #F1F5F9;
+  color: var(--text-secondary);
+  background: var(--bg-subtle);
   border: none;
   padding: 10px 16px;
   border-radius: 12px;
@@ -208,8 +208,8 @@
 }
 
 .prevBtn:hover {
-  background: #E2E8F0;
-  color: #334155;
+  background: var(--bg-muted);
+  color: var(--text-body);
 }
 
 .nextBtn {

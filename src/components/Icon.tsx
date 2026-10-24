@@ -1,4 +1,5 @@
 import React from 'react';
+import type { IconType } from 'react-icons';
 import {
   MdHome,
   MdFactCheck,
@@ -72,7 +73,7 @@ import {
 } from 'react-icons/md';
 
 // Comprehensive Icon Map for Google Stitch Material Symbols
-const ICON_MAP: Record<string, React.ComponentType<{ size?: number | string; className?: string; style?: React.CSSProperties }>> = {
+const ICON_MAP: Record<string, IconType> = {
   // Navigation & Core App
   home: MdHome,
   beranda: MdHome,
@@ -172,9 +173,11 @@ interface IconProps {
   size?: number | string;
   className?: string;
   style?: React.CSSProperties;
+  /** Isi bila ikon bermakna sendiri (tanpa teks pendamping); selain itu ikon disembunyikan dari screen reader. */
+  label?: string;
 }
 
-export default function Icon({ name, size = '1.2em', className = '', style }: IconProps) {
+export default function Icon({ name, size = '1.2em', className = '', style, label }: IconProps) {
   const normalizedKey = name.toLowerCase().trim().replace(/[\s-]+/g, '_');
   const Component = ICON_MAP[normalizedKey] || MdHelpOutline;
 
@@ -182,6 +185,9 @@ export default function Icon({ name, size = '1.2em', className = '', style }: Ic
     <Component
       size={size}
       className={className}
+      aria-hidden={label ? undefined : true}
+      aria-label={label}
+      role={label ? 'img' : undefined}
       style={{
         display: 'inline-block',
         verticalAlign: 'middle',

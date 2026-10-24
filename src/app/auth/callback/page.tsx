@@ -86,20 +86,19 @@ export default function AuthCallbackPage() {
         justifyContent: 'center',
         minHeight: '100vh',
         padding: '24px',
-        backgroundColor: '#F8FAFC',
+        backgroundColor: 'var(--bg-secondary)',
         textAlign: 'center',
-        fontFamily: "'Plus Jakarta Sans', sans-serif",
       }}
     >
       <div
         style={{
-          background: '#FFFFFF',
+          background: 'var(--bg-card)',
           borderRadius: '24px',
           padding: '40px 32px',
           maxWidth: '420px',
           width: '100%',
           boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.08)',
-          border: '1px solid #E2E8F0',
+          border: '1px solid var(--border-medium)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -113,7 +112,7 @@ export default function AuthCallbackPage() {
                 width: '64px',
                 height: '64px',
                 borderRadius: '50%',
-                background: '#EFF6FF',
+                background: 'var(--tint-info)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -124,7 +123,7 @@ export default function AuthCallbackPage() {
                 style={{
                   width: '56px',
                   height: '56px',
-                  border: '3px solid #E2E8F0',
+                  border: '3px solid var(--border-medium)',
                   borderTopColor: '#4285F4',
                   borderRadius: '50%',
                   animation: 'spin 1s linear infinite',
@@ -152,10 +151,10 @@ export default function AuthCallbackPage() {
               </div>
             </div>
             <div>
-              <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#0F172A', margin: 0 }}>
+              <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>
                 Menghubungkan Akun Google
               </h2>
-              <p style={{ fontSize: '14px', color: '#64748B', marginTop: '8px', lineHeight: 1.5 }}>
+              <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '8px', lineHeight: 1.5 }}>
                 Memvalidasi kredensial aman Anda ke PolicySnap...
               </p>
             </div>
@@ -179,10 +178,10 @@ export default function AuthCallbackPage() {
               <Icon name="check_circle" size={36} />
             </div>
             <div>
-              <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#0F172A', margin: 0 }}>
+              <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>
                 Login Berhasil!
               </h2>
-              <p style={{ fontSize: '14px', color: '#64748B', marginTop: '8px' }}>
+              <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '8px' }}>
                 Mengalihkan Anda ke Beranda...
               </p>
             </div>
@@ -196,8 +195,8 @@ export default function AuthCallbackPage() {
                 width: '64px',
                 height: '64px',
                 borderRadius: '50%',
-                background: '#FEE2E2',
-                color: '#DC2626',
+                background: 'var(--tint-danger)',
+                color: 'var(--danger-text)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -206,10 +205,10 @@ export default function AuthCallbackPage() {
               <Icon name="error" size={36} />
             </div>
             <div>
-              <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#0F172A', margin: 0 }}>
+              <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>
                 Gagal Otorisasi
               </h2>
-              <p style={{ fontSize: '13px', color: '#DC2626', marginTop: '8px' }}>
+              <p style={{ fontSize: '13px', color: 'var(--danger-text)', marginTop: '8px' }}>
                 {errorMessage}
               </p>
             </div>

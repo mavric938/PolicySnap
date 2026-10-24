@@ -83,8 +83,8 @@
 
 /* Value Proposition Banner */
 .valueCard {
-  background: #EFF6FF;
-  border: 1px solid #DBEAFE;
+  background: var(--tint-info);
+  border: 1px solid var(--tint-info-border);
   border-radius: 20px;
   padding: var(--space-md);
   margin-bottom: var(--space-md);
@@ -103,8 +103,8 @@
   gap: 4px;
   padding: 3px 10px;
   border-radius: var(--radius-full);
-  background: #ECFDF5;
-  color: #059669;
+  background: var(--tint-success);
+  color: var(--success-text);
   font-size: 0.688rem;
   font-weight: 700;
 }
@@ -114,7 +114,7 @@
   align-items: center;
   padding: 3px 8px;
   border-radius: var(--radius-full);
-  background: #FFF1ED;
+  background: var(--tint-primary);
   color: #FF6B4A;
   font-size: 0.688rem;
   font-weight: 700;
@@ -122,13 +122,13 @@
 
 .valueText {
   font-size: 0.813rem;
-  color: #1E293B;
+  color: var(--text-main);
   line-height: 1.45;
 }
 
 /* Main Login Card */
 .loginCard {
-  background: #FFFFFF;
+  background: var(--bg-card);
   border: 1px solid var(--border-card);
   border-radius: 24px;
   padding: var(--space-lg);
@@ -138,7 +138,7 @@
 
 .googleBtn {
   width: 100%;
-  background: #FFFFFF;
+  background: var(--bg-card);
   border: 1px solid var(--border-card);
   border-radius: 16px;
   padding: 12px 16px;
@@ -151,8 +151,8 @@
 }
 
 .googleBtn:hover {
-  background: #FAFBFC;
-  border-color: #CBD5E1;
+  background: var(--bg-card-hover);
+  border-color: var(--border-strong);
 }
 
 .googleBtn:active {
@@ -208,7 +208,7 @@
 
 .dividerText {
   position: relative;
-  background: #FFFFFF;
+  background: var(--bg-card);
   padding: 0 10px;
   font-size: 0.688rem;
   font-weight: 700;
@@ -264,7 +264,7 @@
 
 .formInput {
   width: 100%;
-  background: #F8FAFC;
+  background: var(--bg-secondary);
   border: 1px solid var(--border-card);
   border-radius: 14px;
   padding: 10px 14px;
@@ -275,7 +275,7 @@
 }
 
 .formInput:focus {
-  background: #FFFFFF;
+  background: var(--bg-card);
   border-color: var(--primary-coral);
   box-shadow: 0 0 0 3px rgba(255, 107, 74, 0.15);
   outline: none;
@@ -298,7 +298,7 @@
 .authTabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  background: #F1F5F9;
+  background: var(--bg-subtle);
   border-radius: 12px;
   padding: 4px;
   margin-bottom: var(--space-md);
@@ -312,7 +312,7 @@
   background: transparent;
   font-size: 0.8125rem;
   font-weight: 700;
-  color: #64748B;
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.15s ease;
   display: flex;
@@ -322,15 +322,15 @@
 }
 
 .authTabActive {
-  background: #FFFFFF;
-  color: #0F172A;
+  background: var(--bg-card);
+  color: var(--text-main);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .errorBox {
-  background: #FFF1F2;
-  border: 1px solid #FECDD3;
-  color: #E11D48;
+  background: var(--tint-danger);
+  border: 1px solid var(--tint-danger-border);
+  color: var(--danger-text);
   border-radius: 12px;
   padding: 10px 12px;
   font-size: 0.78rem;
@@ -343,8 +343,8 @@
 
 /* Play As Guest Card */
 .guestCard {
-  background: #F8FAFC;
-  border: 1.5px dashed #CBD5E1;
+  background: var(--bg-secondary);
+  border: 1.5px dashed var(--border-strong);
   border-radius: 18px;
   padding: 16px;
   display: flex;
@@ -356,7 +356,7 @@
 
 .guestCard:hover {
   border-color: #94A3B8;
-  background: #F1F5F9;
+  background: var(--bg-subtle);
 }
 
 .guestHeader {
@@ -379,14 +379,14 @@
 .guestTitle {
   font-size: 0.88rem;
   font-weight: 800;
-  color: #0F172A;
+  color: var(--text-main);
 }
 
 .guestBadge {
   font-size: 0.65rem;
   font-weight: 700;
   color: #0284C7;
-  background: #E0F2FE;
+  background: var(--tint-info);
   padding: 2px 8px;
   border-radius: 9999px;
   text-transform: uppercase;
@@ -394,7 +394,7 @@
 
 .guestDesc {
   font-size: 0.75rem;
-  color: #64748B;
+  color: var(--text-secondary);
   line-height: 1.45;
   margin: 0;
 }
@@ -449,7 +449,7 @@
 }
 
 .modalCard {
-  background: #FFFFFF;
+  background: var(--bg-card);
   border-radius: 24px;
   max-width: 400px;
   width: 100%;
@@ -469,7 +469,7 @@
   width: 44px;
   height: 44px;
   border-radius: 14px;
-  background: #FFF1ED;
+  background: var(--tint-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -478,7 +478,7 @@
 .modalCloseBtn {
   background: transparent;
   border: none;
-  color: #94A3B8;
+  color: var(--text-muted);
   cursor: pointer;
   padding: 6px;
   border-radius: 8px;
@@ -488,20 +488,20 @@
 }
 
 .modalCloseBtn:hover {
-  color: #0F172A;
+  color: var(--text-main);
 }
 
 .modalTitle {
   font-size: 1.15rem;
   font-weight: 800;
-  color: #0F172A;
+  color: var(--text-main);
   margin-bottom: 6px;
   letter-spacing: -0.01em;
 }
 
 .modalDesc {
   font-size: 0.8rem;
-  color: #64748B;
+  color: var(--text-secondary);
   line-height: 1.5;
   margin-bottom: 16px;
 }

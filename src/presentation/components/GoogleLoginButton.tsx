@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Icon from '@/components/Icon';
 import styles from './GoogleLoginButton.module.css';
+import { useEscapeKey } from '@/hooks/useEscapeKey';
 
 interface GoogleLoginButtonProps {
   onSuccess?: () => void;
@@ -19,6 +20,7 @@ export default function GoogleLoginButton({
   onSelectGuest,
 }: GoogleLoginButtonProps) {
   const [showNoticeModal, setShowNoticeModal] = useState(false);
+  useEscapeKey(() => setShowNoticeModal(false), showNoticeModal);
 
   const handleGoogleClick = () => {
     setShowNoticeModal(true);
@@ -54,7 +56,7 @@ export default function GoogleLoginButton({
           </svg>
           <div className={styles.googleBtnText}>
             <span className={styles.googleBtnTitle}>{buttonText}</span>
-            <span className={styles.googleBtnSub} style={{ color: '#E11D48', fontWeight: 600 }}>
+            <span className={styles.googleBtnSub} style={{ color: 'var(--danger-text)', fontWeight: 600 }}>
               ⏳ Belum Tersedia (Di-hold untuk Uji Deploy)
             </span>
           </div>
@@ -65,15 +67,22 @@ export default function GoogleLoginButton({
       {/* Notice Modal */}
       {showNoticeModal && (
         <div className={styles.modalOverlay} onClick={() => setShowNoticeModal(false)}>
-          <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
+          <div
+            className={styles.modalCard}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Login Google belum tersedia"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className={styles.modalHeader}>
-              <div className={styles.modalBadge} style={{ background: '#FFF1F2' }}>
-                <Icon name="info" size={22} style={{ color: '#E11D48' }} />
+              <div className={styles.modalBadge} style={{ background: 'var(--tint-danger)' }}>
+                <Icon name="info" size={22} style={{ color: 'var(--danger-text)' }} />
               </div>
               <button
                 type="button"
                 className={styles.closeBtn}
                 onClick={() => setShowNoticeModal(false)}
+                aria-label="Tutup"
               >
                 <Icon name="close" size={20} />
               </button>
@@ -88,7 +97,7 @@ export default function GoogleLoginButton({
               <p className={styles.instructionStep}>
                 Anda dapat melanjutkan dengan salah satu metode pengujian berikut:
               </p>
-              <ul style={{ margin: '8px 0 0 16px', padding: 0, fontSize: '0.8rem', color: '#475569', lineHeight: 1.6 }}>
+              <ul style={{ margin: '8px 0 0 16px', padding: 0, fontSize: '0.8rem', color: 'var(--text-body)', lineHeight: 1.6 }}>
                 <li><strong>Buat Akun Baru:</strong> Sertakan nama, email valid, dan kata sandi.</li>
                 <li><strong>Mainkan sebagai Tamu (Play as Guest):</strong> Langsung bermain dengan data tersimpan di cache offline.</li>
               </ul>

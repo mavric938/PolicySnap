@@ -52,7 +52,8 @@ export default function RadarChart({ userScores, publicScores }: RadarChartProps
       <svg
         viewBox="0 0 340 300"
         style={{ width: '100%', height: 'auto', overflow: 'visible' }}
-        aria-label="Grafik Radar Perbandingan 4 Dimensi"
+        role="img"
+        aria-label={`Grafik radar 4 dimensi. Anda: efektivitas ${userScores.effectiveness}, efisiensi ${userScores.efficiency}, keadilan ${userScores.equity}, responsivitas ${userScores.responsiveness}. Publik: efektivitas ${publicScores.effectiveness}, efisiensi ${publicScores.efficiency}, keadilan ${publicScores.equity}, responsivitas ${publicScores.responsiveness}.`}
       >
         <defs>
           <radialGradient id="radarCenterGlow" cx="50%" cy="50%" r="50%">

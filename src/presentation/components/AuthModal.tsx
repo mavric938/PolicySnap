@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Icon from '@/components/Icon';
 import GoogleLoginButton from './GoogleLoginButton';
 import styles from './AuthModal.module.css';
+import { useEscapeKey } from '@/hooks/useEscapeKey';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ export default function AuthModal({
   description = 'Sesuai regulasi partisipasi publik (US-001), Anda wajib masuk dengan akun terverifikasi Google untuk mengirim evaluasi dan mencegah bot.',
 }: AuthModalProps) {
   const router = useRouter();
+  useEscapeKey(onClose, isOpen);
   if (!isOpen) return null;
 
   // Google login sedang di-hold: arahkan ke halaman awal yang memuat form daftar & mode tamu
@@ -32,7 +34,13 @@ export default function AuthModal({
 
   return (
     <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.card} onClick={(e) => e.stopPropagation()}>
+      <div
+        className={styles.card}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className={styles.header}>
           <div className={styles.iconCircle}>
             <Icon name="verified_user" size={24} style={{ color: '#FF6B4A' }} />

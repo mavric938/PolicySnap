@@ -16,8 +16,8 @@
 
 /* 1. Cat Character Hero Card */
 .catHeroCard {
-  background: linear-gradient(180deg, #FFF9F6 0%, #FFFFFF 100%);
-  border: 1px solid #FED7AA;
+  background: linear-gradient(180deg, var(--tint-primary) 0%, var(--bg-card) 100%);
+  border: 1px solid var(--tint-primary-border);
   border-radius: var(--radius-2xl);
   padding: 1.5rem 1.25rem;
   box-shadow: 0 10px 25px -5px rgba(255, 107, 74, 0.08);
@@ -91,11 +91,11 @@
 .catBreedTag {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #C2410C;
-  background: #FFF1ED;
+  color: var(--primary-text);
+  background: var(--tint-primary);
   padding: 2px 8px;
   border-radius: 9999px;
-  border: 1px solid #FFEDD5;
+  border: 1px solid var(--tint-primary-border);
 }
 
 .catRankPill {
@@ -108,9 +108,9 @@
   border-radius: 9999px;
   font-size: 0.8125rem;
   font-weight: 700;
-  background: #EFF6FF;
-  color: #1D4ED8;
-  border: 1px solid #DBEAFE;
+  background: var(--tint-info);
+  color: var(--info-text);
+  border: 1px solid var(--tint-info-border);
   z-index: 1;
 }
 
@@ -139,9 +139,9 @@
   gap: 6px;
   padding: 8px 14px;
   border-radius: 12px;
-  background: #FFFFFF;
-  border: 1.5px solid #FDBA74;
-  color: #C2410C;
+  background: var(--bg-card);
+  border: 1.5px solid var(--tint-primary-border);
+  color: var(--primary-text);
   font-size: 0.8125rem;
   font-weight: 700;
   cursor: pointer;
@@ -150,7 +150,7 @@
 }
 
 .customizeBtn:hover {
-  background: #FFF7ED;
+  background: var(--tint-primary);
   border-color: #FB923C;
 }
 
@@ -160,7 +160,7 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
   width: 100%;
-  border-top: 1px solid #FED7AA;
+  border-top: 1px solid var(--tint-primary-border);
   padding-top: 0.875rem;
   z-index: 1;
 }
@@ -218,7 +218,7 @@
   width: 32px;
   height: 32px;
   border-radius: 10px;
-  background: #FFF1ED;
+  background: var(--tint-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -250,8 +250,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 10px;
-  background: #F8FAFC;
-  border: 1px solid #E2E8F0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-medium);
   border-radius: 12px;
   gap: 6px;
   min-width: 0;
@@ -273,8 +273,8 @@
   width: 30px;
   height: 30px;
   border-radius: 8px;
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-medium);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -314,7 +314,7 @@
 .slotUnequipBtn {
   background: none;
   border: none;
-  color: #94A3B8;
+  color: var(--text-muted);
   cursor: pointer;
   padding: 2px;
   border-radius: 6px;
@@ -326,7 +326,7 @@
 }
 
 .slotUnequipBtn:hover {
-  background: #FEE2E2;
+  background: var(--tint-danger);
   color: #EF4444;
 }
 
@@ -346,7 +346,7 @@
   padding: 6px 12px;
   border-radius: 9999px;
   border: 1px solid var(--border-subtle);
-  background: #F8FAFC;
+  background: var(--bg-secondary);
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--text-main);
@@ -356,7 +356,7 @@
 }
 
 .tabBtn:hover {
-  background: #F1F5F9;
+  background: var(--bg-subtle);
 }
 
 .tabBtnActive {
@@ -379,8 +379,8 @@
 }
 
 .costumeCard {
-  background: #FFFFFF;
-  border: 1.5px solid #E2E8F0;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-medium);
   border-radius: 14px;
   padding: 10px;
   display: flex;
@@ -391,20 +391,20 @@
 }
 
 .costumeCard:hover {
-  border-color: #CBD5E1;
+  border-color: var(--border-strong);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .costumeCardEquipped {
   border-color: var(--primary-coral);
-  background: #FFF9F6;
+  background: var(--tint-primary);
   box-shadow: 0 4px 12px rgba(255, 107, 74, 0.15);
 }
 
 .costumeCardLocked {
   opacity: 0.75;
-  background: #F8FAFC;
+  background: var(--bg-secondary);
   cursor: not-allowed;
 }
 
@@ -423,7 +423,7 @@
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: #F1F5F9;
+  background: var(--bg-subtle);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -442,8 +442,8 @@
 .lockedBadge {
   font-size: 0.625rem;
   font-weight: 700;
-  color: #64748B;
-  background: #E2E8F0;
+  color: var(--text-secondary);
+  background: var(--bg-muted);
   padding: 2px 6px;
   border-radius: 9999px;
   display: flex;
@@ -477,7 +477,7 @@
   justify-content: space-between;
   margin-top: auto;
   padding-top: 6px;
-  border-top: 1px solid #F1F5F9;
+  border-top: 1px solid var(--border-subtle);
 }
 
 .costumeLvlTag {
@@ -497,12 +497,12 @@
 }
 
 .equipActionBtnActive {
-  background: #FEE2E2;
-  color: #DC2626;
+  background: var(--tint-danger);
+  color: var(--danger-text);
 }
 
 .equipActionBtnPassive {
-  background: #FFF1ED;
+  background: var(--tint-primary);
   color: #EA580C;
 }
 
@@ -520,7 +520,7 @@
 
 .xpBarTrack {
   height: 8px;
-  background: #E2E8F0;
+  background: var(--bg-muted);
   border-radius: 9999px;
   overflow: hidden;
 }
@@ -540,27 +540,27 @@
 }
 
 .roadmapItem {
-  border: 1.5px solid #E2E8F0;
+  border: 1.5px solid var(--border-medium);
   border-radius: 14px;
   padding: 12px;
-  background: #FFFFFF;
+  background: var(--bg-card);
   transition: all 0.2s;
 }
 
 .roadmapItemDone {
   border-color: #86EFAC;
-  background: #F0FDF4;
+  background: var(--tint-success);
 }
 
 .roadmapItemActive {
   border-color: #FF6B4A;
-  background: #FFF9F6;
+  background: var(--tint-primary);
   box-shadow: 0 4px 12px rgba(255, 107, 74, 0.12);
 }
 
 .roadmapItemLocked {
-  border-color: #E2E8F0;
-  background: #F8FAFC;
+  border-color: var(--border-medium);
+  background: var(--bg-secondary);
   opacity: 0.85;
 }
 
@@ -616,8 +616,8 @@
   align-items: center;
   gap: 4px;
   padding: 4px 8px;
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-medium);
   border-radius: 8px;
   font-size: 0.6875rem;
   font-weight: 600;
@@ -625,13 +625,13 @@
 }
 
 .rewardChipUnlocked {
-  border-color: #CBD5E1;
+  border-color: var(--border-strong);
 }
 
 .rewardChipEquipped {
-  background: #FFF1ED;
-  border-color: #FDBA74;
-  color: #C2410C;
+  background: var(--tint-primary);
+  border-color: var(--tint-primary-border);
+  color: var(--primary-text);
 }
 
 /* 5. Badges Grid */
@@ -646,8 +646,8 @@
   align-items: center;
   gap: 8px;
   padding: 8px 10px;
-  background: #F8FAFC;
-  border: 1px solid #E2E8F0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-medium);
   border-radius: 12px;
 }
 
@@ -750,7 +750,7 @@
   gap: 6px;
   font-size: 0.8125rem;
   font-weight: 800;
-  color: #92400E;
+  color: var(--warning-text);
 }
 
 .adminExclusiveTag {

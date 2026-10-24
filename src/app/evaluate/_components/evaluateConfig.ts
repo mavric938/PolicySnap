@@ -26,9 +26,9 @@ export const CRITERIA_CONFIGS: DimensionConfig[] = [
     sub: 'Target Terukur: Mengurangi salah sasaran subsidi hingga 40%.',
     icon: 'target',
     color: '#10B981',
-    bgLight: '#ECFDF5',
-    badgeBg: '#ECFDF5',
-    badgeText: '#047857',
+    bgLight: 'var(--tint-success)',
+    badgeBg: 'var(--tint-success)',
+    badgeText: 'var(--success-text)',
     getStatus: (v) => (v <= 3 ? 'Kurang Efektif' : v <= 6 ? 'Cukup Efektif' : v <= 8 ? 'Efektif' : 'Sangat Efektif'),
   },
   {
@@ -37,9 +37,9 @@ export const CRITERIA_CONFIGS: DimensionConfig[] = [
     sub: 'Alokasi Fiskal & Kemudahan Teknis Implementasi di lapangan.',
     icon: 'account_balance_wallet',
     color: '#F59E0B',
-    bgLight: '#FFFBEB',
-    badgeBg: '#FFFBEB',
-    badgeText: '#B45309',
+    bgLight: 'var(--tint-warning)',
+    badgeBg: 'var(--tint-warning)',
+    badgeText: 'var(--warning-text)',
     getStatus: (v) => (v <= 3 ? 'Rawan Biaya' : v <= 6 ? 'Moderat' : v <= 8 ? 'Efisien' : 'Sangat Efisien'),
   },
   {
@@ -48,9 +48,9 @@ export const CRITERIA_CONFIGS: DimensionConfig[] = [
     sub: 'Distribusi Beban: Adilkah bagi pengemudi ojol & UMKM mikro?',
     icon: 'balance',
     color: '#F43F5E',
-    bgLight: '#FFF1F2',
-    badgeBg: '#FFF1F2',
-    badgeText: '#BE123C',
+    bgLight: 'var(--tint-danger)',
+    badgeBg: 'var(--tint-danger)',
+    badgeText: 'var(--danger-text)',
     getStatus: (v) => (v <= 3 ? 'Sangat Timpang' : v <= 6 ? 'Kurang Merata' : v <= 8 ? 'Cukup Adil' : 'Sangat Merata'),
   },
   {
@@ -59,18 +59,18 @@ export const CRITERIA_CONFIGS: DimensionConfig[] = [
     sub: 'Ketanggapan terhadap aspirasi publik dan inflasi bahan pokok.',
     icon: 'forum',
     color: '#0EA5E9',
-    bgLight: '#F0F9FF',
-    badgeBg: '#F0F9FF',
-    badgeText: '#0369A1',
+    bgLight: 'var(--tint-info)',
+    badgeBg: 'var(--tint-info)',
+    badgeText: 'var(--info-text)',
     getStatus: (v) => (v <= 3 ? 'Kurang Responsif' : v <= 6 ? 'Cukup Responsif' : v <= 8 ? 'Cepat Tanggap' : 'Sangat Adaptif'),
   },
 ];
 
 export const STANCE_BUTTONS = [
-  { value: 'Dukung Penuh', label: 'Dukung Penuh', color: '#10B981', bg: '#ECFDF5', text: '#047857' },
-  { value: 'Dukung Bersyarat', label: 'Dukung Bersyarat', color: '#FF6B4A', bg: '#FFF1ED', text: '#FF6B4A' },
-  { value: 'Netral', label: 'Netral', color: '#6B7280', bg: '#F3F4F6', text: '#4B5563' },
-  { value: 'Tolak Kebijakan', label: 'Tolak Kebijakan', color: '#F43F5E', bg: '#FFF1F2', text: '#BE123C' },
+  { value: 'Dukung Penuh', label: 'Dukung Penuh', color: '#10B981', bg: 'var(--tint-success)', text: 'var(--success-text)' },
+  { value: 'Dukung Bersyarat', label: 'Dukung Bersyarat', color: '#FF6B4A', bg: 'var(--tint-primary)', text: '#FF6B4A' },
+  { value: 'Netral', label: 'Netral', color: '#6B7280', bg: 'var(--bg-subtle)', text: 'var(--text-body)' },
+  { value: 'Tolak Kebijakan', label: 'Tolak Kebijakan', color: '#F43F5E', bg: 'var(--tint-danger)', text: 'var(--danger-text)' },
 ];
 
 export function getCategoryIcon(cat?: string): string {

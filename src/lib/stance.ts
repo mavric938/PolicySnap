@@ -26,9 +26,9 @@ export function matchesStanceFilter(stance: string, filter: StanceFilter): boole
 }
 
 const STANCE_BADGE_STYLES: Record<StanceGroup, { background: string; color: string; border: string }> = {
-  support: { background: '#ECFDF5', color: '#047857', border: '1px solid #D1FAE5' },
-  conditional: { background: '#FFFBEB', color: '#B45309', border: '1px solid #FDE68A' },
-  reject: { background: '#FFF1F2', color: '#BE123C', border: '1px solid #FFE4E6' },
+  support: { background: 'var(--tint-success)', color: 'var(--success-text)', border: '1px solid var(--tint-success-border)' },
+  conditional: { background: 'var(--tint-warning)', color: 'var(--warning-text)', border: '1px solid var(--tint-warning-border)' },
+  reject: { background: 'var(--tint-danger)', color: 'var(--danger-text)', border: '1px solid var(--tint-danger-border)' },
 };
 
 export function getStanceBadgeStyle(stance: string) {

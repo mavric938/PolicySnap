@@ -11,6 +11,8 @@ import CatAvatar from './CatAvatar';
 import CatVisualIcon from './CatVisualIcon';
 import Icon from './Icon';
 import styles from './CatCreatorModal.module.css';
+import { pressable } from '@/lib/a11y';
+import { useEscapeKey } from '@/hooks/useEscapeKey';
 
 interface CatCreatorModalProps {
   isOpen: boolean;
@@ -92,6 +94,9 @@ export default function CatCreatorModal({
   const [bellyColor, setBellyColor] = useState(initialProfile.bellyColor || '#FFEDD5');
   const [eyeColor, setEyeColor] = useState(initialProfile.eyeColor || '#10B981');
 
+  // Onboarding pertama tidak bisa ditutup (sama seperti klik backdrop)
+  useEscapeKey(onClose, isOpen && !isFirstTime);
+
   if (!isOpen) return null;
 
   const currentPreview: CatProfile = {
@@ -135,7 +140,13 @@ export default function CatCreatorModal({
 
   return (
     <div className={styles.backdrop} onClick={isFirstTime ? undefined : onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+      <div
+        className={styles.modal}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Kustomisasi karakter kucing"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className={styles.header}>
           <div className={styles.titleGroup}>
@@ -212,7 +223,7 @@ export default function CatCreatorModal({
             <div className={styles.genderRow}>
               <div
                 className={`${styles.genderCard} ${gender === 'male' ? styles.genderCardActive : ''}`}
-                onClick={() => setGender('male')}
+                {...pressable(() => setGender('male'), { pressed: gender === 'male' })}
               >
                 <span className={styles.genderIcon}>♂️</span>
                 <div className={styles.genderText}>
@@ -223,7 +234,7 @@ export default function CatCreatorModal({
 
               <div
                 className={`${styles.genderCard} ${gender === 'female' ? styles.genderCardActive : ''}`}
-                onClick={() => setGender('female')}
+                {...pressable(() => setGender('female'), { pressed: gender === 'female' })}
               >
                 <span className={styles.genderIcon}>♀️</span>
                 <div className={styles.genderText}>
@@ -246,7 +257,7 @@ export default function CatCreatorModal({
                 <div
                   key={b.id}
                   className={`${styles.breedCard} ${breed === b.id ? styles.breedCardActive : ''}`}
-                  onClick={() => setBreed(b.id)}
+                  {...pressable(() => setBreed(b.id), { pressed: breed === b.id })}
                 >
                   <span className={styles.breedTag}>{b.tagline}</span>
                   <div style={{ display: 'flex', justifyContent: 'center', margin: '4px 0' }}>
@@ -267,7 +278,7 @@ export default function CatCreatorModal({
             </div>
             <div className={styles.presetGrid}>
               {PRESETS.map((p, idx) => (
-                <div key={idx} className={styles.presetCard} onClick={() => handleApplyPreset(p)}>
+                <div key={idx} className={styles.presetCard} {...pressable(() => handleApplyPreset(p))}>
                   <div
                     className={styles.presetDot}
                     style={{

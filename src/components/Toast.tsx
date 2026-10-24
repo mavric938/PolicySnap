@@ -39,6 +39,8 @@ export default function Toast({ message, type = 'info', duration = 3000, onClose
 
   return (
     <div
+      role={type === 'error' ? 'alert' : 'status'}
+      aria-live={type === 'error' ? 'assertive' : 'polite'}
       style={{
         position: 'fixed',
         bottom: 90,

@@ -6,6 +6,7 @@ import Icon from '@/components/Icon';
 import { useAuth } from '@/presentation/hooks/useAuth';
 import GoogleLoginButton from '@/presentation/components/GoogleLoginButton';
 import styles from './page.module.css';
+import { useEscapeKey } from '@/hooks/useEscapeKey';
 
 export default function LandingPage() {
   const router = useRouter();
@@ -28,6 +29,7 @@ export default function LandingPage() {
   const [showGuestModal, setShowGuestModal] = useState(false);
   const [guestInputName, setGuestInputName] = useState('');
   const [guestInputError, setGuestInputError] = useState('');
+  useEscapeKey(() => !isSubmitting && setShowGuestModal(false), showGuestModal);
 
   // If already authenticated and not intentional landing, redirect
   useEffect(() => {
@@ -231,11 +233,12 @@ export default function LandingPage() {
         {authMode === 'register' && (
           <form className={styles.emailForm} onSubmit={handleRegister}>
             <div className={styles.formGroup}>
-              <label className={styles.label}>
+              <label htmlFor="register-name" className={styles.label}>
                 <Icon name="badge" size={15} />
                 Nama Lengkap Anda
               </label>
               <input
+                id="register-name"
                 type="text"
                 className={styles.formInput}
                 placeholder="cth: Andi Prasetyo"
@@ -246,11 +249,12 @@ export default function LandingPage() {
             </div>
 
             <div className={styles.formGroup}>
-              <label className={styles.label}>
+              <label htmlFor="register-email" className={styles.label}>
                 <Icon name="email" size={15} />
                 Alamat Email Valid
               </label>
               <input
+                id="register-email"
                 type="email"
                 className={styles.formInput}
                 placeholder="nama@email.com"
@@ -261,12 +265,13 @@ export default function LandingPage() {
             </div>
 
             <div className={styles.formGroup}>
-              <label className={styles.label}>
+              <label htmlFor="register-password" className={styles.label}>
                 <Icon name="lock" size={15} />
                 Kata Sandi Akun
               </label>
               <div className={styles.passwordWrapper}>
                 <input
+                  id="register-password"
                   type={showPassword ? 'text' : 'password'}
                   className={styles.formInput}
                   placeholder="Minimal 6 karakter"
@@ -279,6 +284,8 @@ export default function LandingPage() {
                   type="button"
                   className={styles.visibilityToggle}
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+                  aria-pressed={showPassword}
                 >
                   <Icon name={showPassword ? 'visibility_off' : 'visibility'} size={18} />
                 </button>
@@ -301,11 +308,12 @@ export default function LandingPage() {
         {authMode === 'login' && (
           <form className={styles.emailForm} onSubmit={handleLogin}>
             <div className={styles.formGroup}>
-              <label className={styles.label}>
+              <label htmlFor="login-email" className={styles.label}>
                 <Icon name="email" size={15} />
                 Email Pengguna
               </label>
               <input
+                id="login-email"
                 type="email"
                 className={styles.formInput}
                 placeholder="nama@email.com"
@@ -317,7 +325,7 @@ export default function LandingPage() {
 
             <div className={styles.formGroup}>
               <div className={styles.passwordHeader}>
-                <label className={styles.label}>
+                <label htmlFor="login-password" className={styles.label}>
                   <Icon name="lock" size={15} />
                   Kata Sandi
                 </label>
@@ -327,6 +335,7 @@ export default function LandingPage() {
               </div>
               <div className={styles.passwordWrapper}>
                 <input
+                  id="login-password"
                   type={showPassword ? 'text' : 'password'}
                   className={styles.formInput}
                   placeholder="••••••••"
@@ -338,6 +347,8 @@ export default function LandingPage() {
                   type="button"
                   className={styles.visibilityToggle}
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+                  aria-pressed={showPassword}
                 >
                   <Icon name={showPassword ? 'visibility_off' : 'visibility'} size={18} />
                 </button>
@@ -399,7 +410,13 @@ export default function LandingPage() {
       {/* Modal Input Nama Tamu Wajib */}
       {showGuestModal && (
         <div className={styles.modalOverlay} onClick={() => !isSubmitting && setShowGuestModal(false)}>
-          <div className={`${styles.modalCard} animate-scale-in`} onClick={(e) => e.stopPropagation()}>
+          <div
+            className={`${styles.modalCard} animate-scale-in`}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Masuk sebagai tamu"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className={styles.modalHeader}>
               <div className={styles.modalIconBox}>
                 <Icon name="badge" size={24} style={{ color: 'var(--primary-coral)' }} />
@@ -421,11 +438,12 @@ export default function LandingPage() {
 
             <form onSubmit={handleConfirmGuest}>
               <div className={styles.formGroup} style={{ textAlign: 'left', marginBottom: '1.25rem' }}>
-                <label className={styles.label}>
+                <label htmlFor="guest-name" className={styles.label}>
                   <Icon name="person" size={15} />
                   Nama / Nama Panggilan Anda
                 </label>
                 <input
+                  id="guest-name"
                   type="text"
                   className={styles.formInput}
                   placeholder="cth: Yogi, Rian, Amanda..."

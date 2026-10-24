@@ -201,7 +201,7 @@ function ShareContent() {
 
       {/* 9:16 Card Container */}
       <div className={styles.cardContainer}>
-        <div className={`${styles.reportCard} animate-fade-in`} ref={cardRef} id="report-card">
+        <div className={`${styles.reportCard} theme-light animate-fade-in`} ref={cardRef} id="report-card">
           <div className={styles.cardGlow1} />
           <div className={styles.cardGlow2} />
 

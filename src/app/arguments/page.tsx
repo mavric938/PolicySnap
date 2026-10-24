@@ -261,7 +261,7 @@ function ArgumentsContent() {
                       style={{
                         overflow: 'hidden',
                         padding: 0,
-                        background: '#FFF1ED',
+                        background: 'var(--tint-primary)',
                         border: '2px solid #FF6B4A',
                         display: 'flex',
                         alignItems: 'center',
@@ -300,6 +300,7 @@ function ArgumentsContent() {
                   <button
                     className={`${styles.voteBtn} ${arg.userVote === 'up' ? styles.voteBtnUpActive : ''}`}
                     onClick={() => handleVote(arg.id, 'up')}
+                    aria-pressed={arg.userVote === 'up'}
                     aria-label="Upvote"
                   >
                     <Icon name="thumb_up" size={15} />
@@ -308,6 +309,7 @@ function ArgumentsContent() {
                   <button
                     className={`${styles.voteBtn} ${arg.userVote === 'down' ? styles.voteBtnDownActive : ''}`}
                     onClick={() => handleVote(arg.id, 'down')}
+                    aria-pressed={arg.userVote === 'down'}
                     aria-label="Downvote"
                   >
                     <Icon name="thumb_down" size={15} />
@@ -336,7 +338,7 @@ export default function ArgumentsPage() {
     <Suspense
       fallback={
         <div className="page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100dvh' }}>
-          <div className="spinner" style={{ width: 40, height: 40, border: '3px solid #E5E7EB', borderTopColor: 'var(--primary-coral)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+          <div className="spinner" style={{ width: 40, height: 40, border: '3px solid var(--border-medium)', borderTopColor: 'var(--primary-coral)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
         </div>
       }
     >

@@ -18,6 +18,7 @@ import SoundToggle from '@/components/SoundToggle';
 import styles from './home.module.css';
 import { useAuth } from '@/presentation/hooks/useAuth';
 import UserAuthBadge from '@/presentation/components/UserAuthBadge';
+import { pressable } from '@/lib/a11y';
 
 function formatIssueDate(dateStr: string): string {
   if (!dateStr) return '';
@@ -195,7 +196,7 @@ export default function HomePage() {
                     height: 34,
                     borderRadius: '50%',
                     overflow: 'hidden',
-                    background: '#FFF1ED',
+                    background: 'var(--tint-primary)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -234,7 +235,7 @@ export default function HomePage() {
         <div className={`${styles.notifBanner} animate-slide-up`} id="push-notif-banner">
           <div className={styles.notifLeft}>
             <div className={styles.notifIconBox}>
-              <Icon name="notifications_active" size={20} style={{ color: '#D97706' }} />
+              <Icon name="notifications_active" size={20} style={{ color: 'var(--warning-text)' }} />
             </div>
             <div>
               <h4 className={styles.notifTitle}>Aktifkan Notifikasi Kebijakan?</h4>
@@ -291,9 +292,9 @@ export default function HomePage() {
             <article
               key={issue.id}
               className={styles.issueCard}
-              onClick={() => {
+              {...pressable(() => {
                 router.push(`/evaluate?issue=${issue.id}`);
-              }}
+              })}
               id={`issue-card-${issue.id}`}
             >
               {/* 1. Header Badges: Aktif Menilai (green pulse) + Kategori + Tanggal */}
@@ -388,7 +389,7 @@ export default function HomePage() {
 
                 {evaluatedMap[issue.id] ? (
                   <div className={styles.evaluatedCta}>
-                    <Icon name="check_circle" size={15} style={{ color: '#059669' }} />
+                    <Icon name="check_circle" size={15} style={{ color: 'var(--success-text)' }} />
                     <span>Lihat Evaluasi →</span>
                   </div>
                 ) : (

@@ -61,9 +61,9 @@
   gap: 0.375rem;
   padding: 0.25rem 0.625rem;
   border-radius: var(--radius-full);
-  background: #ECFDF5;
-  border: 1px solid #D1FAE5;
-  color: #047857;
+  background: var(--tint-success);
+  border: 1px solid var(--tint-success-border);
+  color: var(--success-text);
   font-size: 0.6875rem;
   font-weight: 800;
   letter-spacing: 0.05em;
@@ -98,9 +98,9 @@
   gap: 0.375rem;
   padding: 0.25rem 0.625rem;
   border-radius: var(--radius-full);
-  background: #F0F9FF;
-  border: 1px solid #E0F2FE;
-  color: #0369A1;
+  background: var(--tint-info);
+  border: 1px solid var(--tint-info-border);
+  color: var(--info-text);
   font-size: 0.6875rem;
   font-weight: 600;
 }
@@ -123,7 +123,7 @@
 }
 
 .policyRef {
-  background: #FFF1ED;
+  background: var(--tint-primary);
   color: var(--primary-coral);
   font-weight: 700;
   padding: 0.125rem 0.5rem;
@@ -179,7 +179,7 @@
   gap: 0.375rem;
   padding: 0.375rem 0.75rem;
   border-radius: var(--radius-full);
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--bg-glass);
   backdrop-filter: blur(8px);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   font-size: 0.6875rem;
@@ -237,7 +237,7 @@
   font-weight: 700;
   padding: 0.125rem 0.5rem;
   border-radius: var(--radius-sm);
-  background: #F1F3F5;
+  background: var(--bg-subtle);
   color: var(--text-secondary);
 }
 
@@ -342,7 +342,7 @@
   -webkit-appearance: none;
   outline: none;
   cursor: pointer;
-  background: #E5E7EB;
+  background: var(--bg-muted);
 }
 
 .rangeInput::-webkit-slider-thumb {
@@ -351,7 +351,7 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #FFFFFF;
+  background: var(--bg-card);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   border: 3px solid currentColor;
   cursor: grab;
@@ -367,7 +367,7 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #FFFFFF;
+  background: var(--bg-card);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   border: 3px solid currentColor;
   cursor: grab;
@@ -375,8 +375,8 @@
 
 /* Personal Composite Score Card */
 .compositeScoreCard {
-  background: linear-gradient(135deg, #FFF7ED 0%, #FFF1F2 100%);
-  border: 1px solid #FFEDD5;
+  background: linear-gradient(135deg, var(--tint-primary) 0%, var(--tint-danger) 100%);
+  border: 1px solid var(--tint-primary-border);
   border-radius: var(--radius-xl);
   padding: 1rem 1.125rem;
   display: flex;
@@ -414,7 +414,7 @@
 .compositeVerdict {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #C2410C;
+  color: var(--primary-text);
 }
 
 .compositeRight {
@@ -451,7 +451,7 @@
   width: 88%;
   height: 235px;
   border-radius: var(--radius-2xl);
-  background: #F1F3F5;
+  background: var(--bg-subtle);
   border: 1px solid var(--border-card);
   opacity: 0.5;
   transform: scale(0.90) translateY(12px);
@@ -465,7 +465,7 @@
   width: 94%;
   height: 235px;
   border-radius: var(--radius-2xl);
-  background: #F8FAFC;
+  background: var(--bg-secondary);
   border: 1px solid var(--border-card);
   opacity: 0.85;
   transform: scale(0.95) translateY(6px);
@@ -482,7 +482,7 @@
   z-index: 5;
   width: 100%;
   min-height: 245px;
-  background: #FFFFFF;
+  background: var(--bg-card);
   border: 1px solid var(--border-card);
   border-radius: var(--radius-2xl);
   padding: 1.125rem;
@@ -538,7 +538,7 @@
   width: 48px;
   height: 48px;
   border-radius: var(--radius-xl);
-  background: #F8FAFC;
+  background: var(--bg-secondary);
   border: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
@@ -570,7 +570,7 @@
   gap: 0.25rem;
   font-size: 0.6875rem;
   font-weight: 600;
-  color: #C2410C;
+  color: var(--primary-text);
   margin-top: 2px;
 }
 
@@ -602,7 +602,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  color: #E11D48;
+  color: var(--danger-text);
   font-weight: 700;
 }
 
@@ -631,9 +631,9 @@
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: #FFF1F2;
-  border: 1px solid #FECDD3;
-  color: #E11D48;
+  background: var(--tint-danger);
+  border: 1px solid var(--tint-danger-border);
+  color: var(--danger-text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -650,8 +650,8 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: #F1F3F5;
-  border: 1px solid #E5E7EB;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-medium);
   color: var(--text-secondary);
   display: flex;
   align-items: center;
@@ -669,9 +669,9 @@
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: #ECFDF5;
-  border: 1px solid #A7F3D0;
-  color: #059669;
+  background: var(--tint-success);
+  border: 1px solid var(--tint-success-border);
+  color: var(--success-text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -708,7 +708,7 @@
 }
 
 .stanceOptionBtnActive {
-  background: #FFF1ED;
+  background: var(--tint-primary);
   border-color: rgba(255, 107, 74, 0.5);
   color: var(--primary-coral);
   box-shadow: 0 2px 8px rgba(255, 107, 74, 0.12);
@@ -747,7 +747,7 @@
   font-size: 0.6875rem;
   padding: 0.125rem 0.5rem;
   border-radius: 6px;
-  background: #F1F3F5;
+  background: var(--bg-subtle);
   color: var(--text-secondary);
 }
 
@@ -767,7 +767,7 @@
 
 .argumentTextarea:focus {
   outline: none;
-  background: #FFFFFF;
+  background: var(--bg-card);
   border-color: var(--primary-coral);
   box-shadow: 0 0 0 3px rgba(255, 107, 74, 0.15);
 }
@@ -778,7 +778,7 @@
   gap: 0.625rem;
   padding: 0.75rem 0.875rem;
   border-radius: var(--radius-xl);
-  background: #FFFBEB;
+  background: var(--tint-warning);
   border: 1px solid #FEF3C7;
   color: #78350F;
   font-size: 0.6875rem;
@@ -845,7 +845,7 @@
 .modalContent {
   width: 100%;
   max-width: 360px;
-  background: #FFFFFF;
+  background: var(--bg-card);
   border: 1px solid var(--border-card);
   border-radius: var(--radius-2xl);
   padding: 1.75rem 1.5rem;
@@ -861,8 +861,8 @@
   width: 64px;
   height: 64px;
   border-radius: var(--radius-2xl);
-  background: #FFF1ED;
-  border: 1px solid #FFEDD5;
+  background: var(--tint-primary);
+  border: 1px solid var(--tint-primary-border);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -903,9 +903,8 @@
 
 .evalTopHeader {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: 0.625rem;
   padding: 0.25rem 0;
 }
 
@@ -933,7 +932,11 @@
 .evalControlsRow {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 0.5rem;
+  /* Toolbar di atas judul: judul mendapat lebar penuh di layar 375px (tidak lagi 3 baris) */
+  order: -1;
+  white-space: nowrap;
 }
 
 .evalCardsList {
@@ -943,7 +946,7 @@
 }
 
 .evalItemCard {
-  background: #FFFFFF;
+  background: var(--bg-card);
   border: 1px solid var(--border-card);
   border-radius: var(--radius-xl);
   padding: 1.125rem;
@@ -970,9 +973,9 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: #F1F5F9;
-  border: 1px solid #E2E8F0;
-  color: #475569;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-medium);
+  color: var(--text-body);
   font-size: 0.6875rem;
   font-weight: 700;
   padding: 2px 8px;
@@ -981,7 +984,7 @@
 
 .evalDateBadge {
   font-size: 0.6875rem;
-  color: #94A3B8;
+  color: var(--text-muted);
   font-family: var(--font-mono);
 }
 
@@ -998,8 +1001,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.5rem 0.75rem;
-  background: #F8FAFC;
-  border: 1px solid #E2E8F0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-medium);
   border-radius: var(--radius-lg);
 }
 
@@ -1061,8 +1064,8 @@
   gap: 4px;
   padding: 7px 10px;
   border-radius: 8px;
-  border: 1px solid #E2E8F0;
-  background: #FFFFFF;
+  border: 1px solid var(--border-medium);
+  background: var(--bg-card);
   color: var(--text-main);
   font-size: 0.75rem;
   font-weight: 700;
@@ -1071,8 +1074,8 @@
 }
 
 .evalActionBtn:hover {
-  background: #F8FAFC;
-  border-color: #CBD5E1;
+  background: var(--bg-secondary);
+  border-color: var(--border-strong);
   color: var(--primary-coral);
 }
 
@@ -1090,8 +1093,8 @@
 
 /* Empty State */
 .evalEmptyCard {
-  background: #FFFFFF;
-  border: 1px dashed #CBD5E1;
+  background: var(--bg-card);
+  border: 1px dashed var(--border-strong);
   border-radius: var(--radius-2xl);
   padding: 2.5rem 1.5rem;
   display: flex;
@@ -1105,7 +1108,7 @@
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: #FFF1ED;
+  background: var(--tint-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1133,7 +1136,7 @@
   max-width: 440px;
   max-height: 85vh;
   overflow-y: auto;
-  background: #FFFFFF;
+  background: var(--bg-card);
   border: 1px solid var(--border-card);
   border-radius: var(--radius-2xl);
   padding: 1.5rem;

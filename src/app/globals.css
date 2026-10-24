@@ -1,7 +1,4 @@
 /* ===== PolicySnap Design System (Stitch: Warm Tactile Minimal) ===== */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
-
 /* ===== CSS Variables ===== */
 :root {
   /* Stitch Warm Tactile Minimal Palette */
@@ -42,11 +39,38 @@
   --text-secondary: #6B7280;
   --text-muted: #9CA3AF;
   --text-accent: #FF6B4A;
+  --text-body: #475569;
+
+  /* Surfaces tambahan */
+  --bg-subtle: #F1F5F9;
+  --bg-muted: #E2E8F0;
+  --hover-overlay: rgba(0, 0, 0, 0.04);
+
+  /* Tint (latar pastel status) + border & teks pasangannya */
+  --tint-primary: #FFF1ED;
+  --tint-primary-border: #FED7AA;
+  --tint-success: #ECFDF5;
+  --tint-success-border: #A7F3D0;
+  --tint-danger: #FFF1F2;
+  --tint-danger-border: #FECDD3;
+  --tint-warning: #FFFBEB;
+  --tint-warning-border: #FDE68A;
+  --tint-info: #EFF6FF;
+  --tint-info-border: #BFDBFE;
+  --tint-violet: #EDE9FE;
+  --tint-violet-border: #DDD6FE;
+  --primary-text: #C2410C;
+  --success-text: #047857;
+  --danger-text: #BE123C;
+  --warning-text: #B45309;
+  --info-text: #1D4ED8;
+  --violet-text: #6D28D9;
 
   /* Borders */
   --border-card: #EAECEF;
   --border-subtle: #F1F3F5;
   --border-medium: #E2E8F0;
+  --border-strong: #CBD5E1;
   --border-active: #FF6B4A;
 
   /* Gradients */
@@ -87,14 +111,108 @@
   --transition-spring: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* Typography */
-  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: var(--font-plus-jakarta), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+
+  /* Alias untuk nama token yang dipakai CSS module tapi dulu tidak pernah didefinisikan
+     (akibatnya latar/border transparan, toast "info" tanpa warna) */
+  --surface-card: var(--bg-card);
+  --surface-soft: var(--bg-secondary);
+  --bg-page: var(--bg-primary);
+  --border-color: var(--border-card);
+  --border-input: var(--border-card);
+  --primary-500: var(--primary);
+  --radius-3xl: 32px;
 
   /* Layout */
   --max-width: 600px;
   --header-height: 64px;
   --bottom-nav-height: 76px;
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ===== Dark Mode =====
+   Hanya token yang berubah; komponen memakai var(--...) sehingga otomatis ikut. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --primary-container: rgba(255, 107, 74, 0.14);
+
+    --bg-primary: #0F1115;
+    --bg-ground: #0F1115;
+    --bg-surface: #181B22;
+    --bg-card: #181B22;
+    --bg-card-hover: #1E222B;
+    --bg-secondary: #1A1E26;
+    --bg-elevated: #1E222B;
+    --bg-subtle: #222733;
+    --bg-muted: #2A303C;
+    --bg-glass: rgba(24, 27, 34, 0.92);
+    --bg-glass-light: rgba(255, 107, 74, 0.12);
+    --hover-overlay: rgba(255, 255, 255, 0.06);
+    --gradient-card: #181B22;
+
+    --text-main: #F1F5F9;
+    --text-primary: #F1F5F9;
+    --text-body: #CBD5E1;
+    --text-secondary: #A3ADBD;
+    --text-muted: #7C8698;
+
+    --border-card: #2A2F3A;
+    --border-subtle: #232833;
+    --border-medium: #313745;
+    --border-strong: #434B5C;
+
+    --tint-primary: rgba(255, 107, 74, 0.14);
+    --tint-primary-border: rgba(255, 107, 74, 0.35);
+    --tint-success: rgba(16, 185, 129, 0.14);
+    --tint-success-border: rgba(16, 185, 129, 0.35);
+    --tint-danger: rgba(244, 63, 94, 0.14);
+    --tint-danger-border: rgba(244, 63, 94, 0.35);
+    --tint-warning: rgba(245, 158, 11, 0.14);
+    --tint-warning-border: rgba(245, 158, 11, 0.35);
+    --tint-info: rgba(59, 130, 246, 0.16);
+    --tint-info-border: rgba(59, 130, 246, 0.38);
+    --tint-violet: rgba(139, 92, 246, 0.16);
+    --tint-violet-border: rgba(139, 92, 246, 0.38);
+    --primary-text: #FF9A7D;
+    --success-text: #34D399;
+    --danger-text: #FB7185;
+    --warning-text: #FBBF24;
+    --info-text: #60A5FA;
+    --violet-text: #A78BFA;
+
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
+    --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.45);
+    --shadow-soft-card: 0 4px 20px -2px rgba(0, 0, 0, 0.35), 0 2px 6px -1px rgba(0, 0, 0, 0.2);
+    --shadow-dock: 0 12px 36px -4px rgba(0, 0, 0, 0.55), 0 4px 12px -2px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Paksa tema terang di dalam elemen tertentu (mis. kartu raport 9:16 yang diekspor jadi gambar) */
+.theme-light {
+  color-scheme: light;
+  color: var(--text-main);
+  --primary-container: #FFF1ED;
+  --bg-card: #FFFFFF;
+  --bg-surface: #FFFFFF;
+  --bg-secondary: #F8FAFC;
+  --bg-subtle: #F1F5F9;
+  --bg-muted: #E2E8F0;
+  --text-main: #111827;
+  --text-primary: #111827;
+  --text-body: #475569;
+  --text-secondary: #6B7280;
+  --text-muted: #9CA3AF;
+  --border-card: #EAECEF;
+  --border-subtle: #F1F3F5;
+  --border-medium: #E2E8F0;
+  --border-strong: #CBD5E1;
+  --surface-card: var(--bg-card);
+  --surface-soft: var(--bg-secondary);
+  --border-color: var(--border-card);
 }
 
 /* ===== Reset & Base ===== */
@@ -133,26 +251,15 @@ main {
   min-height: 100dvh;
 }
 
+/* ===== Fokus keyboard ===== */
+:focus-visible {
+  outline: 2px solid var(--primary-coral);
+  outline-offset: 2px;
+}
+
 /* ===== Scrollbar ===== */
 ::-webkit-scrollbar {
   display: none;
-}
-
-/* ===== Material Symbols ===== */
-.material-symbols-outlined {
-  font-family: 'Material Symbols Outlined';
-  font-weight: normal;
-  font-style: normal;
-  font-size: 20px;
-  line-height: 1;
-  letter-spacing: normal;
-  text-transform: none;
-  display: inline-block;
-  white-space: nowrap;
-  word-wrap: normal;
-  direction: ltr;
-  -webkit-font-feature-settings: 'liga';
-  -webkit-font-smoothing: antialiased;
 }
 
 /* ===== Utility Classes ===== */
@@ -219,14 +326,14 @@ main {
 }
 
 .btn-secondary {
-  background: #FFFFFF;
+  background: var(--bg-card);
   color: var(--text-main);
   border: 1px solid var(--border-card);
   box-shadow: var(--shadow-sm);
 }
 
 .btn-secondary:hover {
-  background: #F8FAFC;
+  background: var(--bg-secondary);
   border-color: var(--border-medium);
 }
 
@@ -238,12 +345,12 @@ main {
 
 .btn-ghost:hover {
   color: var(--text-main);
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--hover-overlay);
 }
 
 .btn-google {
-  background: #FFFFFF;
-  color: #111827;
+  background: var(--bg-card);
+  color: var(--text-main);
   font-weight: 700;
   padding: 14px 24px;
   border-radius: var(--radius-full);
@@ -254,7 +361,7 @@ main {
 
 .btn-google:hover {
   box-shadow: var(--shadow-md);
-  background: #FAFBFC;
+  background: var(--bg-card-hover);
 }
 
 .btn-full {
@@ -276,65 +383,65 @@ main {
 /* 7 Strata Gamifikasi Ranks */
 .badge-rank-1,
 .badge-bronze {
-  background: #FFFBEB;
-  color: #B45309;
-  border: 1px solid #FDE68A;
+  background: var(--tint-warning);
+  color: var(--warning-text);
+  border: 1px solid var(--tint-warning-border);
 }
 
 .badge-rank-2,
 .badge-silver {
-  background: #F1F5F9;
-  color: #475569;
-  border: 1px solid #CBD5E1;
+  background: var(--bg-subtle);
+  color: var(--text-body);
+  border: 1px solid var(--border-strong);
 }
 
 .badge-rank-3,
 .badge-gold {
-  background: #FEF3C7;
-  color: #D97706;
-  border: 1px solid #FCD34D;
+  background: var(--tint-warning);
+  color: var(--warning-text);
+  border: 1px solid var(--tint-warning-border);
   box-shadow: 0 0 8px rgba(245, 158, 11, 0.15);
 }
 
 .badge-rank-4 {
-  background: #FFF7ED;
-  color: #C2410C;
-  border: 1px solid #FFEDD5;
+  background: var(--tint-primary);
+  color: var(--primary-text);
+  border: 1px solid var(--tint-primary-border);
   box-shadow: 0 0 8px rgba(234, 88, 12, 0.15);
 }
 
 .badge-rank-5 {
-  background: #EFF6FF;
-  color: #1D4ED8;
-  border: 1px solid #BFDBFE;
+  background: var(--tint-info);
+  color: var(--info-text);
+  border: 1px solid var(--tint-info-border);
   box-shadow: 0 0 10px rgba(37, 99, 235, 0.2);
 }
 
 .badge-rank-6,
 .badge-platinum {
-  background: #EDE9FE;
-  color: #7C3AED;
-  border: 1px solid #DDD6FE;
+  background: var(--tint-violet);
+  color: var(--violet-text);
+  border: 1px solid var(--tint-violet-border);
   box-shadow: 0 0 12px rgba(124, 58, 237, 0.25);
 }
 
 .badge-rank-7 {
-  background: linear-gradient(135deg, #FEF2F2, #FFFBEB);
-  color: #B91C1C;
-  border: 1px solid #FECACA;
+  background: linear-gradient(135deg, var(--tint-danger), var(--tint-warning));
+  color: var(--danger-text);
+  border: 1px solid var(--tint-danger-border);
   box-shadow: 0 0 14px rgba(220, 38, 38, 0.3);
 }
 
 .badge-active {
-  background: #ECFDF5;
-  color: #059669;
-  border: 1px solid #A7F3D0;
+  background: var(--tint-success);
+  color: var(--success-text);
+  border: 1px solid var(--tint-success-border);
 }
 
 .badge-closed {
-  background: #FFF1F2;
-  color: #E11D48;
-  border: 1px solid #FECDD3;
+  background: var(--tint-danger);
+  color: var(--danger-text);
+  border: 1px solid var(--tint-danger-border);
 }
 
 /* ===== Input Styles ===== */
@@ -343,7 +450,7 @@ main {
 .select {
   width: 100%;
   padding: 12px 16px;
-  background: #F8FAFC;
+  background: var(--bg-secondary);
   border: 1px solid var(--border-card);
   border-radius: var(--radius-md);
   color: var(--text-main);
@@ -355,7 +462,7 @@ main {
 .input:focus,
 .textarea:focus,
 .select:focus {
-  background: #FFFFFF;
+  background: var(--bg-card);
   border-color: var(--primary-coral);
   box-shadow: 0 0 0 3px rgba(255, 107, 74, 0.15);
   outline: none;
@@ -375,7 +482,7 @@ main {
 /* ===== Progress Bar ===== */
 .progress-bar {
   width: 100%;
-  background: #F1F5F9;
+  background: var(--bg-subtle);
   border-radius: var(--radius-full);
   overflow: hidden;
 }
@@ -389,6 +496,11 @@ main {
 
 /* ===== Toggle Switch ===== */
 .toggle {
+  /* Dipakai juga pada <button role="switch">: reset gaya bawaan tombol */
+  appearance: none;
+  border: none;
+  padding: 0;
+  flex-shrink: 0;
   position: relative;
   width: 48px;
   height: 28px;

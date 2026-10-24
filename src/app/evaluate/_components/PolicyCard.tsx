@@ -24,13 +24,13 @@ export default function PolicyCard({ issue }: { issue: PolicyIssue }) {
 
         {/* Policy Metadata & Source Row */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-          <span style={{ fontWeight: 700, color: 'var(--primary-coral)', background: '#FFF1ED', padding: '2px 8px', borderRadius: '6px' }}>
+          <span style={{ fontWeight: 700, color: 'var(--primary-coral)', background: 'var(--tint-primary)', padding: '2px 8px', borderRadius: '6px' }}>
             {issue.category || 'Regulasi'}
           </span>
           <span style={{ color: '#D1D5DB' }}>•</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600, color: 'var(--text-main)' }}>
             <span>{issue.actorTags?.[0] || 'Stakeholder Kunci'}</span>
-            <Icon name="verified" size={15} style={{ color: '#2563EB' }} />
+            <Icon name="verified" size={15} style={{ color: 'var(--info-text)' }} />
           </div>
           {issue.sourceUrl && (
             <>
@@ -39,7 +39,7 @@ export default function PolicyCard({ issue }: { issue: PolicyIssue }) {
                 href={issue.sourceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: '#2563EB', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px', fontWeight: 600 }}
+                style={{ color: 'var(--info-text)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px', fontWeight: 600 }}
               >
                 <span>Rujukan Resmi</span>
                 <Icon name="open_in_new" size={13} />
